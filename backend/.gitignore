@@ -1,0 +1,19 @@
+# Misc
+.DS_Store
+.fleet
+.idea
+
+db.sqlite3
+**/__pycache__
+*.pyc
+
+# Ignore everything in main/migrations except __init__.py
+main/migrations/*
+!main/migrations/__init__.py
+
+SECRETS.json
+apiclient_key.pem
+/cert
+
+media
+static

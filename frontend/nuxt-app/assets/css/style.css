@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Gloal Colors */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --clr-text: hsl(356, 100%, 97%);
+    --clr-text--muted: hsl(356, 6%, 40%);
+    --clr-background: hsl(356, 100%, 2%);
+    --clr-background--muted: hsl(356, 100%, 5%);
+
+    --clr-primary: hsl(353, 100%, 73%);
+    --clr-primary-dark: hsl(353, 100%, 68%);
+    --clr-primary-light: hsla(353, 100%, 80%, 0.65);
+    --clr-secondary: hsl(256, 72%, 65%);
+    --clr-secondary-dark: hsl(256, 72%, 60%);
+    --clr-secondary-light: hsla(256, 72%, 70%, 0.5);
+
+    --clr-accent: hsl(42, 100%, 60%);
+    --clr-accent-light: hsla(42, 100%, 60%, 0.8);
+
+    --clr-success: hsl(120, 84%, 35%);
+    --clr-danger: hsl(0, 87%, 44%);
+    --clr-failed: hsla(0, 0%, 99%, 0.277);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --clr-text: hsl(356, 100%, 2%);
+    --clr-text--muted: hsl(356, 6%, 65%);
+    --clr-background: hsl(356, 100%, 99.5%);
+    --clr-background--muted: hsl(356, 100%, 98%);
+
+    --clr-primary: hsl(353, 100%, 83%);
+    --clr-primary-dark: hsl(353, 100%, 78%);
+    --clr-primary-light: hsla(353, 100%, 90%, 0.5);
+    --clr-secondary: hsl(256, 72%, 75%);
+    --clr-secondary-dark: hsl(256, 72%, 70%);
+    --clr-secondary-light: hsla(256, 72%, 80%, 0.5);
+
+    --clr-accent: hsl(42, 100%, 50%);
+    --clr-accent-light: hsla(42, 100%, 50%, 0.8);
+
+    --clr-success: hsl(120, 88%, 41%);
+    --clr-danger: hsl(0, 85%, 49%);
+    --clr-failed: hsla(0, 0%, 58%, 0.279);
+  }
+}
+
+/* Global Settings */
+:root {
+  --height: 100vh;
+  --width: 100vw;
+  --max-width: calc(100vh * 7 / 11);
+  --transition: all 0.3s ease-in-out;
+}
+
+body {
+  background-color: var(--clr-background);
+  color: var(--clr-text);
+  font-family: var(--ff-primary);
+  font-size: var(--fs-primary);
+}
+
+.vf-li {
+  margin-left: 1.125rem;
+  text-indent: -0.25rem;
+  list-style-type: disc;
+}
+
+strong {
+  color: var(--clr-primary-dark);
+  font-weight: bold;
+  font-size: 1.025em;
+}
+
+.button-group {
+  display: flex;
+  margin: 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
+}
