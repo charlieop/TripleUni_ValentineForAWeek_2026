@@ -1,10 +1,11 @@
 from django.db import models
+from uuid import uuid4
 
 
 class WeChatInfo(models.Model):
     def generateUploadPath(self, filename: str) -> str:
         ext = filename.split(".")[-1]
-        modified_filename = "{}.{}".format(self.openid, ext)
+        modified_filename = "{}.{}".format(uuid4(), ext)
         return f"uploads/wechat-headimg/{modified_filename}"
 
     openid = models.CharField(max_length=50, primary_key=True, verbose_name="OpenID")

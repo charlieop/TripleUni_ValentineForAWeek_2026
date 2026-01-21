@@ -657,17 +657,29 @@ onMounted(() => {
 });
 
 async function handleSubmit(form: VueformInstance, formData: any) {
-    const data = form.data;
-    console.log("Form submitted with data:", data);
     form.submitting = true;
+    const data = form.data;
+    if (data.continue_match === null) {
+        data.continue_match = true;
+    }
 
     post("applicants/", data).then((res) => {
-        if (res.status === 410) {
+        if (res.ok) {
+            return res.json();
+        }
+        else if (res.status === 403) {
             alert("你已经退出了活动，无法再次报名");
             router.push("/");
             return;
         }
-        return res.json()
+        else {
+            res.json().then((errorData: any) => {
+                console.error(errorData);
+            });
+
+            alert(`报名失败, 遇到了${res.status}错误: ${res.statusText}`);
+            throw new Error(res.statusText);
+        }
     }).then((res) => {
         let data = res.data;
         if (data.paid) {
@@ -676,7 +688,9 @@ async function handleSubmit(form: VueformInstance, formData: any) {
             router.push("/payment");
         }
     }).catch((err) => {
-        console.error("Error:", err);
+        console.error(err);
+    }).finally(() => {
+        form.submitting = false;
     });
 }
 

@@ -5,6 +5,7 @@
       <div class="app">
         <NuxtPage />
       </div>
+      <LoadingOverlay />
     </UApp>
   </div>
 </template>

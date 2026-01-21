@@ -1,0 +1,131 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from django.db.models import Q
+
+from ..mixin import UtilMixin
+from ..models import Match, Task
+from ..serializers.match import MatchResultSerializer, MatchDetailSerializer
+
+class MatchResultDetailView(APIView, UtilMixin):
+    """View for GET and POST:/match-result/<matchID> - Get match result details or update status"""
+
+    def get(self, request):
+        token = self.get_token(request)
+        applicant = self.get_applicant_by_token(token)
+
+        match, user_role = self.get_match_by_applicant(applicant)
+
+        other_applicant = match.applicant1 if user_role == 2 else match.applicant2
+
+        # Prepare data for serializer
+        data = {
+            "match": match,
+            "other_applicant": other_applicant,
+            "user_role": user_role,
+        }
+
+        serializer = MatchResultSerializer(data)
+
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        token = self.get_token(request)
+        applicant = self.get_applicant_by_token(token)
+
+        match, user_role = self.get_match_by_applicant(applicant)
+
+        # Check if round is 1 (users can only set status if round is 1)
+        if match.round != 1:
+            raise ValidationError("Status can only be updated in round 1")
+
+        status_field = f"applicant{user_role}_status"
+        current_status = getattr(match, status_field)
+
+        # Check if user has already made a choice (cannot update once chosen)
+        if current_status != "P":
+            raise ValidationError(
+                "You have already made your choice and cannot update it"
+            )
+
+        # Get new status from request
+        new_status = request.data.get("status")
+        if new_status not in ["A", "R"]:
+            raise ValidationError(
+                "Status must be either 'A' (Accepted) or 'R' (Rejected)"
+            )
+
+        # Update the status
+        setattr(match, status_field, new_status)
+        match.save()
+
+        # If any applicant chooses R, set match as discarded
+        if new_status == "R":
+            match.discarded = True
+            match.discard_reason = f"嘉宾 { applicant.wechat_info.nickname } 拒绝了此轮匹配"
+            match.save()
+
+        return Response({"data": {"status": new_status}}, status=status.HTTP_200_OK)
+
+
+class MatchDetailView(APIView, UtilMixin):
+    """View for GET and POST:/match/<matchID> - Get match details with score or update match name"""
+
+    def get(self, request):
+        token = self.get_token(request)
+        applicant = self.get_applicant_by_token(token)
+
+        match, user_role = self.get_match_by_applicant(applicant)
+
+        self.assert_match_not_discarded(match)
+
+        user_applicant = match.applicant1 if user_role == 1 else match.applicant2
+        other_applicant = match.applicant2 if user_role == 1 else match.applicant1
+
+        # Calculate total score (sum of basic_score, bonus_score, daily_score of all tasks)
+        tasks = Task.objects.filter(match=match)
+        basic_complete = [False] * 7
+        for i in range(1, 8):
+            task = tasks.filter(day=i).first()
+            if task and task.basic_completed:
+                basic_complete[i - 1] = True
+        
+        total_score = sum(
+            task.basic_score + task.bonus_score + task.daily_score for task in tasks
+        )
+
+        # Prepare data for serializer
+        data = {
+            "match": match,
+            "user_applicant": user_applicant,
+            "other_applicant": other_applicant,
+            "total_score": total_score,
+            "basic_complete": basic_complete,
+        }
+
+        serializer = MatchDetailSerializer(data)
+
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        token = self.get_token(request)
+        applicant = self.get_applicant_by_token(token)
+
+        match, user_role = self.get_match_by_applicant(applicant)
+
+        self.assert_match_not_discarded(match)
+
+        # Get new name from request
+        new_name = request.data.get("name")
+        if not new_name:
+            raise ValidationError("Name is required")
+
+        if len(new_name) > 30:
+            raise ValidationError("Name must be 30 characters or less")
+
+        # Update the match name
+        match.name = new_name
+        match.save()
+
+        return Response({"data": {"name": match.name}}, status=status.HTTP_200_OK)

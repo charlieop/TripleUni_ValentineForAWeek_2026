@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from ..mixin import UtilMixin, Gone
+from ..mixin import UtilMixin
 from ..serializers import ApplicantSerializer
 
 
@@ -36,7 +36,7 @@ class ApplicantView(APIView, UtilMixin):
         serializer.is_valid(raise_exception=True)
         
         applicant = serializer.save(wechat_info=wechat_info)
-        
+                
         return Response(
             {"data": {"paid": applicant.has_paid()}}, status=status.HTTP_200_OK
         )

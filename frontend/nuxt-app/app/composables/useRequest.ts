@@ -1,8 +1,10 @@
 import { API_HOST, API_URL } from "./useUtils";
 import { useStore } from "./useStore";
+import { useLoading } from "./useLoading";
 
 export const useRequest = () => {
   const { getToken } = useStore();
+  const { startLoading, stopLoading } = useLoading();
 
   const request = async (
     path: string,
@@ -19,7 +21,13 @@ export const useRequest = () => {
       headers,
     };
 
-    return fetch(url, fetchOptions);
+    startLoading();
+    try {
+      const response = await fetch(url, fetchOptions);
+      return response;
+    } finally {
+      stopLoading();
+    }
   };
 
   // Convenience methods for common HTTP verbs

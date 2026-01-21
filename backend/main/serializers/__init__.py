@@ -1,3 +1,13 @@
 from .applicant import ApplicantSerializer
+from .match import MatchResultSerializer, MatchDetailSerializer
+from .task import GetTaskSerializer, SetTaskSerializer
+from .image import ImageSerializer
 
-__all__ = ["ApplicantSerializer"]
+__all__ = [
+    "ApplicantSerializer",
+    "MatchResultSerializer",
+    "MatchDetailSerializer",
+    "GetTaskSerializer",
+    "SetTaskSerializer",
+    "ImageSerializer"
+]

@@ -14,11 +14,14 @@ class Task(models.Model):
     )
 
     submit_text = models.TextField(blank=True, null=True, verbose_name="提交内容")
-    submit_by = models.ForeignKey(
+    
+    updated_by = models.ForeignKey(
         "Applicant",
+        null=True,
+        blank=True,
         on_delete=models.PROTECT,
-        related_name="created_tasks",
-        verbose_name="创建者",
+        related_name="updated_tasks",
+        verbose_name="最后提交者",
     )
 
     basic_completed = models.BooleanField(default=False, verbose_name="基础任务完成")
