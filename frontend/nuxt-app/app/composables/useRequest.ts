@@ -1,4 +1,4 @@
-import { API_HOST, API_URL } from "./useUtils";
+import { API_URL } from "./useConfigs";
 import { useStore } from "./useStore";
 import { useLoading } from "./useLoading";
 

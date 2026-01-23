@@ -19,11 +19,13 @@ from ..mixin import UtilMixin
 from ..models import Image
 from ..models.image import VALID_MIME_TYPES, VALID_FILE_EXTENSIONS, SIZE_LIMIT
 from ..serializers.image import ImageSerializer
+from ..logger import CustomLogger
+
+logger = CustomLogger("image")
 
 
 class ImageView(APIView, UtilMixin):
     def get(self, request, day):
-
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -33,6 +35,10 @@ class ImageView(APIView, UtilMixin):
 
         task = self.get_task_by_match_and_day(match, day)
         imgs = task.imgs.filter(deleted=False).all()
+
+        logger.info(
+            f"GET day {day}: {applicant.wechat_info.openid}, found {imgs.count()} images"
+        )
 
         serializer = ImageSerializer(imgs, many=True)
 
@@ -80,10 +86,7 @@ class ImageView(APIView, UtilMixin):
                 print(f"Warning: Unknown MIME type: {content_type} for image {idx + 1}")
                 # Fallback: check file extension
                 file_name = getattr(img_file, "name", "").lower()
-                if not any(
-                    file_name.endswith(ext)
-                    for ext in VALID_FILE_EXTENSIONS
-                ):
+                if not any(file_name.endswith(ext) for ext in VALID_FILE_EXTENSIONS):
                     errors.append(
                         f"Image {idx + 1}: Unsupported file type. Only JPEG, PNG, JPG, HEIC, HEIF and WebP are allowed."
                     )
@@ -104,7 +107,14 @@ class ImageView(APIView, UtilMixin):
             # If there are errors, delete any successfully created images
             for img in created_images:
                 img.delete()
+            logger.error(
+                f"POST day {day}: {applicant.wechat_info.openid}, upload failed - {errors}"
+            )
             raise ValidationError({"detail": errors})
+
+        logger.info(
+            f"POST day {day}: {applicant.wechat_info.openid}, uploaded {len(created_images)} images"
+        )
 
         return Response(
             {"detail": "image upload successfully"}, status=status.HTTP_201_CREATED
@@ -113,7 +123,6 @@ class ImageView(APIView, UtilMixin):
 
 class ImageDetailView(APIView, UtilMixin):
     def delete(self, request, day, img_id):
-        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -122,10 +131,18 @@ class ImageDetailView(APIView, UtilMixin):
         self.assert_day_valid(day)
 
         task = self.get_task_by_match_and_day(match, day)
-        
+
         image = task.imgs.filter(id=img_id, deleted=False).first()
         if not image:
+            logger.warning(
+                f"DELETE day {day} img {img_id}: {applicant.wechat_info.openid}, image not found"
+            )
             raise NotFound("Image not found")
+
+        logger.info(f"DELETE day {day} img {img_id}: {applicant.wechat_info.openid}")
+
         image.deleted = True
         image.save()
-        return Response({"detail": "image deleted successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "image deleted successfully"}, status=status.HTTP_200_OK
+        )

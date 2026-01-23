@@ -65,6 +65,13 @@ class UtilMixin:
         except Applicant.DoesNotExist:
             raise NotFound("Applicant not found")
         
+    def get_applicant_by_openid(self, openid: str) -> Applicant:
+        try:
+            applicant = Applicant.objects.get(wechat_info__openid=openid)
+            return applicant
+        except Applicant.DoesNotExist:
+            raise NotFound("Applicant not found")
+        
     def get_match_by_applicant(self, applicant: Applicant) -> tuple[Match, int]:
         try:
             match = Match.objects.filter(Q(applicant1=applicant) | Q(applicant2=applicant)).order_by("-id").first()

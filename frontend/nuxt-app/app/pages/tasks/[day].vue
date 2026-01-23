@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_HOST, API_URL } from "@/app/composables/useUtils";
+import { API_HOST, API_URL } from "@/app/composables/useConfigs";
 import { useStore } from "@/app/composables/useStore";
 import { useLoading } from "@/app/composables/useLoading";
 

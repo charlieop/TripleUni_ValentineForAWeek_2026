@@ -7,7 +7,9 @@
     "dev": "nuxt dev --host",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "generate-static": "NUXT_APP_BASE_URL=/ npx nuxt build --preset github_pages"
+
   },
   "dependencies": {
     "@nuxt/ui": "^4.3.0",

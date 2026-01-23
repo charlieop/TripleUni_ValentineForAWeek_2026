@@ -7,6 +7,10 @@ from django.db.models import Q
 from ..mixin import UtilMixin
 from ..models import Match, Task
 from ..serializers.match import MatchResultSerializer, MatchDetailSerializer
+from ..logger import CustomLogger
+
+logger = CustomLogger("match")
+
 
 class MatchResultDetailView(APIView, UtilMixin):
     """View for GET and POST:/match-result/<matchID> - Get match result details or update status"""
@@ -16,6 +20,10 @@ class MatchResultDetailView(APIView, UtilMixin):
         applicant = self.get_applicant_by_token(token)
 
         match, user_role = self.get_match_by_applicant(applicant)
+
+        logger.info(
+            f"GET match-result: {applicant.wechat_info.openid}, match_id: {match.id}, round: {match.round}"
+        )
 
         other_applicant = match.applicant1 if user_role == 2 else match.applicant2
 
@@ -63,8 +71,17 @@ class MatchResultDetailView(APIView, UtilMixin):
         # If any applicant chooses R, set match as discarded
         if new_status == "R":
             match.discarded = True
-            match.discard_reason = f"嘉宾 { applicant.wechat_info.nickname } 拒绝了此轮匹配"
+            match.discard_reason = (
+                f"嘉宾 { applicant.wechat_info.nickname } 拒绝了此轮匹配"
+            )
             match.save()
+            logger.warning(
+                f"POST match-result: {applicant.wechat_info.openid}, match_id: {match.id}, REJECTED"
+            )
+        else:
+            logger.info(
+                f"POST match-result: {applicant.wechat_info.openid}, match_id: {match.id}, status: {new_status}"
+            )
 
         return Response({"data": {"status": new_status}}, status=status.HTTP_200_OK)
 
@@ -90,9 +107,13 @@ class MatchDetailView(APIView, UtilMixin):
             task = tasks.filter(day=i).first()
             if task and task.basic_completed:
                 basic_complete[i - 1] = True
-        
+
         total_score = sum(
             task.basic_score + task.bonus_score + task.daily_score for task in tasks
+        )
+
+        logger.info(
+            f"GET match: {applicant.wechat_info.openid}, match_id: {match.id}, score: {total_score}"
         )
 
         # Prepare data for serializer
@@ -127,5 +148,9 @@ class MatchDetailView(APIView, UtilMixin):
         # Update the match name
         match.name = new_name
         match.save()
+
+        logger.info(
+            f"POST match: {applicant.wechat_info.openid}, match_id: {match.id}, new name: {new_name}"
+        )
 
         return Response({"data": {"name": match.name}}, status=status.HTTP_200_OK)

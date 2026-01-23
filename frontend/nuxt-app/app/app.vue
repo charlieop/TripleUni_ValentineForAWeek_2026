@@ -1,12 +1,11 @@
 <template>
   <div class="app-wrapper">
-    <UApp>
-      <NuxtRouteAnnouncer />
-      <div class="app">
-        <NuxtPage />
-      </div>
-      <LoadingOverlay />
-    </UApp>
+    <NuxtRouteAnnouncer />
+    <div class="app">
+      <NuxtPage />
+    </div>
+    <LoadingOverlay />
+    <RequireWeChat />
   </div>
 </template>
 

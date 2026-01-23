@@ -75,9 +75,24 @@ strong {
   font-size: 1.025em;
 }
 
+/* XXX: remove this */
 .button-group {
   display: flex;
   margin: 2rem;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  touch-action: none;
 }

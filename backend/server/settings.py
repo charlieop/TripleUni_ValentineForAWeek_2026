@@ -146,6 +146,8 @@ CORS_ALLOW_HEADERS = [
     *default_headers,
 ]
 
+CSRF_TRUSTED_ORIGINS = ["https://api.charlieop.com"]
+
 # Django REST Framework settings
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "main.exceptions.custom_exception_handler",

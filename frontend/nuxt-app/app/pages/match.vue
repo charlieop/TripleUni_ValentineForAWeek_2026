@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_HOST } from "@/app/composables/useUtils";
+import { API_HOST } from "@/app/composables/useConfigs";
 
 useHead({
     title: "一周CP 2026 | 匹配详情",

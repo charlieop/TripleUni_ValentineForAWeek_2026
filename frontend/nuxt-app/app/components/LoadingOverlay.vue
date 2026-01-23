@@ -1,6 +1,6 @@
 <template>
   <Transition name="fade">
-    <div v-if="isLoading" class="loading-overlay">
+    <div v-if="isLoading" class="modal-overlay">
       <div class="loading-content">
         <div class="spinner"></div>
         <p class="loading-text">加载中...</p>
@@ -14,24 +14,11 @@ const { isLoading } = useLoading();
 </script>
 
 <style scoped>
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-
 .loading-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 80%;
   gap: 1.5rem;
   padding: 2rem;
   background: var(--clr-background);
