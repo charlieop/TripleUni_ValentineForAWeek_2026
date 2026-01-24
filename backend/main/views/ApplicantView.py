@@ -5,6 +5,7 @@ from rest_framework.exceptions import NotFound
 from ..mixin import UtilMixin
 from ..serializers import ApplicantSerializer
 from ..logger import CustomLogger
+from ..configs import AvtivityDates
 
 logger = CustomLogger("applicant")
 
@@ -12,6 +13,8 @@ logger = CustomLogger("applicant")
 class ApplicantView(APIView, UtilMixin):
 
     def get(self, request):
+        AvtivityDates.assert_valid_application_period()
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
         logger.info(f"GET: {applicant.wechat_info.openid}")
@@ -27,6 +30,8 @@ class ApplicantView(APIView, UtilMixin):
         )
 
     def post(self, request):
+        AvtivityDates.assert_valid_application_period()
+
         # Get token and wechat_info
         token = self.get_token(request)
         wechat_info = self.get_wechat_info_by_token(token)
@@ -58,6 +63,8 @@ class ApplicantView(APIView, UtilMixin):
         )
 
     def delete(self, request):
+        AvtivityDates.assert_valid_application_period()
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 

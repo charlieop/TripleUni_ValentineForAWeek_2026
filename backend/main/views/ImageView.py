@@ -1,6 +1,4 @@
-from re import S
 from typing import Any
-
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import (
     ParseError,
     NotFound,
-    UnsupportedMediaType,
     ValidationError,
 )
 from django.http.request import QueryDict
@@ -20,12 +17,15 @@ from ..models import Image
 from ..models.image import VALID_MIME_TYPES, VALID_FILE_EXTENSIONS, SIZE_LIMIT
 from ..serializers.image import ImageSerializer
 from ..logger import CustomLogger
+from ..configs import AvtivityDates
 
 logger = CustomLogger("image")
 
 
 class ImageView(APIView, UtilMixin):
     def get(self, request, day):
+        AvtivityDates.assert_valid_view_task_period(day)
+        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -45,6 +45,8 @@ class ImageView(APIView, UtilMixin):
         return Response({"data": {"imgs": serializer.data}}, status=status.HTTP_200_OK)
 
     def post(self, request, day):
+        AvtivityDates.assert_valid_set_task_period(day)
+        
         if type(request.data) != QueryDict:
             raise ParseError(
                 'Field: "image" is required in body with multipart/form-data'
@@ -123,6 +125,8 @@ class ImageView(APIView, UtilMixin):
 
 class ImageDetailView(APIView, UtilMixin):
     def delete(self, request, day, img_id):
+        AvtivityDates.assert_valid_set_task_period(day)
+        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 

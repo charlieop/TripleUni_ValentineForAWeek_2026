@@ -21,6 +21,49 @@ class Applicant(models.Model):
     MBTI_SN = {"s": "感觉s", "n": "直觉n", "x": "无"}
     MBTI_TF = {"t": "思维t", "f": "情感f", "x": "无"}
     MBTI_JP = {"j": "判断j", "p": "感知p", "x": "无"}
+    TIMEZONE = {
+        "UTC-12": "UTC-12:00 (贝克岛)",
+        "UTC-11": "UTC-11:00 (美属萨摩亚)",
+        "UTC-10": "UTC-10:00 (夏威夷)",
+        "UTC-9": "UTC-09:00 (阿拉斯加)",
+        "UTC-8": "UTC-08:00 (太平洋时间, 洛杉矶、温哥华)",
+        "UTC-7": "UTC-07:00 (山地时间, 丹佛、凤凰城)",
+        "UTC-6": "UTC-06:00 (中部时间, 芝加哥、墨西哥城)",
+        "UTC-5": "UTC-05:00 (东部时间, 纽约、多伦多)",
+        "UTC-4": "UTC-04:00 (大西洋时间, 哈利法克斯、圣地亚哥)",
+        "UTC-3": "UTC-03:00 (巴西、阿根廷)",
+        "UTC-2": "UTC-02:00 (南乔治亚)",
+        "UTC-1": "UTC-01:00 (亚速尔群岛)",
+        "UTC+0": "UTC+00:00 (伦敦、都柏林)",
+        "UTC+1": "UTC+01:00 (柏林、巴黎)",
+        "UTC+2": "UTC+02:00 (开罗、雅典)",
+        "UTC+3": "UTC+03:00 (莫斯科、迪拜)",
+        "UTC+4": "UTC+04:00 (阿布扎比)",
+        "UTC+5": "UTC+05:00 (巴基斯坦)",
+        "UTC+5.5": "UTC+05:30 (印度)",
+        "UTC+6": "UTC+06:00 (孟加拉国)",
+        "UTC+7": "UTC+07:00 (曼谷、雅加达)",
+        "UTC+8": "UTC+08:00 (北京、香港、新加坡)",
+        "UTC+9": "UTC+09:00 (东京、首尔)",
+        "UTC+10": "UTC+10:00 (悉尼、墨尔本)",
+        "UTC+11": "UTC+11:00 (所罗门群岛)",
+        "UTC+12": "UTC+12:00 (奥克兰、惠灵顿)",
+    }
+    LOCATION = {
+        "HK": "香港",
+        "SZ": "深圳",
+        "GD": "广东省",
+        "TW": "台湾",
+        "CN": "中国",
+        "JP_KR": "日韩",
+        "ASIA": "亚洲",
+        "UK": "英国",
+        "EU": "欧洲",
+        "US": "美国",
+        "CA": "加拿大",
+        "NA": "北美洲",
+        "OTHER": "其他",
+    }
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -30,6 +73,12 @@ class Applicant(models.Model):
     school = models.CharField(max_length=4, choices=SCHOOL_LABELS, verbose_name="学校")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     wxid = models.CharField(unique=True, max_length=50, verbose_name="微信号")
+    timezone = models.CharField(
+        max_length=10, choices=TIMEZONE, default="UTC+8", verbose_name="时区"
+    )
+    location = models.CharField(
+        max_length=10, choices=LOCATION, default="HK", verbose_name="所在地区"
+    )
     wechat_info = models.OneToOneField(
         "WeChatInfo",
         on_delete=models.PROTECT,
@@ -58,6 +107,12 @@ class Applicant(models.Model):
     preferred_sex = models.CharField(max_length=1, choices=SEX, verbose_name="性别要求")
     preferred_grades = models.CharField(max_length=30, verbose_name="年级要求")
     preferred_schools = models.CharField(max_length=20, verbose_name="学校要求")
+    max_time_difference = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(12)],
+        default=3,
+        verbose_name="最大时差",
+    )
+    same_location_only = models.BooleanField(default=False, verbose_name="仅匹配同地区")
 
     preferred_mbti_ei = models.CharField(
         max_length=1, choices=MBTI_EI, verbose_name="MBTI-EI偏好"

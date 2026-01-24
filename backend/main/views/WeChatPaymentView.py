@@ -10,6 +10,7 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from ..mixin import UtilMixin
 from ..models import PaymentRecord
 from ..logger import CustomLogger
+from ..configs import AvtivityDates
 
 from django.conf import settings
 import json
@@ -29,7 +30,7 @@ PRICE = 1
 
 EXPIRES_IN = 7 * 60
 DESCRIPTION = "Triple Uni 一周CP 2026 活动押金"
-NOTIFY_URL = "https://api.charlieop.com/api/v1/wechat/payment/"
+NOTIFY_URL = "https://api.charlieop.com/v1/payment/wechat/"
 CERT_DIR = str(settings.BASE_DIR / "cert")
 PARTNER_MODE = False
 TIMEOUT = (7, 20)
@@ -49,7 +50,7 @@ wxpay = WeChatPay(
     logger=logger,
 )
 
-
+# XXX: change this to use the actual out_trade_no
 def generate_out_trade_no(openid):
     return "TEST-0001-" + str(uuid4())[:10]
     return "CP26-" + openid[6:] + "-" + str(uuid4())[:4]
@@ -58,6 +59,8 @@ def generate_out_trade_no(openid):
 class WeChatPaymentView(APIView, UtilMixin):
 
     def get(self, request):
+        AvtivityDates.assert_valid_application_period()
+        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -122,24 +125,36 @@ class WeChatPaymentView(APIView, UtilMixin):
         logger.info(
             f"Payment callback for: {openid}, out_trade_no: {out_trade_no}, transaction_id: {transaction_id}"
         )
+                
+        existing_payment = PaymentRecord.objects.filter(out_trade_no=out_trade_no).first()
+        if existing_payment is not None:
+            logger.warning(f"Payment callback for: {openid}, out_trade_no: {out_trade_no}, already exists, skipping")
+            return Response({"detail": "payment already exists"}, status=status.HTTP_200_OK)
 
-        payment = PaymentRecord.objects.create(
-            out_trade_no=out_trade_no, transaction_id=transaction_id, handle_by="system"
-        )
-        payment.save()
+        try:
+            payment = PaymentRecord.objects.create(
+                out_trade_no=out_trade_no, transaction_id=transaction_id, handle_by="system"
+            )
+            payment.save()
+        except Exception as e:
+            logger.error(f"Error creating payment: {e}")
+            return Response({"detail": "error creating payment"}, status=status.HTTP_INTERNAL_SERVER_ERROR)
 
-        applicant = self.get_applicant_by_openid(openid)
-        if applicant is None:
-            logger.error(
-                f"Payment callback: cannot find applicant for openid: {openid}"
-            )
-            return Response(
-                {"detail": "cannot find corresponding applicant"},
-                status=status.HTTP_200_OK,
-            )
-        applicant.payment = payment
-        applicant.save()
-        self.refresh_applicant_cache(applicant)
+        try:
+            applicant = self.get_applicant_by_openid(openid)
+            if applicant is None:
+                logger.error(
+                    f"Payment callback: cannot find applicant for openid: {openid}"
+                )
+                return Response(
+                    {"detail": "cannot find corresponding applicant"},
+                    status=status.HTTP_200_OK,
+                )
+            applicant.payment = payment
+            applicant.save()
+        except Exception as e:
+            logger.error(f"Error updating applicant: {e}")
+            return Response({"detail": "error updating applicant"}, status=status.HTTP_INTERNAL_SERVER_ERROR)
 
         logger.info(f"Payment successful for: {openid}")
         return Response({"detail": "payment successful"}, status=status.HTTP_200_OK)

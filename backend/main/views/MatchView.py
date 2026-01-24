@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
 from ..mixin import UtilMixin
-from ..models import Match, Task
+from ..models import Task
 from ..serializers.match import MatchResultSerializer, MatchDetailSerializer
 from ..logger import CustomLogger
+from ..configs import AvtivityDates
 
 logger = CustomLogger("match")
 
@@ -16,6 +16,8 @@ class MatchResultDetailView(APIView, UtilMixin):
     """View for GET and POST:/match-result/<matchID> - Get match result details or update status"""
 
     def get(self, request):
+        AvtivityDates.assert_valid_view_match_result_period()
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -39,6 +41,15 @@ class MatchResultDetailView(APIView, UtilMixin):
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
+        AvtivityDates.assert_valid_set_match_result_period()
+        
+        # Get new status from request
+        new_status = request.data.get("status")
+        if new_status not in ["A", "R"]:
+            raise ValidationError(
+                {"detail": "Status must be either 'A' (Accepted) or 'R' (Rejected)"}
+            )
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -46,7 +57,7 @@ class MatchResultDetailView(APIView, UtilMixin):
 
         # Check if round is 1 (users can only set status if round is 1)
         if match.round != 1:
-            raise ValidationError("Status can only be updated in round 1")
+            raise ValidationError({"detail": "Status can only be updated in round 1"})
 
         status_field = f"applicant{user_role}_status"
         current_status = getattr(match, status_field)
@@ -54,14 +65,7 @@ class MatchResultDetailView(APIView, UtilMixin):
         # Check if user has already made a choice (cannot update once chosen)
         if current_status != "P":
             raise ValidationError(
-                "You have already made your choice and cannot update it"
-            )
-
-        # Get new status from request
-        new_status = request.data.get("status")
-        if new_status not in ["A", "R"]:
-            raise ValidationError(
-                "Status must be either 'A' (Accepted) or 'R' (Rejected)"
+                {"detail": "You have already made your choice and cannot update it"}
             )
 
         # Update the status
@@ -83,13 +87,15 @@ class MatchResultDetailView(APIView, UtilMixin):
                 f"POST match-result: {applicant.wechat_info.openid}, match_id: {match.id}, status: {new_status}"
             )
 
-        return Response({"data": {"status": new_status}}, status=status.HTTP_200_OK)
+        return Response({"detail": "Match result updated successfully"}, status=status.HTTP_200_OK)
 
 
 class MatchDetailView(APIView, UtilMixin):
     """View for GET and POST:/match/<matchID> - Get match details with score or update match name"""
 
     def get(self, request):
+        AvtivityDates.assert_valid_view_match_detail_period()
+        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -130,6 +136,8 @@ class MatchDetailView(APIView, UtilMixin):
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
+        AvtivityDates.assert_valid_set_match_detail_period()
+        
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -140,10 +148,10 @@ class MatchDetailView(APIView, UtilMixin):
         # Get new name from request
         new_name = request.data.get("name")
         if not new_name:
-            raise ValidationError("Name is required")
+            raise ValidationError({"detail": "Name is required"})
 
         if len(new_name) > 30:
-            raise ValidationError("Name must be 30 characters or less")
+            raise ValidationError({"detail": "Name must be 30 characters or less"})
 
         # Update the match name
         match.name = new_name
@@ -153,4 +161,4 @@ class MatchDetailView(APIView, UtilMixin):
             f"POST match: {applicant.wechat_info.openid}, match_id: {match.id}, new name: {new_name}"
         )
 
-        return Response({"data": {"name": match.name}}, status=status.HTTP_200_OK)
+        return Response({"detail": "Match name updated successfully"}, status=status.HTTP_200_OK)

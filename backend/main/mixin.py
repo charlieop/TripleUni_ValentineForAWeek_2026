@@ -35,54 +35,54 @@ class UtilMixin:
     def get_token(self, request: Request) -> str:
         token = request.headers.get("Authorization")
         if token is None:
-            raise ParseError('Authorization header with user "token" is required')
+            raise ParseError({"detail": 'Authorization header with user "token" is required'})
         return token
 
     def get_openid_by_token(self, token: str) -> str:
         token_obj = Token.objects.filter(token=token).first()
         if token_obj is None:
-            raise ParseError("Token is invalid")
+            raise ParseError({"detail": "Token is invalid"})
         openid = token_obj.wechat_info.openid
         return openid
 
     def get_wechat_info_by_token(self, token: str) -> WeChatInfo:
         token_obj = Token.objects.filter(token=token).first()
         if token_obj is None:
-            raise ParseError("Token is invalid")
+            raise ParseError({"detail": "Token is invalid"})
         return token_obj.wechat_info
 
     def get_applicant_by_token(self, token: str) -> Applicant:
         token_obj = Token.objects.filter(token=token).first()
         if token_obj is None:
-            raise ParseError("Token is invalid")
+            raise ParseError({"detail": "Token is invalid"})
         # Check if applicant exists for this wechat_info
         wechat_info = token_obj.wechat_info
         try:
             applicant = Applicant.objects.get(wechat_info=wechat_info)
             if applicant.quitted:
-                raise PermissionDenied("Applicant has quitted")
+                raise PermissionDenied({"detail": "Applicant has quitted"})
             return applicant
         except Applicant.DoesNotExist:
-            raise NotFound("Applicant not found")
+            raise NotFound({"detail": "Applicant not found"})
         
     def get_applicant_by_openid(self, openid: str) -> Applicant:
         try:
             applicant = Applicant.objects.get(wechat_info__openid=openid)
             return applicant
         except Applicant.DoesNotExist:
-            raise NotFound("Applicant not found")
+            raise NotFound({"detail": "Applicant not found"})
         
     def get_match_by_applicant(self, applicant: Applicant) -> tuple[Match, int]:
         try:
             match = Match.objects.filter(Q(applicant1=applicant) | Q(applicant2=applicant)).order_by("-id").first()
             if match is None:
-                raise NotFound("Match not found")
+                raise NotFound({"detail": "Match not found"})
             if match.applicant1 == applicant:
                 return match, 1
             else:
                 return match, 2
         except Match.DoesNotExist:
-            raise NotFound("Match not found")
+            raise NotFound({"detail": "Match not found"})
         
     def get_task_by_match_and_day(self, match: Match, day: int) -> Task:
         try:
@@ -93,9 +93,9 @@ class UtilMixin:
         
     def assert_match_not_discarded(self, match: Match):
         if match.discarded:
-            raise PermissionDenied("Match has been discarded")
+            raise PermissionDenied({"detail": "Match has been discarded"})
         
     def assert_day_valid(self, day: int):
         if not (1 <= day <= 7):
-            raise ValidationError("Day must be between 1 and 7")
+            raise ValidationError({"detail": "Day must be between 1 and 7"})
 
