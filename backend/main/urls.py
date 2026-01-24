@@ -13,6 +13,7 @@ from .views.ImageView import (
     ImageDetailView,
 )
 from .views.WeChatPaymentView import WeChatPaymentView
+from .views.StatusView import StatusView
 
 
 app_name = "main"
@@ -40,4 +41,7 @@ urlpatterns = [
     
     # Payment endpoints
     path("payment/wechat/", WeChatPaymentView.as_view(), name="wechat_payment"),
+    
+    # Status endpoints
+    path("status/", StatusView.as_view(), name="status"),
 ]

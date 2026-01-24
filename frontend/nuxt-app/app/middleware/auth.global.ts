@@ -1,8 +1,9 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const { getToken } = useStore();
   const token = getToken();
   if (to.path === "/login" || to.path === "/login/") {
     if (token) {
+      await lazyFetchUserState();
       return navigateTo("/");
     }
     return;
@@ -11,4 +12,5 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!token) {
     return navigateTo("/login");
   }
+  await lazyFetchUserState();
 });
