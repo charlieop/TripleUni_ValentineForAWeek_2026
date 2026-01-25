@@ -17,7 +17,6 @@ useHead({
   height: var(--height);
   padding: 3rem 2rem;
   overflow: scroll;
-  overflow-x: hidden;
   overflow-x: clip;
 }
 </style>

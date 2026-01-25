@@ -72,11 +72,12 @@ const updateCountdown = () => {
         // Format the countdown string
         const parts = [];
         if (days > 0) parts.push(`${days}天`);
-        if (hours > 0 || days > 0) parts.push(`${hours}小时`);
-        if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}分钟`);
+        if (hours > 0 || days > 0) parts.push(`${hours}时`);
+        if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}分`);
         parts.push(`${seconds}秒`);
+        const filteredParts = parts.slice(0, 2);
         
-        nextStatusCountdown.value = parts.join(' ');
+        nextStatusCountdown.value = filteredParts.join(' ');
     }
 }
 

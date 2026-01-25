@@ -10,7 +10,7 @@ class AvtivityDates:
     TIME_ZONE = ZoneInfo("America/New_York")
     
     APPLICATION_START = datetime(
-        year=2026, month=1, day=24, hour=14, minute=26, second=40, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=19, minute=26, second=40, tzinfo=TIME_ZONE
     )
     APPLICATION_END = datetime(
         year=2026, month=1, day=24, hour=14, minute=27, second=59, tzinfo=TIME_ZONE

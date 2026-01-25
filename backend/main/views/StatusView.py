@@ -97,6 +97,15 @@ class StatusView(APIView, UtilMixin):
         return (Status.EXIT_QUESTIONNAIRE_END, None)
 
     def get(self, request):
+        return Response(
+            {
+                "data": {
+                    "status": Status.APPLIED.value,
+                    "deadline": AvtivityDates.APPLICATION_START.timestamp(),
+                }
+            },
+            status=status.HTTP_200_OK,
+        )
         token = self.get_token(request)
         openid = self.get_openid_by_token(token)
         status_obj, deadline = self._get_status(token)

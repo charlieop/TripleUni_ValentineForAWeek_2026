@@ -1,26 +1,40 @@
 <template>
-  <div class="page-wrapper">
-    <div class="content-wrapper" v-if="!hasCode">
-      <h1>请使用真实账户授权</h1>
-      <div class="info-section">
-        <p class="info-text">注意: 请 <strong>不要使用虚拟账户</strong> (momo)</p>
-        <p class="info-text">
-          我们需要获取你的 <strong>真实</strong> 用户昵称及头像用作匹配目的,
-          虚拟账号将被<strong>取消资格</strong>
-        </p>
-      </div>
-      <div class="button-group">
-        <a :href="url">
-          <button class="btn primary">登录微信授权</button>
-        </a>
+  <div class="page-wrapper paper-background">
+
+    <LogoLg />
+
+    <div class="content-wrapper">
+      <a :href="url" v-if="!hasCode">
+        <button class="btn primary">登录微信授权</button>
+      </a>
+      <button class="btn primary" v-else @click="reloadPage">重试</button>
+
+
+      <div class="notes">
+        <img src="@/assets/imgs/login-text-bg.png" alt="" class="note-bg">
+        <div class="note-content">
+          <template v-if="!hasCode">
+            <h1>请使用<strong>真实账户</strong>授权</h1>
+            <div class="info-section">
+              <p class="info-text">注意: 请 <strong>不要使用虚拟账户</strong> (momo)</p>
+              <p class="info-text">
+                我们需要获取你的 <strong>真实</strong> 用户昵称及头像用作匹配目的,
+                虚拟账号将被<strong>取消资格</strong>
+              </p>
+            </div>
+          </template>
+          <template v-else>
+            <h1>正在获取OpenId...</h1>
+            <div class="info-section">
+              <p class="info-text">请稍候...</p>
+            </div>
+          </template>
+
+        </div>
       </div>
     </div>
-    <div class="content-wrapper" v-else>
-      <h1>正在获取OpenId...</h1>
-      <div class="info-section">
-        <p class="info-text">请稍候...</p>
-      </div>
-    </div>
+
+
   </div>
 </template>
 
@@ -70,81 +84,65 @@ onMounted(() => {
   }
 
 });
+
+function reloadPage() {
+  const url = new URL(window.location.href);
+  window.location.href = url.origin;
+  console.log(url.origin);
+}
 </script>
 
 <style scoped>
-.page-wrapper {
-  padding: 1.5rem;
-  max-width: 100%;
-  margin: 0 auto;
-  min-height: 100%;
+.content-wrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
 }
 
-.content-wrapper {
+.notes {
+  margin-top: 3.5rem;
+  position: relative;
   width: 100%;
-  max-width: 500px;
+}
+
+.note-bg {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  object-fit: contain;
+  scale: 1.2;
+}
+
+a {
+  width: 100%;
+}
+
+button {
+  display: block;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.note-content {
+  position: absolute;
+  inset: -8% 7% 30% 12%;
+  z-index: 1;
+  padding: 1.25rem 0.25rem;
 }
 
 h1 {
-  font-size: var(--fs-700);
-  color: var(--clr-primary);
-  margin-bottom: 2rem;
+  margin-left: 1rem;
   text-align: center;
+  font-size: var(--fs-500)
+}
+
+h1 strong {
+  font-size: 1.25em;
 }
 
 .info-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--clr-background--muted);
-  border-radius: 0.5rem;
-}
-
-.info-text {
-  font-size: var(--fs-400);
-  color: var(--clr-text);
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.info-text:last-child {
-  margin-bottom: 0;
-}
-
-strong {
-  color: var(--clr-accent);
-  font-weight: 600;
-}
-
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: var(--fs-400);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  width: 100%;
-}
-
-.btn.primary {
-  background: var(--clr-primary);
-  color: var(--clr-text);
-}
-
-.btn.primary:hover {
-  background: var(--clr-primary-dark);
+  margin-top: 1rem;
 }
 </style>

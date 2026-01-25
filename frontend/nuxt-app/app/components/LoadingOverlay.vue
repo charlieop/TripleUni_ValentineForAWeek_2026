@@ -1,9 +1,16 @@
 <template>
   <Transition name="fade">
     <div v-if="isLoading" class="modal-overlay">
-      <div class="loading-content">
-        <div class="spinner"></div>
-        <p class="loading-text">加载中...</p>
+      <LogoLg />
+      <div class="loading-text">
+        <p>丘比特搜寻中</p>
+        <p>请稍候<span class="dots">...</span></p>
+      </div>
+      <div class="decor">
+        <IconHeart class="heart-icon heart3" size="140%" color="hsl(353, 58%, 61%)" />
+        <IconHeart class="heart-icon heart2" size="120%" color="hsl(353, 58%, 51%)" />
+        <IconHeart class="heart-icon heart1" size="100%" color="hsl(353, 58%, 41%)" />
+        <img src="@/assets/imgs/cupid-flying.png" alt="decor" class="decor-img">
       </div>
     </div>
   </Transition>
@@ -14,41 +21,99 @@ const { isLoading } = useLoading();
 </script>
 
 <style scoped>
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-  gap: 1.5rem;
-  padding: 2rem;
-  background: var(--clr-background);
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
+.modal-overlay {
+  display: block;
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--clr-background--muted);
-  border-top: 4px solid var(--clr-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
 }
 
 .loading-text {
-  font-size: var(--fs-500);
-  color: var(--clr-text);
-  margin: 0;
+  font-size: var(--fs-600);
+  color: #EFEFEF;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
-@keyframes spin {
+.dots {
+  display: inline-block;
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 20px;
+  clip-path: inset(0 3ch 0 0);
+  animation: l4 3s steps(4) infinite;
+}
+@keyframes l4 {
+  to {
+    clip-path: inset(0 -1ch 0 0);
+  }
+}
+
+.decor {
+  position: absolute;
+  bottom: 3rem;
+  left: 0;
+  z-index: 1;
+}
+
+.heart-icon {
+  position: absolute;
+  left: -0.5px;
+  animation: heartAppear 3s ease-in-out infinite;
+}
+
+.heart1 {
+  top: 2%;
+  animation-delay: 0s;
+}
+
+.heart2 {
+  top: -10%;
+  animation-delay: 0.3s;
+}
+
+.heart3 {
+  top: -22%;
+  animation-delay: 0.6s;
+}
+
+@keyframes heartAppear {
   0% {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  5% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  25% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  75% {
+    opacity: 1;
+    transform: scale(1);
   }
 
   100% {
-    transform: rotate(360deg);
+    opacity: 0;
+    transform: scale(0.5);
   }
+}
+
+
+.decor-img {
+  position: relative;
+  width: 70%;
+  margin: 0 auto;
+  object-fit: cover;
+  z-index: 10;
 }
 
 .fade-enter-active,

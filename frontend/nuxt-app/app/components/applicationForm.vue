@@ -822,4 +822,5 @@ function updateData(data: any) {
     --vf-line-height: 1.5;
     --vf-line-height-headings: 1.2;
 }
+
 </style>
