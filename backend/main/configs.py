@@ -10,7 +10,7 @@ class AvtivityDates:
     TIME_ZONE = ZoneInfo("America/New_York")
     
     APPLICATION_START = datetime(
-        year=2026, month=1, day=24, hour=19, minute=26, second=40, tzinfo=TIME_ZONE
+        year=2026, month=1, day=25, hour=23, minute=26, second=40, tzinfo=TIME_ZONE
     )
     APPLICATION_END = datetime(
         year=2026, month=1, day=24, hour=14, minute=27, second=59, tzinfo=TIME_ZONE
@@ -32,10 +32,10 @@ class AvtivityDates:
     )
 
     FIRST_MISSION_RELEASE = datetime(
-        year=2026, month=2, day=8, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=23, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     FIRST_MISSION_END = datetime(
-        year=2026, month=2, day=9, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
     )
 
     EXIT_QUESTIONNAIRE_RELEASE = datetime(
@@ -100,7 +100,7 @@ class AvtivityDates:
         return date <= AvtivityDates.now()
     
     # XXX: TODO: Remove this before deployment
-    DEBUG = False
+    DEBUG = True
     
     @staticmethod
     def assert_valid_application_period():

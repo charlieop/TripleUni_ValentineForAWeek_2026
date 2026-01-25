@@ -1,145 +1,212 @@
 <template>
-    <div class="match-result-wrapper">
-        <h1>匹配结果</h1>
-
-        <div v-if="loading" class="loading">
-            <p>加载中...</p>
-        </div>
-
-        <div v-else-if="error" class="error">
-            <p>{{ error }}</p>
-            <div class="button-group">
-
-                <button @click="loadMatchResult" class="btn primary">重试</button>
-                <button @click="navigateTo('/')" class="btn secondary">
-                    返回首页
-                </button>
+    <div class="page-wrapper heart-background">
+        <LogoSm />
+        <h1 class="page-title">第{{ round }}轮匹配结果</h1>
+        <template v-if="error">
+            <div class="state-card error">
+                <div class="state-icon">❌</div>
+                <p class="state-title">加载失败</p>
+                <p class="state-message">{{ error }}</p>
             </div>
-        </div>
+            <div class="button-group">
+                <button class="btn primary" @click="loadMatchResult">重试</button>
+                <button class="btn" @click="navigateTo('/')">返回首页</button>
+            </div>
+        </template>
 
-        <div v-else-if="matchData" class="match-content">
-            <!-- Partner Info Section -->
-            <section class="info-section partner-section">
-                <h2>匹配对象信息</h2>
-                <div class="partner-card">
-                    <div v-if="matchData.partner_info.head_image" class="avatar">
-                        <img :src="getImageUrl(matchData.partner_info.head_image)"
-                            :alt="matchData.partner_info.nickname || '头像'" />
+        <template v-else-if="no_match">
+            <div class="state-card empty" v-if="round === 1">
+                <div class="state-icon">💌</div>
+                <p class="state-title">暂未匹配成功</p>
+                <p class="state-message">
+                    很遗憾, 在第一轮中我们未能为你找到一个合适的人选.
+                </p>
+                <p class="state-message">
+                    请耐心等候, 我们将在一天后再次启动匹配, 为你寻找合适的那个ta.
+                </p>
+                <p class="state-message">
+                    <br>
+                    祝你好运, 我们明天不见不散.
+                </p>
+            </div>
+            <div class="state-card empty" v-else>
+                <div class="state-icon">😔</div>
+                <p class="state-title"> 未能匹配成功</p>
+                <p class="state-message">
+                    很遗憾, 在第二轮中我们未能为你找到一个合适的人选.
+                </p>
+                <p class="state-message">
+                    我们理解这可能让你感到失望, 但请相信, 缘分需要时间与耐心. 你的爱情或许就在不经意间悄然降临, 愿你在未来的日子中遇见那个对的人!
+                </p>
+                <p class="state-message">
+                    感谢你对TripleUni 一周CP 2026活动的关注与支持. 我们将在活动结束后统一处理退款.
+                </p>
+                <p class="state-message">
+                    <br>祝你一切顺利,<br>幸福常在!
+                </p>
+            </div>
+            <div class="button-group">
+                <button class="btn primary" @click="navigateTo('/')">返回首页</button>
+            </div>
+        </template>
+
+        <template v-else-if="matchData">
+            <section class="partner-info">
+                <div class="partner-info-item">
+                    <div class="polaroid-frame">
+                        <div class="partner-name">
+                            {{ matchData.partner_info.nickname }}
+                        </div>
+                        <div class="polaroid-frame-img">
+                            <img :src="getImageUrl(matchData.partner_info.head_image)" alt="">
+                            <div v-if="!isUserAccepted" class="blur-img-overlay">
+                                同意匹配后可见
+                            </div>
+                        </div>
                     </div>
-                    <div class="partner-details">
-                        <h3>{{ matchData.partner_info.nickname || '未设置昵称' }}</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <span class="label">学校:</span>
-                                <span class="value">{{ matchData.partner_info.school }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">年级:</span>
-                                <span class="value">{{ getGradeText(matchData.partner_info.grade) }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">性别:</span>
-                                <span class="value">{{ matchData.partner_info.sex === 'M' ? '男' : '女' }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">MBTI:</span>
-                                <span class="value">{{ getMBTIType(matchData.partner_info.mbti) }}</span>
-                            </div>
-                        </div>
-                        <div v-if="matchData.partner_info.message_to_partner" class="message">
-                            <p class="message-label">留言:</p>
-                            <p class="message-content">{{ matchData.partner_info.message_to_partner }}</p>
-                        </div>
+                    <div class="partner-detail">
+                        <h2>你的CP♥</h2>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="item-label">性别：</span>
+                                <span class="item-value">{{ matchData.partner_info.sex === 'M' ? '男' :
+                                    '女' }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-label">学校：</span>
+                                <span class="item-value">{{ matchData.partner_info.school }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-label">年级：</span>
+                                <span class="item-value">{{
+                                    getGradeText(matchData.partner_info.grade) }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-label">MBTI：</span>
+                                <span class="item-value">{{
+                                    getMBTIType(matchData.partner_info.mbti) }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-label">位置：</span>
+                                <span class="item-value">{{
+                                    getLocationText(matchData.partner_info.location) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="partner-message">
+                    <span class="hint-text">{{ matchData.partner_info.sex === 'M' ? '他' : '她' }}说:</span>
+                    <span class="message-text">
+                        {{ matchData.partner_info.message_to_partner }}
+                    </span>
+                </div>
+            </section>
+
+            <section class="mentor-info">
+                <div class="mentor-info-item">
+                    <div class="mentor-detail">
+                        <h2>你的Mentor</h2>
+                        <ul class="list">
+                            <li class="list-item">
+                                <span class="item-label">姓名：</span>
+                                <span class="item-value">{{ matchData.mentor_info.name }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-label">微信号：</span>
+                                <span class="item-value">{{ matchData.mentor_info.wxid }}</span>
+                            </li>
+                            <li class="list-item">
+                                <span class="item-value">请添加并备注你的姓名与组号:「{{ matchData.match_info.id }}」</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mentor-qr">
+                        <img :src="getImageUrl(matchData.mentor_info.qrcode)" alt="">
+                        <p class="mentor-qr-hint">长按可识别二维码</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Mentor Info Section -->
-            <section class="info-section mentor-section">
-                <h2>Mentor信息</h2>
-                <div class="mentor-card">
-                    <div v-if="matchData.mentor_info.qrcode" class="mentor-qr">
-                        <img :src="getImageUrl(matchData.mentor_info.qrcode)" alt="Mentor二维码" />
-                    </div>
-                    <div class="mentor-details">
-                        <div class="info-item">
-                            <span class="label">姓名:</span>
-                            <span class="value">{{ matchData.mentor_info.name }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">微信号:</span>
-                            <span class="value">{{ matchData.mentor_info.wxid }}</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Match Info Section -->
-            <section class="info-section match-section">
-                <h2>匹配状态</h2>
-                <div class="match-status-card">
-                    <div class="info-item">
-                        <span class="label">匹配ID:</span>
-                        <span class="value">#{{ matchData.match_info.id }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">你的状态:</span>
-                        <span class="value status-badge" :class="getStatusClass(matchData.match_info.user_status)">
-                            {{ getStatusText(matchData.match_info.user_status) }}
-                        </span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">对方状态:</span>
-                        <span class="value status-badge" :class="getStatusClass(matchData.match_info.partner_status)">
-                            {{ getStatusText(matchData.match_info.partner_status) }}
-                        </span>
-                    </div>
-                    <div v-if="matchData.match_info.discarded" class="discarded-warning">
-                        <p class="warning-text">此匹配已被废弃</p>
-                        <p v-if="matchData.match_info.discard_reason" class="discard-reason">
-                            {{ matchData.match_info.discard_reason }}
+            <section class="match-info">
+                <div class="match-info-item">
+                    <h2>CP组 #{{ matchData.match_info.id }} 状态</h2>
+                    <div v-if="matchData.match_info.discarded" class="discarded">
+                        <div class="discarded-title">本轮匹配已废弃</div>
+                        <p class="discarded-reason">
+                            {{ matchData.match_info.discard_reason || '匹配已被取消，请关注后续通知。' }} <br>
+                            <template v-if="round === 1">
+                                双方将进入第二轮匹配
+                            </template>
+                            <template v-else>
+                                活动结束, 退款将在活动结束后统一处理。
+                            </template>
                         </p>
                     </div>
+                    <div v-else class="not-discarded">
+                        <ul class="status-list">
+                            <li class="status-item">
+                                <span class="status-label">你的状态</span>
+                                <span class="status-value" :class="getStatusClass(matchData.match_info.user_status)">
+                                    {{ getStatusText(matchData.match_info.user_status) || '待确认' }}
+                                </span>
+                            </li>
+                            <li class="status-item">
+                                <span class="status-label">对方状态</span>
+                                <span class="status-value" :class="getStatusClass(matchData.match_info.partner_status)">
+                                    {{ getStatusText(matchData.match_info.partner_status) || '待确认' }}
+                                </span>
+                            </li>
+                        </ul>
+
+                        <div v-if="round === 1 && matchData.match_info.user_status === 'P'" class="status-actions">
+                            <p class="status-hint">
+                                请在截止前选择接受或拒绝。
+                            </p>
+                            <div class="button-row">
+                                <button class="btn primary" @click="updateStatus('A')">
+                                    接受匹配
+                                </button>
+                                <button class="btn danger" @click="updateStatus('R')">
+                                    拒绝匹配
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            <!-- Action Buttons -->
-            <div v-if="matchData.match_info.user_status === 'P' && !matchData.match_info.discarded"
-                class="action-buttons">
-                <button @click="updateStatus('A')" class="btn primary accept-btn" :disabled="submitting">
-                    {{ submitting ? '提交中...' : '接受匹配' }}
-                </button>
-                <button @click="updateStatus('R')" class="btn danger reject-btn" :disabled="submitting">
-                    {{ submitting ? '提交中...' : '拒绝匹配' }}
-                </button>
-            </div>
-
             <div class="button-group">
-                <button @click="navigateTo('/')" class="btn secondary">返回首页</button>
+                <button class="btn primary" @click="navigateTo('/')">返回首页</button>
             </div>
-        </div>
+        </template>
+
     </div>
 </template>
 
 <script setup lang="ts">
-import { API_HOST } from "@/app/composables/useConfigs";
-
 useHead({
     title: "一周CP 2026 | 匹配结果",
 });
 
 const { get, post } = useRequest();
 const matchData = ref<any>(null);
-const loading = ref(true);
+const no_match = ref(false);
 const error = ref<string | null>(null);
-const submitting = ref(false);
+const isUserAccepted = computed(() => matchData.value?.match_info?.user_status === 'A');
 
-const getImageUrl = (path: string | null) => {
-    if (!path) return '';
-    return `${API_HOST}/media/${path}`;
-};
+const round = computed(() => {
+    if (matchData.value?.match_info?.round) {
+        return matchData.value.match_info.round;
+    }
+    if (userState.value === UserStates.FIRST_MATCH_RESULT_RELEASE || userState.value === UserStates.FIRST_MATCH_CONFIRM_END) {
+        return 1;
+    }
+    else {
+        return 2;
+    }
+});
 
-const getGradeText = (grade: string) => {
+const getGradeText = (grade: string | null) => {
+    if (!grade) return '';
     const gradeMap: Record<string, string> = {
         'UG1': '大一',
         'UG2': '大二',
@@ -153,7 +220,8 @@ const getGradeText = (grade: string) => {
     return gradeMap[grade] || grade;
 };
 
-const getMBTIType = (mbti: { ei: number; sn: number; tf: number; jp: number }) => {
+const getMBTIType = (mbti: { ei: number; sn: number; tf: number; jp: number } | null) => {
+    if (!mbti) return '';
     const ei = mbti.ei >= 50 ? 'E' : 'I';
     const sn = mbti.sn >= 50 ? 'N' : 'S';
     const tf = mbti.tf >= 50 ? 'T' : 'F';
@@ -161,7 +229,28 @@ const getMBTIType = (mbti: { ei: number; sn: number; tf: number; jp: number }) =
     return `${ei}${sn}${tf}${jp}`;
 };
 
-const getStatusText = (status: string) => {
+const getLocationText = (location: string | null) => {
+    if (!location) return '';
+    const locationMap: Record<string, string> = {
+        'HK': '香港',
+        'SZ': '深圳',
+        'GD': '广东省',
+        'TW': '台湾',
+        'CN': '中国',
+        'JP_KR': '日韩',
+        'ASIA': '亚洲',
+        'UK': '英国',
+        'EU': '欧洲',
+        'US': '美国',
+        'CA': '加拿大',
+        'NA': '北美洲',
+        'OTHER': '其他',
+    };
+    return locationMap[location] || location;
+};
+
+const getStatusText = (status: string | null) => {
+    if (!status) return '';
     const statusMap: Record<string, string> = {
         'P': '待确认',
         'A': '已接受',
@@ -170,7 +259,7 @@ const getStatusText = (status: string) => {
     return statusMap[status] || status;
 };
 
-const getStatusClass = (status: string) => {
+const getStatusClass = (status: string | null | undefined) => {
     return {
         'status-pending': status === 'P',
         'status-accepted': status === 'A',
@@ -179,30 +268,42 @@ const getStatusClass = (status: string) => {
 };
 
 const loadMatchResult = async () => {
-    loading.value = true;
     error.value = null;
+    no_match.value = false;
 
     try {
         const res = await get("match-result/");
         if (res.ok) {
             const data = await res.json();
+            if (!data?.data) {
+                matchData.value = null;
+                no_match.value = true;
+                return;
+            }
             matchData.value = data.data;
-        } else {
+        }
+        else if (res.status === 404) {
+            matchData.value = null;
+            no_match.value = true;
+        }
+        else {
             const errorData = await res.json();
             throw new Error(errorData.detail || res.statusText);
         }
     } catch (err: any) {
         error.value = err.message || '加载匹配结果失败';
         console.error(err);
-    } finally {
-        loading.value = false;
     }
 };
 
 const updateStatus = async (status: 'A' | 'R') => {
-    if (submitting.value) return;
+    const confirmed = window.confirm(
+        status === 'A'
+            ? '确认接受匹配？提交后无法修改。'
+            : '确认拒绝匹配？提交后无法修改。'
+    );
+    if (!confirmed) return;
 
-    submitting.value = true;
     try {
         const res = await post("match-result/", { status });
         if (res.ok) {
@@ -217,8 +318,6 @@ const updateStatus = async (status: 'A' | 'R') => {
     } catch (err: any) {
         alert(err.message || '更新状态失败');
         console.error(err);
-    } finally {
-        submitting.value = false;
     }
 };
 
@@ -228,232 +327,308 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.match-result-wrapper {
-    padding: 1.5rem;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
 h1 {
-    font-size: var(--fs-700);
-    color: var(--clr-primary);
-    margin-bottom: 2rem;
-    text-align: center;
+    margin-bottom: 1rem;
 }
 
 h2 {
     font-size: var(--fs-600);
-    color: var(--clr-primary-dark);
-    margin-bottom: 1rem;
-}
-
-.loading,
-.error {
+    font-weight: bold;
+    margin-block: 0.25rem;
     text-align: center;
-    padding: 2rem;
 }
 
-.error {
-    color: var(--clr-danger);
-}
+section {
+    background: hsla(356, 100%, 98%, 0.3);
 
-.info-section {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: var(--clr-background--muted);
-    border-radius: 0.5rem;
 }
 
-.partner-card,
-.mentor-card,
-.match-status-card {
+.partner-info {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.225rem;
 }
 
-.avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin: 0 auto;
-    border: 3px solid var(--clr-primary);
-}
-
-.avatar img {
+.partner-info-item,
+.mentor-info-item {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem;
 }
 
-.partner-details h3 {
-    font-size: var(--fs-500);
-    color: var(--clr-text);
-    margin-bottom: 1rem;
+.polaroid-frame {
+    position: relative;
+    width: 55%;
+    aspect-ratio: 1/1.15;
+    background: white;
+    padding: 3.5%;
+    box-shadow: 1px 1px 10px 0 rgba(0, 0, 0, 0.2);
+}
+
+.partner-name {
+    position: absolute;
+    min-width: 50%;
     text-align: center;
+    background: var(--clr-accent);
+    padding: 0.125rem 0.625rem 0.125rem 0.25rem;
+    border-radius: 0 0.5rem 0 0;
+    top: 10%;
+    left: 19%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    z-index: 2;
 }
 
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+.polaroid-frame-img {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1/1;
 }
 
-.info-item {
+.polaroid-frame img {
+    object-fit: cover;
+    background: var(--clr-text--muted);
+}
+
+.blur-img-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-200);
+    color: var(--clr-text--muted);
+}
+
+.partner-detail {
+    flex: 1;
+}
+
+.list {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    padding-inline: 0.5rem;
+    gap: 0.5rem;
 }
 
-.info-item .label {
+.item-label {
     font-size: var(--fs-300);
-    color: var(--clr-text--muted);
 }
 
-.info-item .value {
-    font-size: var(--fs-400);
+.item-value {
+    font-size: var(--fs-300);
     color: var(--clr-text);
-    font-weight: 500;
 }
 
-.message {
-    margin-top: 1rem;
-    padding: 1rem;
+.partner-message {
+    width: calc(100% - 1rem);
+    margin-inline: auto;
+    padding: 1rem 1rem;
     background: var(--clr-background);
-    border-radius: 0.5rem;
-    border-left: 3px solid var(--clr-primary);
+    font-size: var(--fs-400);
+    min-height: calc(3lh + 2rem);
+    line-height: 1.75;
+
+
 }
 
-.message-label {
-    font-size: var(--fs-300);
+.hint-text {
+    font-size: var(--fs-400);
     color: var(--clr-text--muted);
-    margin-bottom: 0.5rem;
+    margin-right: 1ch;
 }
 
-.message-content {
+.message-text {
     font-size: var(--fs-400);
     color: var(--clr-text);
-    line-height: 1.6;
+    font-family: var(--ff-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+
 }
 
 .mentor-qr {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    border: 2px solid var(--clr-secondary);
+    width: 50%;
 }
 
 .mentor-qr img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    user-select: all;
+
 }
 
-.mentor-details {
+.mentor-qr-hint {
+    width: 100%;
+    font-size: var(--fs-200);
+    color: var(--clr-text--muted);
+    text-align: center;
+}
+
+.state-card {
+    max-width: 520px;
+    margin: 1.5rem auto;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    font-size: var(--fs-400);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow:
+        0 12px 26px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+.state-card.error {
+    border: 1px solid rgba(255, 128, 128, 0.4);
+    color: red;
+}
+
+.state-card.empty {
+    border: 1px solid rgba(255, 196, 140, 0.45);
+}
+
+.state-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: rgba(255, 196, 140, 0.2);
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0 auto 0.75rem;
+}
+
+.state-card.error .state-icon {
+    color: red;
+    background: rgba(255, 128, 128, 0.2);
+}
+
+.state-title {
+    font-size: var(--fs-600);
+    font-weight: 800;
+}
+
+.state-message {
+    margin-top: 0.25rem;
+    font-size: var(--fs-400);
+}
+
+.match-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem 1rem 1rem;
+}
+
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+}
+
+.status-label {
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
+}
+
+.status-value {
+    font-size: var(--fs-300);
+    font-weight: 800;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.status-pending {
+    color: #b87400;
+    background: rgba(255, 216, 160, 0.35);
+}
+
+.status-accepted {
+    color: var(--clr-success);
+    background: rgba(120, 200, 120, 0.2);
+}
+
+.status-rejected {
+    color: red;
+    background: rgba(255, 128, 128, 0.2);
+}
+
+.status-actions {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
-.status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 1rem;
-    font-size: var(--fs-300);
-    font-weight: 600;
-}
-
-.status-badge.status-pending {
-    background: var(--clr-accent-light);
-    color: var(--clr-text);
-}
-
-.status-badge.status-accepted {
-    background: var(--clr-success);
-    color: white;
-}
-
-.status-badge.status-rejected {
-    background: var(--clr-danger);
-    color: white;
-}
-
-.discarded-warning {
+.status-hint {
     margin-top: 1rem;
-    padding: 1rem;
-    background: var(--clr-failed);
-    border-radius: 0.5rem;
-    border-left: 3px solid var(--clr-danger);
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
+    text-align: center;
 }
 
-.warning-text {
-    color: var(--clr-danger);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+.status-note {
+    text-align: center;
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
 }
 
-.discard-reason {
-    color: var(--clr-text);
-    font-size: var(--fs-400);
-}
-
-.action-buttons {
+.button-row {
     display: flex;
-    gap: 1rem;
-    margin: 2rem 0;
+    gap: 0.75rem;
 }
 
-.btn {
+.button-row .btn {
     flex: 1;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: var(--fs-400);
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.discarded {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
 }
 
-.btn.primary {
-    background: var(--clr-primary);
-    color: var(--clr-text);
+.discarded-title {
+    font-size: var(--fs-500);
+    font-weight: 700;
+    color: var(--clr-primary-dark);
 }
 
-.btn.primary:hover:not(:disabled) {
-    background: var(--clr-primary-dark);
-}
-
-.btn.danger {
-    background: var(--clr-danger);
-    color: white;
-}
-
-.btn.danger:hover:not(:disabled) {
-    background: hsl(0, 87%, 40%);
-}
-
-.btn.secondary {
-    background: var(--clr-secondary);
-    color: var(--clr-text);
-}
-
-.btn.secondary:hover {
-    background: var(--clr-secondary-dark);
+.discarded-reason {
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
 }
 
 .button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 2rem;
+    margin-block: 3rem 5rem;
 }
 </style>

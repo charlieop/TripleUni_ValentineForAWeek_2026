@@ -23,3 +23,11 @@ export interface VueformInstance {
   load(data: Record<string, any>): void;
   submitting: boolean;
 }
+
+export const getImageUrl = (path: string | null) => {
+  if (!path) return '';
+  if (path.startsWith('/')) {
+    return `${API_HOST}${path}`;
+  }
+  return `${API_HOST}/media/${path}`;
+};

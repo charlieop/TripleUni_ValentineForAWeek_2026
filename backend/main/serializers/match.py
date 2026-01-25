@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from ..models import Match, Applicant, Mentor, Task
-
 
 class MatchResultSerializer(serializers.Serializer):
     """Serializer for GET:/match-result/<matchID> response"""
@@ -46,6 +44,7 @@ class MatchResultSerializer(serializers.Serializer):
                     "tf": other_applicant.mbti_tf,
                     "jp": other_applicant.mbti_jp,
                 },
+                "location": other_applicant.location,
                 "message_to_partner": other_applicant.message_to_partner,
                 "head_image": partner_head_image,
                 "nickname": nickname,
@@ -57,10 +56,12 @@ class MatchResultSerializer(serializers.Serializer):
             },
             "match_info": {
                 "id": match.id,
+                "round": match.round,
                 "user_status": user_status,
                 "partner_status": partner_status,
                 "discarded": match.discarded,
                 "discard_reason": match.discard_reason if match.discarded else None,
+                
             },
         }
 
@@ -74,7 +75,8 @@ class MatchDetailSerializer(serializers.Serializer):
         other_applicant = instance["other_applicant"]
         total_score = instance["total_score"]
         basic_complete = instance["basic_complete"]
-        
+        current_day = instance["current_day"]
+        rank = instance["rank"]
         # Get user head image path
         user_head_image = None
         if user_applicant.wechat_info and user_applicant.wechat_info.head_image:
@@ -110,5 +112,7 @@ class MatchDetailSerializer(serializers.Serializer):
                 "name": match.name,
                 "total_score": total_score,
                 "basic_complete": basic_complete,
+                "current_day": current_day,
+                "rank": rank,
             },
         }

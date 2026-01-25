@@ -22,12 +22,13 @@ class TaskDetailView(APIView, UtilMixin):
         self.assert_day_valid(day)
 
         task = self.get_task_by_match_and_day(match, day)
+        due = AvtivityDates.now() >= AvtivityDates.MISSION_SUBMIT_END_DAY(day)
 
         logger.info(
             f"GET task day {day}: {applicant.wechat_info.openid}, match_id: {match.id}"
         )
 
-        serializer = GetTaskSerializer(task)
+        serializer = GetTaskSerializer(task, context={"due": due})
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, day):

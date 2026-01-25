@@ -1,11 +1,11 @@
 /* Global Fonts */
 :root {
   --ff-primary: 
-  "Yuanti SC",
+  "Yuanti SC", "PingFang SC",
   -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, z szsFira Sans, Droid Sans, Helvetica Neue, PingFang SC,
     Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK SC, sans-serif;
-  --ff-accent: serif;
+  --ff-accent: "HanziPen SC", "Wawati SC", serif;
   --fs-base: 16px;
 }
 

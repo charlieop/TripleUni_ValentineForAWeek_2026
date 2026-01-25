@@ -23,7 +23,7 @@
     <div class="button-group" v-else-if="userState === UserStates.APPLIED">
       <button @click="navigateTo('/payment')" class="btn primary">支付押金</button>
       <div class="row">
-        <button @click="navigateTo('/apply')" class="btn primary">修改报名</button>
+        <button @click="navigateTo('/apply')" class="btn">修改报名</button>
         <button @click="navigateTo('/withdraw')" class="btn danger">取消报名</button>
       </div>
 
@@ -100,7 +100,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.EXIT_QUESTIONNAIRE_RELEASE">
       <button class="btn primary" @click="navigateTo('/match')">开启CP之旅</button>
-      <button class="btn primary" @click="navigateTo('/exit-questionnaire')">填写结束问卷</button>
+      <button class="btn" @click="navigateTo('/exit-questionnaire')">填写结束问卷</button>
 
       <div class="info-block">
         <span class="info-text">距问卷填写截止还有</span>
@@ -126,9 +126,32 @@
     </div>
     <div class="help-button">
       <button @click="openHelpModal">
-        <IconQuestionMark size="2rem" />
+        <IconQuestionMark size="2rem" color="#EEEEEE" />
       </button>
     </div>
+
+    <Modal v-model="showHelpModal" class="help-modal">
+      <div class="help-modal-content">
+        <h2 class="help-modal-title">帮助与缓存</h2>
+        <p class="help-modal-text">如果遇到显示异常或状态不更新，可以先尝试清理缓存自助解决。</p>
+        <p class="help-modal-text">如果问题仍未解决，请添加管理员微信号并说明问题:</p>
+        <ul class="help-modal-list">
+          <li class="mentor-info">
+            <span class="mentor-info-label">网站技术负责人: </span>
+            <span class="mentor-info-value">charlieop_</span>
+          </li>
+          <li class="mentor-info">
+            <span class="mentor-info-label">活动负责人: </span>
+            <span class="mentor-info-value">Azzhleon2</span>
+          </li>
+        </ul>
+
+        <div class="help-modal-actions">
+          <button class="btn danger" @click="clearCache">清理缓存</button>
+          <button class="btn secondary" @click="showHelpModal = false">返回</button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -143,8 +166,10 @@ watch(nextStatusDeadlineReached, (newVal) => {
   }
 });
 
+const showHelpModal = ref(false);
+
 function openHelpModal() {
-  clearCache();
+  showHelpModal.value = true;
 }
 
 function clearCache() {
@@ -164,14 +189,55 @@ function clearCache() {
   left: 1rem;
 }
 
-.button-group {
-  position: relative;
-  z-index: 1;
-  max-width: 19rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+.help-button button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.help-modal :deep(.modal-content) {
+  max-width: min(420px, 90vw);
+}
+
+.help-modal-content {
+  text-align: left;
+  display: grid;
   gap: 0.75rem;
+}
+
+.help-modal-title {
+  font-size: var(--fs-600);
+  font-weight: 600;
+  margin: 0;
+}
+
+.help-modal-text {
+  font-size: var(--fs-300);
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.help-modal-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.help-modal-actions .btn {
+  font-size: var(--fs-400);
+  padding-inline: 1.5rem;
+}
+
+.secondary {
+  background: #BBBBBB;
+}
+
+.help-modal-list {
+  list-style: disc;
+  padding: 0;
+  margin-top: -0.5rem;
+  margin-left: 1.5rem;
 }
 
 .row {
@@ -181,10 +247,6 @@ function clearCache() {
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-}
-
-.btn {
-  padding: 0.75rem 1rem;
 }
 
 .row>* {

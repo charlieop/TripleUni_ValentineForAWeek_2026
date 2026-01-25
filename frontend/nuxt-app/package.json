@@ -9,13 +9,10 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "generate-static": "NUXT_APP_BASE_URL=/ npx nuxt build --preset github_pages"
-
   },
   "dependencies": {
-    "@nuxt/ui": "^4.3.0",
     "@vueform/nuxt": "^1.24.0",
     "nuxt": "^4.2.2",
-    "tailwindcss": "^4.1.18",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },

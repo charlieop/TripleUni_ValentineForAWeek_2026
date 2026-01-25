@@ -1,191 +1,229 @@
 <template>
-    <div class="page-wrapper">
-        <h1>匹配详情</h1>
-
-        <div v-if="loading" class="loading">
-            <p>加载中...</p>
+    <div class="page-wrapper cupid-background">
+        <div class="title-wrapper">
+            <h1 class="page-title">
+                <template v-if="matchData">
+                    <span class="group-id">#{{ matchData.match_info.id }}</span> <span class="group-name"
+                        :style="{ fontSize: matchData.match_info.name.length < 10 ? 'var(--fs-700)' : 'var(--fs-600)' }">{{
+                            matchData.match_info.name }}</span>
+                </template>
+                <template v-else>
+                    <span class="group-name">我的CP组合</span>
+                </template>
+            </h1>
+            <LogoSm />
         </div>
 
-        <div v-else-if="error" class="error">
-            <p>{{ error }}</p>
-            <div class="button-group">
-                <button @click="loadMatchData" class="btn primary">重试</button>
-                <button @click="navigateTo('/')" class="btn secondary">
-                    返回首页
-                </button>
+
+        <template v-if="error">
+            <div class="state-card error">
+                <div class="state-icon">❌</div>
+                <p class="state-title">加载失败</p>
+                <p class="state-message">{{ error }}</p>
             </div>
-        </div>
+            <div class="button-group">
+                <button class="btn primary" @click="loadMatchData">重试</button>
+                <button class="btn" @click="navigateTo('/')">返回首页</button>
+            </div>
+        </template>
 
         <div v-else-if="matchData" class="match-content">
-            <!-- Match Name Section -->
-            <section class="info-section match-name-section">
-                <div class="match-name-card">
-                    <div class="match-name-display" v-if="!isEditingName">
-                        <h2 class="match-name">{{ matchData.match_info.name }}</h2>
-                        <p class="match-id">组号 #{{ matchData.match_info.id }}</p>
-                        <button @click="startEditingName" class="btn-edit-name">点击更改组名</button>
+            <section class="cp-info-section">
+                <div class="cp-info-item">
+                    <div class="polaroid-frame">
+                        <img :src="getImageUrl(matchData.user_info.head_image)" alt="">
                     </div>
-                    <div class="match-name-edit" v-else>
-                        <input v-model="newMatchName" type="text" class="name-input" :maxlength="30" placeholder="输入组名"
-                            @keyup.enter="saveMatchName" @keyup.esc="cancelEditingName" />
-                        <div class="edit-actions">
-                            <button @click="saveMatchName" class="btn primary" :disabled="savingName">
-                                {{ savingName ? '保存中...' : '保存' }}
-                            </button>
-                            <button @click="cancelEditingName" class="btn secondary" :disabled="savingName">
-                                取消
-                            </button>
-                        </div>
+                    <div class="name-info">
+                        <p class="name">{{ matchData.user_info.name }}</p>
                     </div>
+                </div>
+                <div class="cp-info-item">
+                    <div class="polaroid-frame">
+                        <img :src="getImageUrl(matchData.partner_info.head_image)" alt="">
+                    </div>
+                    <div class="name-info">
+                        <p class="name">{{ matchData.partner_info.name }}</p>
+                        <p class="wxid">{{ matchData.partner_info.wxid }}</p>
+                    </div>
+                </div>
+                <div class="cp-emoji">
+                    <span class="emoji">{{ getConnectorEmoji(matchData.match_info.total_score) }}</span>
                 </div>
             </section>
 
-            <!-- Score Section - Emphasized -->
-            <section class="info-section score-section">
+            <section class="score-section">
+                <h2 class="section-title">当前状态</h2>
                 <div class="score-card">
-                    <h2 class="score-label">总积分</h2>
-                    <div class="score-value">{{ matchData.match_info.total_score }}</div>
-                    <p class="score-description">完成每日任务可获得积分</p>
-                </div>
-            </section>
-
-            <!-- CP Group Section -->
-            <section class="info-section cp-section">
-                <h2>我的CP组</h2>
-                <div class="cp-group">
-                    <div class="cp-member user-member">
-                        <div class="cp-avatar">
-                            <img v-if="matchData.user_info.head_image"
-                                :src="getImageUrl(matchData.user_info.head_image)" :alt="matchData.user_info.name" />
-                            <div v-else class="avatar-placeholder">{{ matchData.user_info.name[0] }}</div>
+                    <div class="score-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">天数</div>
+                            <div class="stat-value">Day {{ matchData.match_info.current_day }}</div>
                         </div>
-                        <p class="cp-name">{{ matchData.user_info.name }}</p>
-                        <p class="cp-label">你</p>
-                    </div>
-
-                    <div class="cp-connector">{{ getConnectorEmoji(matchData.match_info.total_score) }}</div>
-
-                    <div class="cp-member partner-member">
-                        <div class="cp-avatar">
-                            <img v-if="matchData.partner_info.head_image"
-                                :src="getImageUrl(matchData.partner_info.head_image)"
-                                :alt="matchData.partner_info.name" />
-                            <div v-else class="avatar-placeholder">{{ matchData.partner_info.name[0] }}</div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-label">总分</div>
+                            <div class="stat-value score-value">{{ matchData.match_info.total_score }}</div>
                         </div>
-                        <p class="cp-name">{{ matchData.partner_info.name }}</p>
-                        <p class="cp-label">CP</p>
-                        <p class="cp-wxid">微信号: {{ matchData.partner_info.wxid }}</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Daily Missions Section -->
-            <section class="info-section missions-section">
-                <h2>每日任务</h2>
-                <div class="missions-grid">
-                    <div v-for="day in 7" :key="day" class="mission-card"
-                        :class="{ 'mission-completed': matchData.match_info.basic_complete && matchData.match_info.basic_complete[day - 1] }"
-                        @click="navigateTo(`/tasks/${day}`)">
-                        <div class="mission-day">Day {{ day }}</div>
-                        <div class="mission-status">
-                            <span
-                                v-if="matchData.match_info.basic_complete && matchData.match_info.basic_complete[day - 1]"
-                                class="status-icon completed">✓</span>
-                            <span v-else class="status-icon pending">○</span>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-label">排名</div>
+                            <div class="stat-value rank-value">
+                                <span class="rank-number">#{{ matchData.match_info.rank }}</span>
+                                <span class="rank-badge" v-if="matchData.match_info.rank === 1">👑</span>
+                                <span class="rank-badge" v-else-if="matchData.match_info.rank === 2">🥈</span>
+                                <span class="rank-badge" v-else-if="matchData.match_info.rank === 3">🥉</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Mentor Info Button -->
-            <div class="button-group">
-                <button @click="showMentorModal = true" class="btn secondary">
-                    查看Mentor信息
+            <section class="actions-section">
+                <button class="btn primary" @click="openMentorModal">
+                    Mentor信息
                 </button>
-                <button @click="navigateTo('/')" class="btn secondary">
+                <button class="btn primary" @click="openRulesModal">
+                    查看活动规则
+                </button>
+                <button class="btn primary" @click="openNameModal">
+                    修改组名
+                </button>
+
+                <button v-if="userState === UserStates.EXIT_QUESTIONNAIRE_RELEASE" class="btn dark"
+                    @click="navigateTo('/exit-questionnaire')">
+                    填写结束问卷
+                </button>
+            </section>
+
+            <section class="tasks-section">
+                <h2 class="section-title">任务进度</h2>
+                <div class="tasks-grid">
+                    <button v-for="day in 7" :key="day" class="task-card" :class="{
+                        'completed': matchData.match_info.basic_complete[day - 1],
+                        'disabled': day > matchData.match_info.current_day,
+                        'past': day < matchData.match_info.current_day
+                    }" :disabled="day > matchData.match_info.current_day" @click="navigateTo(`/tasks/${day}`)">
+                        <div class="task-day">Day {{ day }}</div>
+                        <div class="task-status">
+                            <span v-if="matchData.match_info.basic_complete[day - 1]">✓</span>
+                            <span v-else-if="day < matchData.match_info.current_day">✗</span>
+                            <span v-else-if="day > matchData.match_info.current_day">🔒</span>
+                            <span v-else>→</span>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <section class="exit-section">
+                <button class="btn primary" @click="navigateTo('/')">
                     返回首页
                 </button>
-            </div>
+            </section>
         </div>
 
-        <!-- Mentor Modal -->
-        <Transition name="modal">
-            <div v-if="showMentorModal" class="modal-overlay" @click="showMentorModal = false">
-                <div class="modal-content" @click.stop>
-                    <div class="modal-header">
-                        <h2>Mentor信息</h2>
-                        <button @click="showMentorModal = false" class="modal-close">×</button>
-                    </div>
-                    <div class="modal-body" v-if="matchData">
-                        <div class="mentor-modal-info">
-                            <div v-if="matchData.mentor_info.qrcode" class="mentor-qr">
-                                <img :src="getImageUrl(matchData.mentor_info.qrcode)" alt="Mentor二维码" />
-                            </div>
-                            <div class="mentor-details">
-                                <div class="info-item">
-                                    <span class="label">姓名:</span>
-                                    <span class="value">{{ matchData.mentor_info.name }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="label">微信号:</span>
-                                    <span class="value">{{ matchData.mentor_info.wxid }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button @click="showMentorModal = false" class="btn primary">关闭</button>
-                    </div>
+        <!-- Name Change Modal -->
+        <Modal v-model="showNameModal">
+            <h2 class="modal-title">修改组名</h2>
+            <div class="modal-form">
+                <label for="name-input" class="form-label">新组名</label>
+                <input id="name-input" v-model="newMatchName" type="text" class="form-input" maxlength="30"
+                    placeholder="请输入新的组名" @keyup.enter="saveMatchName" />
+                <p class="form-hint">最多30个字符</p>
+                <div class="modal-actions">
+                    <button class="btn dark" @click="saveMatchName">保存</button>
                 </div>
             </div>
-        </Transition>
+        </Modal>
+
+        <!-- Mentor Info Modal -->
+        <Modal v-model="showMentorModal">
+            <h2 class="modal-title">Mentor信息</h2>
+            <div class="mentor-info">
+                <div class="mentor-detail">
+                    <span class="detail-label">姓名:</span>
+                    <span class="detail-value">{{ matchData.mentor_info.name }}</span>
+                </div>
+                <div class="mentor-detail">
+                    <span class="detail-label">微信号:</span>
+                    <span class="detail-value">{{ matchData.mentor_info.wxid }}</span>
+                </div>
+            </div>
+            <div class="mentor-qrcode">
+                <img :src="getImageUrl(matchData.mentor_info.qrcode)" alt="Mentor微信二维码" class="qrcode-image" />
+            </div>
+            <div class="modal-actions">
+                <button class="btn dark" @click="() => { showMentorModal = false }">完成</button>
+            </div>
+
+        </Modal>
+
+        <!-- Rules Help Modal -->
+        <Modal v-model="showRulesModal">
+            <h2 class="modal-title">📋 活动规则</h2>
+            <div class="rules-content">
+                <ul class="rules-list">
+                    <li>在刚刚添加你的CP时, 请<strong>向对方屏蔽你的朋友圈</strong></li>
+                    <li>活动为期<strong>7天</strong>，每天都有新任务解锁</li>
+                    <li>完成任务可以获得<strong>积分</strong>，积分越高排名越靠前</li>
+                    <li>任务分为基础任务、支线任务与每日任务, <strong>基础任务为每日必做</strong>, 支线任务与每日任务为可选任务</li>
+                    <li>每天任务提交截止时间为下一天<strong>05:59 AM</strong></li>
+                    <li>提交的任务将在截止后由AI模型自动评分, <strong>请不要遮挡/ 拼接/ 模糊你提交的图片</strong>以确保评分准确</li>
+                    <li>如有问题请及时联系Mentor获取帮助</li>
+                    <li>预祝你享受这段美好时光 💖</li>
+                </ul>
+            </div>
+            <div class="rules-checkbox" v-if="!getDoNotShowHelpModal()">
+                <label class="checkbox-label">
+                    <input type="checkbox" v-model="doNotShowAgain" />
+                    <span>不再提示</span>
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="btn dark" @click="closeRulesModal">知道了</button>
+            </div>
+        </Modal>
     </div>
 </template>
 
 <script setup lang="ts">
-import { API_HOST } from "@/app/composables/useConfigs";
+const { get, post } = useRequest();
+const { setDoNotShowHelpModal, getDoNotShowHelpModal } = useStore();
+const matchData = ref<any>(null);
+const error = ref<string | null>(null);
+const showNameModal = ref(false);
+const showMentorModal = ref(false);
+const showRulesModal = ref(false);
+const doNotShowAgain = ref(false);
+const newMatchName = ref("");
 
 useHead({
-    title: "一周CP 2026 | 匹配详情",
+    title: computed(() => matchData.value
+        ? `一周CP 2026 | ${matchData.value.match_info.name}`
+        : "一周CP 2026 | 我的CP组合"),
 });
-
-const { get, post } = useRequest();
-const matchData = ref<any>(null);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const showMentorModal = ref(false);
-const isEditingName = ref(false);
-const newMatchName = ref("");
-const savingName = ref(false);
-
-const getImageUrl = (path: string | null) => {
-    if (!path) return '';
-    return `${API_HOST}/media/${path}`;
-};
 
 const getConnectorEmoji = (score: number): string => {
     // Emoji progression representing relationship stages based on score
     if (score === 0) {
-        return '👋'; // Just meeting - waving
+        return '👋';
     } else if (score <= 50) {
-        return '🤝'; // Getting acquainted - handshake
+        return '💬';
     } else if (score <= 100) {
-        return '👥'; // Getting to know each other - people together
+        return '👥';
     } else if (score <= 200) {
-        return '💬'; // Talking and connecting - speech bubbles
+        return '🥰';
     } else if (score <= 300) {
-        return '💕'; // Growing closer - two hearts
+        return '💕';
     } else if (score <= 400) {
-        return '💖'; // Falling in love - sparkling heart
+        return '💖';
     } else if (score <= 500) {
-        return '💑'; // In love - couple with heart
+        return '💌';
     } else {
-        return '💗'; // Deeply in love - growing heart
+        return '❤️‍🔥';
     }
 };
 
 const loadMatchData = async () => {
-    loading.value = true;
     error.value = null;
 
     try {
@@ -201,23 +239,22 @@ const loadMatchData = async () => {
     } catch (err: any) {
         error.value = err.message || '加载匹配详情失败';
         console.error(err);
-    } finally {
-        loading.value = false;
     }
 };
 
-const startEditingName = () => {
+const openNameModal = () => {
     if (matchData.value) {
         newMatchName.value = matchData.value.match_info.name;
-        isEditingName.value = true;
+        showNameModal.value = true;
     }
 };
 
-const cancelEditingName = () => {
-    isEditingName.value = false;
-    if (matchData.value) {
-        newMatchName.value = matchData.value.match_info.name;
-    }
+const openMentorModal = () => {
+    showMentorModal.value = true;
+};
+
+const openRulesModal = () => {
+    showRulesModal.value = true;
 };
 
 const saveMatchName = async () => {
@@ -231,16 +268,14 @@ const saveMatchName = async () => {
         return;
     }
 
-    savingName.value = true;
     try {
         const res = await post("match/", { name: newMatchName.value.trim() });
         if (res.ok) {
             const data = await res.json();
             if (matchData.value) {
-                matchData.value.match_info.name = data.data.name;
+                matchData.value.match_info.name = newMatchName.value.trim();
             }
-            isEditingName.value = false;
-            alert('组名已更新');
+            showNameModal.value = false;
         } else {
             const errorData = await res.json();
             throw new Error(errorData.detail || res.statusText);
@@ -248,486 +283,446 @@ const saveMatchName = async () => {
     } catch (err: any) {
         alert(err.message || '更新组名失败');
         console.error(err);
-    } finally {
-        savingName.value = false;
     }
+};
+
+const closeRulesModal = () => {
+    if (doNotShowAgain.value) {
+        setDoNotShowHelpModal(true);
+    }
+    showRulesModal.value = false;
 };
 
 onMounted(() => {
     loadMatchData();
+
+    // Show rules modal unless user has opted out
+    if (!getDoNotShowHelpModal()) {
+        showRulesModal.value = true;
+    }
 });
 </script>
 
 <style scoped>
 .page-wrapper {
-    padding: 1.5rem;
-    max-width: 100%;
-    margin: 0 auto;
-    padding-bottom: 3rem;
+    height: var(--height);
+    overflow-y: scroll;
+}
+
+.title-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.group-id {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -1.5rem;
+    color: #6e6e6e;
+    font-size: var(--fs-600);
+}
+
+.group-name {
+    display: inline-block;
+    text-wrap: balance;
 }
 
 h1 {
+    position: relative;
     font-size: var(--fs-700);
-    color: var(--clr-primary);
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-h2 {
-    font-size: var(--fs-600);
-    color: var(--clr-primary-dark);
-    margin-bottom: 1rem;
-}
-
-.loading,
-.error {
-    text-align: center;
-    padding: 2rem;
-}
-
-.error {
-    color: var(--clr-danger);
-}
-
-.info-section {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: var(--clr-background--muted);
-    border-radius: 0.5rem;
-}
-
-/* Match Name Section */
-.match-name-card {
-    text-align: center;
-}
-
-.match-name-display {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.match-name {
-    font-size: var(--fs-600);
-    color: var(--clr-text);
-    margin: 0;
-    word-break: break-word;
-}
-
-.match-id {
-    font-size: var(--fs-300);
-    color: var(--clr-text--muted);
-    margin: 0;
-}
-
-.btn-edit-name {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: transparent;
-    border: 1px solid var(--clr-primary);
-    color: var(--clr-primary);
-    border-radius: 0.5rem;
-    font-size: var(--fs-300);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-edit-name:hover {
-    background: var(--clr-primary-light);
-}
-
-.match-name-edit {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.name-input {
-    padding: 0.75rem;
-    border: 2px solid var(--clr-primary);
-    border-radius: 0.5rem;
-    font-size: var(--fs-400);
-    background: var(--clr-background);
-    color: var(--clr-text);
-    text-align: center;
-}
-
-.name-input:focus {
-    outline: none;
-    border-color: var(--clr-primary-dark);
-}
-
-.edit-actions {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.edit-actions .btn {
-    flex: 1;
-}
-
-/* Score Section - Emphasized */
-.score-section {
-    background: linear-gradient(135deg, var(--clr-primary-light), var(--clr-secondary-light));
-    border: 2px solid var(--clr-primary);
-}
-
-.score-card {
-    text-align: center;
-}
-
-.score-label {
-    font-size: var(--fs-500);
-    color: var(--clr-text);
-    margin-bottom: 1rem;
-}
-
-.score-value {
-    font-size: 4rem;
-    font-weight: 700;
-    color: var(--clr-primary-dark);
-    line-height: 1;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.score-description {
-    font-size: var(--fs-300);
-    color: var(--clr-text--muted);
-    margin: 0;
-}
-
-/* CP Group Section */
-.cp-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 1rem;
-    padding: 1rem 0;
-}
-
-.cp-member {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    flex: 1;
-}
-
-.cp-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid var(--clr-primary);
-    background: var(--clr-background--muted);
-}
-
-.cp-avatar img {
     width: 100%;
-    height: 100%;
+}
+
+section {
+    padding-inline: 0.75rem;
+}
+
+.cp-info-section {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: center;
+    gap: 5rem;
+    position: relative;
+}
+
+.cp-info-item {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.polaroid-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1.15;
+    background: white;
+    padding: 5%;
+    box-shadow: 1px 1px 10px 0 rgba(0, 0, 0, 0.2);
+}
+
+.polaroid-frame img {
     object-fit: cover;
+    background: var(--clr-text--muted);
 }
 
-.avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: var(--clr-primary);
-    font-weight: 600;
-}
-
-.cp-name {
-    font-size: var(--fs-400);
-    color: var(--clr-text);
-    font-weight: 600;
-    margin: 0;
-    word-break: break-word;
-    text-align: center;
-}
-
-.cp-label {
-    font-size: var(--fs-300);
-    color: var(--clr-primary);
-    font-weight: 600;
-    margin: 0;
-}
-
-.cp-wxid {
-    font-size: var(--fs-300);
-    color: var(--clr-text--muted);
-    margin: 0;
-    word-break: break-all;
-    text-align: center;
-}
-
-.cp-connector {
-    font-size: 2rem;
-    flex-shrink: 0;
-    animation: pulse 2s ease-in-out infinite;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
-}
-
-/* Missions Section */
-.missions-grid {
-    margin-top: 1rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 1rem;
-}
-
-.mission-card {
-    background: var(--clr-background);
-    border: 2px solid var(--clr-text--muted);
-    border-radius: 0.75rem;
-    padding: 1.25rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
+.name-info {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-    min-height: 100px;
     justify-content: center;
+    gap: -0.25rem;
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.5rem;
+
 }
 
-.mission-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--clr-primary);
-}
-
-.mission-card.mission-completed {
-    background: linear-gradient(135deg, var(--clr-primary-light), var(--clr-secondary-light));
-    border-color: var(--clr-primary);
-    border-width: 2px;
-}
-
-.mission-day {
-    font-size: var(--fs-500);
-    font-weight: 600;
-    color: var(--clr-text);
-}
-
-.mission-status {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.status-icon {
-    font-size: 1.5rem;
+.name {
+    font-size: var(--fs-400);
     font-weight: bold;
 }
 
-.status-icon.completed {
-    color: var(--clr-primary-dark);
+.wxid {
+    font-size: var(--fs-300);
+    font-weight: bold;
 }
 
-.status-icon.pending {
-    color: var(--clr-text--muted);
+.cp-emoji {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: var(--fs-700);
+    font-weight: bold;
+    animation: pulse 3s infinite ease-in-out;
 }
 
-/* Button Group */
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.score-section {
     margin-top: 2rem;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: var(--fs-400);
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn.primary {
-    background: var(--clr-primary);
-    color: var(--clr-text);
-}
-
-.btn.primary:hover:not(:disabled) {
-    background: var(--clr-primary-dark);
-}
-
-.btn.secondary {
-    background: var(--clr-secondary);
-    color: var(--clr-text);
-}
-
-.btn.secondary:hover {
-    background: var(--clr-secondary-dark);
-}
-
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 1rem;
-    backdrop-filter: blur(4px);
-}
-
-.modal-content {
-    background: var(--clr-background);
+.score-card {
+    background: #FFFFFF;
     border-radius: 1rem;
-    max-width: 400px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid var(--clr-background--muted);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.modal-header h2 {
-    margin: 0;
-    font-size: var(--fs-600);
-    color: var(--clr-primary);
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--clr-text--muted);
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
+.score-stats {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: var(--transition);
+    justify-content: space-around;
+    gap: 1rem;
 }
 
-.modal-close:hover {
-    background: var(--clr-background--muted);
-    color: var(--clr-text);
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-.mentor-modal-info {
+.stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: 1;
 }
 
-.mentor-qr {
-    width: 200px;
-    height: 200px;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    border: 2px solid var(--clr-secondary);
-    background: white;
+.stat-label {
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
 }
 
-.mentor-qr img {
+.stat-value {
+    font-size: var(--fs-600);
+    color: var(--clr-text);
+    font-weight: 900;
+}
+
+.score-value {
+    color: var(--clr-primary);
+}
+
+.rank-value {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.rank-number {
+    color: var(--clr-primary-dark);
+}
+
+.rank-badge {
+    font-size: var(--fs-500);
+}
+
+.stat-divider {
+    width: 1px;
+    height: 3rem;
+    background: var(--clr-text--muted);
+    opacity: 0.3;
+}
+
+.actions-section {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    margin-top: 2rem;
 }
 
-.mentor-details {
-    width: 100%;
+.actions-section>button {
+    flex-grow: 1;
+}
+
+.tasks-section {
+    margin-top: 3rem;
+}
+
+.section-title {
+    font-size: var(--fs-600);
+    color: var(--clr-primary-dark);
+    font-weight: 900;
+    text-align: left;
+    margin-bottom: .5rem;
+    padding-inline: 0.5rem;
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 1rem;
+}
+
+.task-card {
+    background: #FBFBFB80;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border-radius: 1rem;
+    padding: 1rem 1rem;
+    text-align: center;
+    box-shadow: 1px 1px 10px 0 rgba(0, 0, 0, 0.15);
+    border: 0.75px solid #FAFAFA80;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--clr-text);
+    font-weight: bold;
+}
+
+.task-card:not(.disabled):hover {
+    transform: translateY(-4px);
+    box-shadow: 2px 4px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.task-card:not(.disabled):active {
+    transform: translateY(-2px);
+}
+
+.past:not(.completed) {
+    background: #6e6e6e7c;
+    border-color: #6e6e6e7c;
+}
+
+.task-card.completed {
+    background: var(--clr-primary-light);
+    border-color: var(--clr-primary);
+}
+
+.task-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+
+.task-day {
+    font-size: var(--fs-400);
+    margin-bottom: 0.5rem;
+}
+
+.task-status {
+    font-size: var(--fs-600);
+}
+
+.exit-section {
+    margin-block: 3rem 5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.mentor-details .info-item {
+/* Modal Specific Styles */
+.modal-title {
+    font-size: var(--fs-600);
+    color: var(--clr-primary-dark);
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.modal-form {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-label {
+    font-size: var(--fs-400);
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+.form-input {
+    width: 100%;
     padding: 0.75rem;
+    border: 2px solid var(--clr-text--muted);
+    border-radius: 0.5rem;
+    font-size: var(--fs-400);
+    background: var(--clr-background);
+    color: var(--clr-text);
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--clr-primary);
+}
+
+.form-hint {
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
+    margin-top: -0.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.btn.dark {
+    text-shadow: none;
+    background: var(--clr-primary-dark);
+    color: #EFEFEF;
+}
+
+.mentor-info {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.mentor-detail {
+    position: relative;
+    min-width: 4rem;
+    padding: 0.5rem 0.75rem;
     background: var(--clr-background--muted);
     border-radius: 0.5rem;
 }
 
-.mentor-details .label {
-    font-size: var(--fs-400);
+.detail-label {
+    position: absolute;
+    left: 0;
+    top: -0.75rem;
+    display: inline-block;
+    font-size: var(--fs-200);
     color: var(--clr-text--muted);
 }
 
-.mentor-details .value {
+.detail-value {
     font-size: var(--fs-400);
     color: var(--clr-text);
-    font-weight: 600;
 }
 
-.modal-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--clr-background--muted);
-}
-
-.modal-footer .btn {
+.mentor-qrcode {
     width: 100%;
+    margin-top: 1rem;
+    text-align: center;
 }
 
-/* Modal Transitions */
-.modal-enter-active,
-.modal-leave-active {
-    transition: opacity 0.3s ease;
+.qrcode-image {
+    margin-inline: auto;
+    width: 80%;
+    max-width: 250px;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
-    transition: transform 0.3s ease, opacity 0.3s ease;
+.rules-content {
+    margin-top: 1rem;
 }
 
-.modal-enter-from,
-.modal-leave-to {
-    opacity: 0;
+.rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
-    transform: scale(0.9);
-    opacity: 0;
+.rules-list li {
+    position: relative;
+    padding: 0.5rem;
+    background: var(--clr-background--muted);
+    border-radius: 0.5rem;
+    font-size: var(--fs-300);
+}
+
+.rules-list li strong {
+    color: var(--clr-primary-dark);
+    font-weight: 700;
+}
+
+.rules-checkbox {
+    margin-block: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--clr-text--muted);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: var(--fs-400);
+    color: var(--clr-text);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: var(--clr-primary);
+}
+
+.checkbox-label span {
+    user-select: none;
 }
 </style>

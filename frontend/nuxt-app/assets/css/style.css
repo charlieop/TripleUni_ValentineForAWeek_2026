@@ -1,59 +1,42 @@
-@import "tailwindcss";
-@import "@nuxt/ui";
+/* for vueform only */
+@media (prefers-color-scheme: dark) {
+  .application-form-wrapper {
+    --clr-text: hsl(356, 100%, 97%);
+    --clr-background: hsl(356, 100%, 2%);
+    background-color: var(--clr-background);
+    color: var(--clr-text);
+  }
+}
 
 /* Gloal Colors */
+:root {
+  --clr-text: hsl(356, 100%, 2%);
+  --clr-text--muted: hsl(356, 6%, 65%);
+  --clr-background: hsl(356, 100%, 99.5%);
+  --clr-background--muted: hsl(356, 100%, 98%);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --clr-text: hsl(356, 100%, 97%);
-    --clr-text--muted: hsl(356, 6%, 40%);
-    --clr-background: hsl(356, 100%, 2%);
-    --clr-background--muted: hsl(356, 100%, 5%);
+  --clr-primary: hsl(353, 100%, 83%);
+  --clr-primary-dark: hsl(0, 72%, 33%);
+  --clr-primary-light: hsla(353, 100%, 90%, 0.5);
+  --clr-secondary: hsl(256, 72%, 75%);
+  --clr-secondary-dark: hsl(256, 72%, 70%);
+  --clr-secondary-light: hsla(256, 72%, 80%, 0.5);
 
-    --clr-primary: hsl(353, 100%, 73%);
-    --clr-primary-dark: hsl(0, 72%, 33%);
-    --clr-primary-light: hsla(353, 100%, 80%, 0.65);
-    --clr-secondary: hsl(256, 72%, 65%);
-    --clr-secondary-dark: hsl(256, 72%, 60%);
-    --clr-secondary-light: hsla(256, 72%, 70%, 0.5);
+  --clr-accent: hsl(42, 100%, 50%);
+  --clr-accent-light: hsla(42, 100%, 50%, 0.8);
 
-    --clr-accent: hsl(42, 100%, 60%);
-    --clr-accent-light: hsla(42, 100%, 60%, 0.8);
-
-    --clr-success: hsl(120, 84%, 35%);
-    --clr-danger: hsla(0, 87%, 44%, 0.414);
-    --clr-failed: hsla(0, 0%, 99%, 0.277);
-  }
+  --clr-success: hsl(120, 88%, 41%);
+  --clr-danger: hsla(0, 87%, 44%, 0.414);
+  --clr-failed: hsla(0, 0%, 58%, 0.279);
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    --clr-text: hsl(356, 100%, 2%);
-    --clr-text--muted: hsl(356, 6%, 65%);
-    --clr-background: hsl(356, 100%, 99.5%);
-    --clr-background--muted: hsl(356, 100%, 98%);
 
-    --clr-primary: hsl(353, 100%, 83%);
-    --clr-primary-dark: hsl(0, 72%, 33%);
-    --clr-primary-light: hsla(353, 100%, 90%, 0.5);
-    --clr-secondary: hsl(256, 72%, 75%);
-    --clr-secondary-dark: hsl(256, 72%, 70%);
-    --clr-secondary-light: hsla(256, 72%, 80%, 0.5);
-
-    --clr-accent: hsl(42, 100%, 50%);
-    --clr-accent-light: hsla(42, 100%, 50%, 0.8);
-
-    --clr-success: hsl(120, 88%, 41%);
-    --clr-danger: hsla(0, 87%, 44%, 0.414);
-    --clr-failed: hsla(0, 0%, 58%, 0.279);
-  }
-}
 
 
 /* Global Settings */
 :root {
   --height: 100vh;
   --width: 100vw;
-  --max-width: calc(100vh * 7 / 11);
+  --max-width: min(calc(100vh * 7 / 11), 600px);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -83,7 +66,7 @@ strong {
   border-radius: 99rem;
   font-weight: bold;
   font-size: var(--fs-500);
-  padding: 0.875rem 1.25rem;
+  padding: 0.75rem 1rem;
   border: none;
   cursor: pointer;
   transition: var(--transition);
@@ -122,8 +105,27 @@ strong {
 }
 
 .paper-background {
-  background: url('@/assets/imgs/bg.jpg') no-repeat center center var(--clr-background);
+  background-color: var(--clr-background-muted);
+  background: url('@/assets/imgs/bg.jpg') no-repeat center center;
   background-size: cover;
+}
+
+.heart-background {
+  background-color: var(--clr-background-muted);
+  background: url('@/assets/imgs/heeart-bg.jpg') repeat center center;
+  background-size: 16rem 16rem;
+}
+
+.cupid-background {
+  background-color: var(--clr-background-muted);
+  background: url('@/assets/imgs/cupid-bg.jpeg') no-repeat center center;
+  background-size: cover;
+}
+
+.flower-background {
+  background-color: var(--clr-background-muted);
+  background: url('@/assets/imgs/flower-bg.png') no-repeat center center;
+  background-size: cover
 }
 
 .page-wrapper {
@@ -141,6 +143,24 @@ strong {
   max-width: 500px;
 }
 
+.button-group {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 19rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+h1.page-title {
+  font-size: var(--fs-800);
+  color: var(--clr-primary-dark);
+  font-weight: 900;
+  text-align: center;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -153,4 +173,36 @@ strong {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   touch-action: none;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Modal Transitions */
+.modal-transition-enter-active,
+.modal-transition-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.modal-transition-enter-active .modal-content,
+.modal-transition-leave-active .modal-content {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-transition-enter-from,
+.modal-transition-leave-to {
+    opacity: 0;
+}
+
+.modal-transition-enter-from .modal-content,
+.modal-transition-leave-to .modal-content {
+    transform: scale(0.9);
+    opacity: 0;
 }

@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="application-form-wrapper">
+    <div class="application-form-wrapper page-wrapper">
+      <LogoSm />
       <ApplicationForm />
     </div>
   </div>
@@ -18,5 +19,9 @@ useHead({
   padding: 3rem 2rem;
   overflow: scroll;
   overflow-x: clip;
+}
+
+.logo-sm {
+  margin-bottom: 1rem;
 }
 </style>

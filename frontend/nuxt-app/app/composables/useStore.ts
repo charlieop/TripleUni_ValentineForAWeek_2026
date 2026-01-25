@@ -39,6 +39,16 @@ export const useStore = () => {
     localStorage.removeItem("applicationFormData");
   };
 
+  const setDoNotShowHelpModal = (doNotShow: boolean): void => {
+    localStorage.setItem("doNotShowHelpModal", doNotShow.toString());
+  };
+  const getDoNotShowHelpModal = (): boolean => {
+    return localStorage.getItem("doNotShowHelpModal") === "true";
+  };
+  const clearDoNotShowHelpModal = (): void => {
+    localStorage.removeItem("doNotShowHelpModal");
+  };
+
   return {
     setToken,
     getToken,
@@ -51,5 +61,9 @@ export const useStore = () => {
     setApplicationFormData,
     getApplicationFormData,
     deleteApplicationFormData,
+
+    setDoNotShowHelpModal,
+    getDoNotShowHelpModal,
+    clearDoNotShowHelpModal,
   };
 };

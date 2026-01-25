@@ -10,6 +10,7 @@
 
 const props = defineProps<{
     size: string;
+    color: string;
 }>();
 </script>
 
@@ -17,5 +18,7 @@ const props = defineProps<{
 svg {
     width: v-bind(size);
     height: v-bind(size);
+    fill: v-bind(color);
+    color: v-bind(color);
 }
 </style>

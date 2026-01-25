@@ -145,20 +145,17 @@
                 押金构成如下:<br>
                 <ul>
                     <li class='vf-li'>70元: 完成每日基础任务 (10元/天)</li>
-                    <li class='vf-li'>20元: 完成活动</li>
-                    <li class='vf-li'>9元: 完成反馈问卷</li>
+                    <li class='vf-li'>20元: 完成3天的基础任务</li>
+                    <li class='vf-li'>9元: 完成结束反馈问卷</li>
                 </ul>
                 <strong>若完成的基础任务不足3天, 则所有押金将不予退还</strong><br>
                 <br>
                 押金将在报名时收取, <strong>只有成功缴纳才视为报名完成.</strong><br>
-                在报名截止前, 你可以随时选择退出活动并获得全额退款.报名截止后, 你必须完成所有基础活动内容方可获得押金退还.<br>
+                在报名截止前, 你可以随时选择退出活动并获得全额退款. 报名截止后, 你必须完成所有基础活动内容方可获得押金退还.<br>
                 <br>
                 如果因为对方原因导致无法继续活动, 请及时联系你的Mentor并说明情况, 我们将会视情况为你做出安排<br>
                 <br>
-                押金将在活动结束后30日内原路退还.<br>
-
-                
-
+                押金将在活动结束后30日内原路退还.关于押金退还规则的解释权归主办方所有.<br>
             </div>" />
                 <StaticElement name="h3_10" tag="h3" content="数据收集 & 隐私承诺" top="2" />
                 <StaticElement name="p_8" tag="p" content="
@@ -778,6 +775,7 @@ async function handleSubmit(form: VueformInstance, formData: any) {
         if (responseData.data.paid) {
             router.push("/");
         } else {
+            await fetchUserState();
             router.push("/payment");
         }
     } catch (err: any) {
@@ -796,7 +794,7 @@ function updateData(data: any) {
 };
 </script>
 
-<style scoped>
+<style>
 .vf-application-form *,
 .vf-application-form *:before,
 .vf-application-form *:after,

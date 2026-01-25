@@ -100,7 +100,7 @@ class StatusView(APIView, UtilMixin):
         return Response(
             {
                 "data": {
-                    "status": Status.APPLIED.value,
+                    "status": Status.ACTIVITY_START.value,
                     "deadline": AvtivityDates.APPLICATION_START.timestamp(),
                 }
             },

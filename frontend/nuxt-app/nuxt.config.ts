@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     "@/assets/css/style.css",
   ],
   ssr: false,
-  modules: ["@nuxt/ui", "@vueform/nuxt"],
+  modules: ["@vueform/nuxt"],
   app: {
     baseURL: "/",
 

@@ -2,9 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from django.db.models import Sum, F
 
 from ..mixin import UtilMixin
-from ..models import Task
+from ..models import Task, Match
 from ..serializers.match import MatchResultSerializer, MatchDetailSerializer
 from ..logger import CustomLogger
 from ..configs import AvtivityDates
@@ -42,7 +43,7 @@ class MatchResultDetailView(APIView, UtilMixin):
 
     def post(self, request):
         AvtivityDates.assert_valid_set_match_result_period()
-        
+
         # Get new status from request
         new_status = request.data.get("status")
         if new_status not in ["A", "R"]:
@@ -87,7 +88,9 @@ class MatchResultDetailView(APIView, UtilMixin):
                 f"POST match-result: {applicant.wechat_info.openid}, match_id: {match.id}, status: {new_status}"
             )
 
-        return Response({"detail": "Match result updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Match result updated successfully"}, status=status.HTTP_200_OK
+        )
 
 
 class MatchDetailView(APIView, UtilMixin):
@@ -95,7 +98,7 @@ class MatchDetailView(APIView, UtilMixin):
 
     def get(self, request):
         AvtivityDates.assert_valid_view_match_detail_period()
-        
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -114,12 +117,28 @@ class MatchDetailView(APIView, UtilMixin):
             if task and task.basic_completed:
                 basic_complete[i - 1] = True
 
-        total_score = sum(
-            task.basic_score + task.bonus_score + task.daily_score for task in tasks
-        )
+
+        day = (AvtivityDates.now() - AvtivityDates.FIRST_MISSION_RELEASE).days + 1
+        if day > 7:
+            day = 7
+
+        # Calculate rank by counting matches with higher total scores
+        # Since total_score is a property, we need to calculate it via aggregation
+        current_score = match.total_score
+
+        # Count matches with higher scores
+        matches_with_higher_scores = Match.objects.annotate(
+            score=Sum(
+                F("tasks__basic_score")
+                + F("tasks__bonus_score")
+                + F("tasks__daily_score")
+            )
+        ).filter(score__gt=current_score)
+
+        rank = matches_with_higher_scores.count() + 1
 
         logger.info(
-            f"GET match: {applicant.wechat_info.openid}, match_id: {match.id}, score: {total_score}"
+            f"GET match: {applicant.wechat_info.openid}, match_id: {match.id}, score: {current_score}"
         )
 
         # Prepare data for serializer
@@ -127,8 +146,10 @@ class MatchDetailView(APIView, UtilMixin):
             "match": match,
             "user_applicant": user_applicant,
             "other_applicant": other_applicant,
-            "total_score": total_score,
+            "total_score": current_score,
             "basic_complete": basic_complete,
+            "current_day": day,
+            "rank": rank,
         }
 
         serializer = MatchDetailSerializer(data)
@@ -137,7 +158,7 @@ class MatchDetailView(APIView, UtilMixin):
 
     def post(self, request):
         AvtivityDates.assert_valid_set_match_detail_period()
-        
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -161,4 +182,6 @@ class MatchDetailView(APIView, UtilMixin):
             f"POST match: {applicant.wechat_info.openid}, match_id: {match.id}, new name: {new_name}"
         )
 
-        return Response({"detail": "Match name updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Match name updated successfully"}, status=status.HTTP_200_OK
+        )

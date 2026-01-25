@@ -1,33 +1,40 @@
 <template>
-    <div class="page-wrapper">
-        <h1>支付押金</h1>
+    <div class="page-wrapper paper-background">
+        <LogoSm />
+        <h1 class="page-title">押金支付</h1>
 
         <div v-if="loading" class="loading">
             <p>正在处理支付...</p>
         </div>
 
-        <div v-else-if="error" class="error">
-            <p>{{ error }}</p>
+        <template v-else-if="error">
+
+            <div class="error">
+                <div class="error-icon">❌</div>
+                <p class="error-title">支付失败</p>
+                <p class="error-message">错误信息: {{ error }}</p>
+            </div>
             <div class="button-group">
                 <button @click="retryPayment" class="btn primary">重试</button>
-                <button @click="navigateTo('/')" class="btn secondary">返回首页</button>
+                <button @click="navigateTo('/')" class="btn">返回首页</button>
             </div>
-        </div>
+        </template>
 
-        <div v-else-if="paymentSuccess" class="success">
-            <div class="success-icon">✓</div>
-            <p class="success-message">支付成功！</p>
-            <p class="success-subtext">您的押金已成功支付，请继续完成报名</p>
+        <template v-else-if="paymentSuccess">
+            <div class="success">
+                <div class="success-icon">✓</div>
+                <p class="success-message">支付成功！</p>
+                <p class="success-subtext">押金已支付完成，报名成功</p>
+            </div>
             <div class="button-group">
                 <button @click="navigateTo('/')" class="btn primary">返回首页</button>
             </div>
-        </div>
-
+        </template>
         <div v-else class="payment-content">
             <!-- Payment Info Section -->
             <section class="info-section">
-                <h2>押金信息</h2>
                 <div class="payment-info-card">
+                    <h2>押金信息</h2>
                     <div class="info-item">
                         <span class="label">押金金额:</span>
                         <span class="value amount">¥99.00</span>
@@ -35,9 +42,6 @@
                     <div class="info-item">
                         <span class="label">支付方式:</span>
                         <span class="value">微信支付</span>
-                    </div>
-                    <div class="info-description">
-                        <p>押金用于确保活动参与承诺。活动结束后，完成所有任务的参与者将获得全额退款。</p>
                     </div>
                 </div>
             </section>
@@ -57,7 +61,7 @@
                 <button @click="initiatePayment" class="btn primary" :disabled="processing">
                     {{ processing ? '处理中...' : '支付押金' }}
                 </button>
-                <button @click="navigateTo('/')" class="btn secondary" :disabled="processing">
+                <button @click="navigateTo('/')" class="btn" :disabled="processing">
                     返回首页
                 </button>
             </div>
@@ -67,7 +71,7 @@
 
 <script setup lang="ts">
 useHead({
-    title: "一周CP 2026 | 支付押金",
+    title: "一周CP 2026 | 押金支付",
 });
 
 const { get } = useRequest();
@@ -178,203 +182,128 @@ const retryPayment = () => {
 </script>
 
 <style scoped>
-.page-wrapper {
-    padding: 1.5rem;
-    max-width: 100%;
+.payment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 520px;
     margin: 0 auto;
+    width: 100%;
 }
 
 h1 {
-    font-size: var(--fs-700);
-    color: var(--clr-primary);
-    margin-bottom: 2rem;
-    text-align: center;
+    margin-bottom: 1.5rem;
 }
 
 h2 {
-    font-size: var(--fs-600);
+    font-size: var(--fs-500);
+    font-weight: bold;
     color: var(--clr-primary-dark);
-    margin-bottom: 1rem;
+    text-align: left;
+    padding-left: 0.25rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.value {
+    font-weight: bold;
+}
+
+.value.amount {
+    color: var(--clr-primary-dark);
+    font-size: var(--fs-500);
+}
+
+.instructions-section,
+.payment-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+}
+
+.instructions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1.25rem;
+    font-size: var(--fs-300);
+    list-style-type: disc;
 }
 
 .loading,
 .error,
 .success {
+    max-width: 520px;
+    margin: 1.5rem auto;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
     text-align: center;
-    padding: 2rem;
-}
-
-.loading {
-    color: var(--clr-text);
-}
-
-.error {
-    color: var(--clr-danger);
-}
-
-.success {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-.success-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: var(--clr-success);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-.success-message {
-    font-size: var(--fs-600);
-    color: var(--clr-success);
-    font-weight: 600;
-    margin: 0;
-}
-
-.success-subtext {
     font-size: var(--fs-400);
-    color: var(--clr-text--muted);
-    margin: 0;
-    line-height: 1.6;
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow:
+        0 12px 26px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 }
 
-.payment-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.info-section {
-    margin-bottom: 1rem;
-    padding: 1.5rem;
-    background: var(--clr-background--muted);
-    border-radius: 0.5rem;
-}
-
-.payment-info-card {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem;
-    background: var(--clr-background);
-    border-radius: 0.5rem;
-}
-
-.info-item .label {
-    font-size: var(--fs-400);
-    color: var(--clr-text--muted);
-}
-
-.info-item .value {
-    font-size: var(--fs-400);
-    color: var(--clr-text);
-    font-weight: 600;
-}
-
-.info-item .value.amount {
-    font-size: var(--fs-600);
-    color: var(--clr-primary);
-}
-
-.info-description {
-    padding: 1rem;
-    background: var(--clr-background);
-    border-radius: 0.5rem;
-    border-left: 3px solid var(--clr-primary);
-}
-
-.info-description p {
-    font-size: var(--fs-400);
-    color: var(--clr-text--muted);
-    line-height: 1.6;
-    margin: 0;
-}
-
-.instructions-section {
-    background: linear-gradient(135deg, var(--clr-primary-light), var(--clr-secondary-light));
-}
-
-.instructions-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.instructions-list li {
-    padding: 0.75rem;
-    background: var(--clr-background);
-    border-radius: 0.5rem;
-    font-size: var(--fs-400);
-    color: var(--clr-text);
-    line-height: 1.5;
-    position: relative;
-    padding-left: 2rem;
-}
-
-.instructions-list li::before {
-    content: "•";
-    position: absolute;
-    left: 0.75rem;
-    color: var(--clr-primary);
-    font-weight: bold;
+.loading p {
+    font-weight: 700;
     font-size: var(--fs-500);
 }
 
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 2rem;
+.error {
+    border: 1px solid rgba(255, 128, 128, 0.4);
+    color: red;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 0.5rem;
+.success {
+    border: 1px solid rgba(120, 200, 120, 0.4);
+}
+
+.success-icon,
+.error-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    background: rgba(120, 200, 120, 0.2);
+    color: var(--clr-success);
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin: 0 auto 0.75rem;
+}
+
+.error-icon {
+    color: red;
+    background: rgba(255, 128, 128, 0.2);
+}
+
+.success-message,
+.error-title {
+    font-size: var(--fs-600);
+    font-weight: 800;
+}
+
+.success-subtext,
+.error-message {
+    margin-top: 0.25rem;
     font-size: var(--fs-400);
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn.primary {
-    background: var(--clr-primary);
-    color: var(--clr-text);
-}
-
-.btn.primary:hover:not(:disabled) {
-    background: var(--clr-primary-dark);
-}
-
-.btn.secondary {
-    background: var(--clr-secondary);
-    color: var(--clr-text);
-}
-
-.btn.secondary:hover:not(:disabled) {
-    background: var(--clr-secondary-dark);
+.button-group {
+    width: 100%;
+    margin-top: 0.5rem;
 }
 </style>

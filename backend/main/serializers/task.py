@@ -5,6 +5,7 @@ from .image import ImageSerializer
 
 class GetTaskSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    due = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
@@ -16,6 +17,7 @@ class GetTaskSerializer(serializers.ModelSerializer):
             "basic_score",
             "bonus_score",
             "daily_score",
+            "due",
         ]
         read_only_fields = fields
 
@@ -23,7 +25,10 @@ class GetTaskSerializer(serializers.ModelSerializer):
         # Only return non-deleted images
         images = obj.imgs.filter(deleted=False).order_by("created_at")
         return ImageSerializer(images, many=True, context=self.context).data
-    
+
+    def get_due(self, obj):
+        return self.context.get("due", False)
+
 
 class SetTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,4 +36,3 @@ class SetTaskSerializer(serializers.ModelSerializer):
         fields = [
             "submit_text",
         ]
-

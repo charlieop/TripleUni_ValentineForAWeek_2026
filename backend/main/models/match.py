@@ -30,6 +30,13 @@ class Match(models.Model):
         max_length=1, choices=STATUS, default="P", verbose_name="嘉宾2号状态"
     )
 
+    @property
+    def total_score(self):
+        return sum(
+            task.basic_score + task.bonus_score + task.daily_score
+            for task in self.tasks.all()
+        )
+
     discarded = models.BooleanField(default=False, verbose_name="已废弃")
     discard_reason = models.TextField(blank=True, null=True, verbose_name="废弃原因")
 
