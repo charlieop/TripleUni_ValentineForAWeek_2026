@@ -2,6 +2,7 @@ const { get } = useRequest();
 
 export enum UserStates {
     UNKNOWN = "UNKNOWN",
+    MAINTENANCE = "MAINTENANCE",
 
     NOT_STARTED = "NOT_STARTED",
 
@@ -43,7 +44,7 @@ export const fetchUserState = async () => {
 }
 
 export const lazyFetchUserState = async () => {
-    if (userState.value === UserStates.UNKNOWN) {
+    if (userState.value === UserStates.UNKNOWN || userState.value === UserStates.MAINTENANCE) {
         try {
             await fetchUserState();
         } catch (error) {

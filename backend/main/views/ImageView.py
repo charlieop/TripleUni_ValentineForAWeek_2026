@@ -25,7 +25,7 @@ logger = CustomLogger("image")
 class ImageView(APIView, UtilMixin):
     def get(self, request, day):
         AvtivityDates.assert_valid_view_task_period(day)
-        
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -46,10 +46,12 @@ class ImageView(APIView, UtilMixin):
 
     def post(self, request, day):
         AvtivityDates.assert_valid_set_task_period(day)
-        
+
         if type(request.data) != QueryDict:
             raise ParseError(
-                'Field: "image" is required in body with multipart/form-data'
+                {
+                    "detail": 'Field: "image" is required in body with multipart/form-data'
+                }
             )
 
         token = self.get_token(request)
@@ -63,8 +65,16 @@ class ImageView(APIView, UtilMixin):
 
         imgs = request.data.getlist("images", [])
 
+        img_count = task.imgs.filter(deleted=False).count()
+        if img_count + len(imgs) > 25:
+            raise ValidationError(
+                {"detail": "You can only upload up to 25 images for this task."}
+            )
+
         if not imgs:
-            raise ParseError('At least one image is required in "images" field')
+            raise ParseError(
+                {"detail": 'At least one image is required in "images" field'}
+            )
 
         # Validate and create images
         created_images = []
@@ -126,7 +136,7 @@ class ImageView(APIView, UtilMixin):
 class ImageDetailView(APIView, UtilMixin):
     def delete(self, request, day, img_id):
         AvtivityDates.assert_valid_set_task_period(day)
-        
+
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)
 
@@ -141,7 +151,7 @@ class ImageDetailView(APIView, UtilMixin):
             logger.warning(
                 f"DELETE day {day} img {img_id}: {applicant.wechat_info.openid}, image not found"
             )
-            raise NotFound("Image not found")
+            raise NotFound({"detail": "Image not found"})
 
         logger.info(f"DELETE day {day} img {img_id}: {applicant.wechat_info.openid}")
 

@@ -25,7 +25,7 @@ VALID_FILE_EXTENSIONS = [
 def check_image(value) -> None:
     """Validator for image field - checks size and MIME type"""
     if value.size > SIZE_LIMIT:
-        raise ValidationError("File too large. Size should not exceed 5MB.")
+        raise ValidationError({"detail": "File too large. Size should not exceed 5MB."})
 
     # Try to get content type from the file
     if hasattr(value, "content_type"):
@@ -41,12 +41,12 @@ def check_image(value) -> None:
         ):
             return
         raise ValidationError(
-            "Unsupported file type. Only JPEG, PNG, JPG, HEIC, HEIF and WebP are allowed."
+            {"detail": "Unsupported file type. Only JPEG, PNG, JPG, HEIC, HEIF and WebP are allowed."}
         )
 
     if file_mime_type not in VALID_MIME_TYPES:
         raise ValidationError(
-            "Unsupported file type. Only JPEG, PNG, JPG, HEIC, HEIF and WebP are allowed."
+            {"detail": "Unsupported file type. Only JPEG, PNG, JPG, HEIC, HEIF and WebP are allowed."}
         )
 
 

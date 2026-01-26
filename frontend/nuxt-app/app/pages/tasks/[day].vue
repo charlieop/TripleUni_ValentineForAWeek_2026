@@ -24,7 +24,7 @@
             </div>
 
             <!-- Scores Section -->
-            <section class="scores-section">
+            <section class="scores-section" v-if="taskData.due">
                 <h2 class="section-title">得分情况</h2>
                 <div class="score-card">
                     <div class="score-grid">
@@ -74,13 +74,13 @@
                         <div v-for="(image, index) in taskData.images" :key="image.id" class="polaroid-frame">
                             <img :src="getImageUrl(image.image_url)" :alt="`Image ${image.id}`"
                                 @click="openImageModal(typeof index === 'number' ? index : parseInt(index))"
-                                class="polaroid-image" />
+                                class="polaroid-image" loading="lazy" />
                             <button v-if="!taskData.due" @click.stop="removeImage(image.id)"
                                 class="hover-button remove-image-btn">
                                 <IconCross size="1.5rem" color="#EEEEEE" />
                             </button>
                         </div>
-                        <div v-if="taskData.images.length < 20 && !taskData.due" class="image-upload-card"
+                        <div v-if="taskData.images.length < 25 && !taskData.due" class="image-upload-card"
                             @click="triggerFileInput">
                             <span class="upload-icon">+</span>
                             <span class="upload-text">添加图片</span>
@@ -89,7 +89,7 @@
                     <input ref="fileInput" type="file"
                         accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/webp" multiple
                         @change="handleFileSelect" style="display: none" />
-                    <p class="field-hint">最多可上传20张图片，每张图片不超过5MB. <strong>本次活动使用AI自动审核, 请不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
+                    <p class="field-hint">最多可上传25张图片，每张图片不超过5MB. <strong>本次活动使用AI自动审核, 请不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
                 </div>
             </section>
 
@@ -111,12 +111,12 @@
         </div>
 
         <!-- Image Lightbox Modal -->
-        <Modal v-model="showImageModal" class="image-lightbox-modal" :showCloseButton="false">
+        <Modal v-model="showImageModal" :class="'image-lightbox-modal'" :showCloseButton="false">
             <div class="lightbox-content">
 
                 <img v-if="taskData.images[selectedImageIndex]"
                     :src="getImageUrl(taskData.images[selectedImageIndex].image_url)"
-                    :alt="`Image ${selectedImageIndex + 1}`" class="lightbox-image" />
+                    :alt="`Image ${selectedImageIndex + 1}`" class="lightbox-image" loading="lazy" />
             </div>
             <Teleport to="body">
                 <Transition name="modal-transition">
@@ -184,6 +184,7 @@ const saveTask = async () => {
             if (taskData.value) {
                 taskData.value.submit_text = data.data.submit_text;
             }
+            alert('保存成功');
         } else {
             const errorData = await res.json();
             throw new Error(errorData.detail || res.statusText);
@@ -226,21 +227,17 @@ const handleFileSelect = async (event: Event) => {
 
     // Check total images count
     const currentImageCount = taskData.value?.images?.length || 0;
-    if (currentImageCount + files.length > 20) {
-        alert('最多只能上传20张图片');
+    if (currentImageCount + files.length > 25) {
+        alert('最多只能上传25张图片');
         target.value = '';
         return;
     }
 
-    // Validate file sizes and types
+    // Validate file types
     const validFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!file) continue;
-        if (file.size > 5 * 1024 * 1024) {
-            alert(`图片 ${file.name} 超过5MB，已跳过`);
-            continue;
-        }
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             alert(`图片 ${file.name} 格式不支持，已跳过`);
@@ -254,11 +251,38 @@ const handleFileSelect = async (event: Event) => {
         return;
     }
 
+    const compressedFiles: File[] = [];
+    for (const file of validFiles) {
+        try {
+            const compressedBlob = await compressImage(file);
+            if (compressedBlob.size > 5 * 1024 * 1024) {
+                alert(`图片 ${file.name} 压缩后仍超过5MB，已跳过`);
+                continue;
+            }
+            console.log(`图片 ${file.name} 压缩前大小为 ${file.size / 1024 / 1024} MB, 压缩后大小为 ${compressedBlob.size / 1024 / 1024} MB`);
+            const baseName = file.name.replace(/\.[^/.]+$/, '') || 'image';
+            const compressedFile = new File(
+                [compressedBlob],
+                `${baseName}.jpg`,
+                { type: compressedBlob.type || 'image/jpeg' }
+            );
+            compressedFiles.push(compressedFile);
+        } catch (error) {
+            alert(`图片 ${file.name} 压缩失败，已跳过`);
+            console.error(error);
+        }
+    }
+    if (compressedFiles.length === 0) {
+        target.value = '';
+        return;
+    }
+
     // Upload images
     const formData = new FormData();
-    validFiles.forEach(file => {
+    compressedFiles.forEach(file => {
         formData.append('images', file);
     });
+
     try {
         const res = await post(`tasks/${day.value}/imgs/`, formData);
         if (res.ok) {

@@ -119,8 +119,7 @@ class MatchDetailView(APIView, UtilMixin):
 
 
         day = (AvtivityDates.now() - AvtivityDates.FIRST_MISSION_RELEASE).days + 1
-        if day > 7:
-            day = 7
+        day = max(min(day, 8), 0)
 
         # Calculate rank by counting matches with higher total scores
         # Since total_score is a property, we need to calculate it via aggregation

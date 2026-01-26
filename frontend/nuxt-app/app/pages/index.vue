@@ -112,6 +112,14 @@
       <button class="btn primary" @click="navigateTo('/match')">查看我的一周CP</button>
       <button class="btn secondary" disabled>问卷填写已截止</button>
     </div>
+    <div class="button-group" v-else-if="userState === UserStates.MAINTENANCE">
+      <button class="btn primary" disabled>维护中...</button>
+
+      <div class="info-block">
+        <span class="info-text">我们正在对服务器进行必要的维护，预计维护结束时间：{{ nextStatusChange?.toLocaleString() }}</span>
+      </div>
+
+    </div>
     <div class="button-group" v-else>
       <button class="btn primary" disabled>出现了一个错误</button>
 

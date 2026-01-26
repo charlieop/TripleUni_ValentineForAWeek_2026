@@ -8,11 +8,10 @@
         </div>
 
         <template v-else-if="error">
-
-            <div class="error">
-                <div class="error-icon">❌</div>
-                <p class="error-title">支付失败</p>
-                <p class="error-message">错误信息: {{ error }}</p>
+            <div class="state-card error">
+                <div class="state-icon">❌</div>
+                <p class="state-title">支付失败</p>
+                <p class="state-message">{{ error }}</p>
             </div>
             <div class="button-group">
                 <button @click="retryPayment" class="btn primary">重试</button>
@@ -242,7 +241,6 @@ h2 {
 }
 
 .loading,
-.error,
 .success {
     max-width: 520px;
     margin: 1.5rem auto;
@@ -262,17 +260,11 @@ h2 {
     font-size: var(--fs-500);
 }
 
-.error {
-    border: 1px solid rgba(255, 128, 128, 0.4);
-    color: red;
-}
-
 .success {
     border: 1px solid rgba(120, 200, 120, 0.4);
 }
 
-.success-icon,
-.error-icon {
+.success-icon {
     width: 3rem;
     height: 3rem;
     border-radius: 999px;
@@ -285,19 +277,12 @@ h2 {
     margin: 0 auto 0.75rem;
 }
 
-.error-icon {
-    color: red;
-    background: rgba(255, 128, 128, 0.2);
-}
-
-.success-message,
-.error-title {
+.success-message {
     font-size: var(--fs-600);
     font-weight: 800;
 }
 
-.success-subtext,
-.error-message {
+.success-subtext {
     margin-top: 0.25rem;
     font-size: var(--fs-400);
 }

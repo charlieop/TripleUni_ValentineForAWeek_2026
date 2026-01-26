@@ -57,7 +57,8 @@
                     <div class="score-stats">
                         <div class="stat-item">
                             <div class="stat-label">天数</div>
-                            <div class="stat-value">Day {{ matchData.match_info.current_day }}</div>
+                                <div v-if="matchData.match_info.current_day === 8" class="stat-value">结束</div>
+                                <div v-else class="stat-value">Day {{ matchData.match_info.current_day }}</div>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">

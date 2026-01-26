@@ -5,8 +5,7 @@
       <NuxtPage />
     </div>
     <LoadingOverlay />
-    <!-- XXX: 暂时关闭微信授权 -->
-    <!-- <RequireWeChat /> -->
+    <RequireWeChat />
   </div>
 </template>
 

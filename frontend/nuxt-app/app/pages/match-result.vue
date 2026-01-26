@@ -14,7 +14,7 @@
             </div>
         </template>
 
-        <template v-else-if="no_match">
+        <template v-else-if="no_match || (matchData?.match_info?.discarded && round === 2)">
             <div class="state-card empty" v-if="round === 1">
                 <div class="state-icon">💌</div>
                 <p class="state-title">暂未匹配成功</p>
@@ -194,9 +194,6 @@ const error = ref<string | null>(null);
 const isUserAccepted = computed(() => matchData.value?.match_info?.user_status === 'A');
 
 const round = computed(() => {
-    if (matchData.value?.match_info?.round) {
-        return matchData.value.match_info.round;
-    }
     if (userState.value === UserStates.FIRST_MATCH_RESULT_RELEASE || userState.value === UserStates.FIRST_MATCH_CONFIRM_END) {
         return 1;
     }
@@ -474,56 +471,6 @@ section {
     font-size: var(--fs-200);
     color: var(--clr-text--muted);
     text-align: center;
-}
-
-.state-card {
-    max-width: 520px;
-    margin: 1.5rem auto;
-    width: 100%;
-    padding: 1.25rem 1.5rem;
-    border-radius: 1rem;
-    text-align: center;
-    font-size: var(--fs-400);
-    background: rgba(255, 255, 255, 0.75);
-    box-shadow:
-        0 12px 26px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-}
-
-.state-card.error {
-    border: 1px solid rgba(255, 128, 128, 0.4);
-    color: red;
-}
-
-.state-card.empty {
-    border: 1px solid rgba(255, 196, 140, 0.45);
-}
-
-.state-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 999px;
-    background: rgba(255, 196, 140, 0.2);
-    display: grid;
-    place-items: center;
-    font-size: 1.5rem;
-    font-weight: 900;
-    margin: 0 auto 0.75rem;
-}
-
-.state-card.error .state-icon {
-    color: red;
-    background: rgba(255, 128, 128, 0.2);
-}
-
-.state-title {
-    font-size: var(--fs-600);
-    font-weight: 800;
-}
-
-.state-message {
-    margin-top: 0.25rem;
-    font-size: var(--fs-400);
 }
 
 .match-info-item {

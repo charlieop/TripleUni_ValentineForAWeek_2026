@@ -34,38 +34,56 @@ export const useRequest = () => {
   const get = (path: string, options?: RequestInit) =>
     request(path, { ...options, method: "GET" });
 
-  const post = (path: string, body?: any, options?: RequestInit) =>
-    request(path, {
+  const post = (path: string, body?: any, options?: RequestInit) => {
+    const isFormData = body instanceof FormData;
+    return request(path, {
       ...options,
       method: "POST",
-      body: body ? JSON.stringify(body) : undefined,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      body: isFormData ? body : body ? JSON.stringify(body) : undefined,
+      headers: isFormData
+        ? {
+            ...options?.headers,
+          }
+        : {
+            "Content-Type": "application/json",
+            ...options?.headers,
+          },
     });
+  };
 
-  const put = (path: string, body?: any, options?: RequestInit) =>
-    request(path, {
+  const put = (path: string, body?: any, options?: RequestInit) => {
+    const isFormData = body instanceof FormData;
+    return request(path, {
       ...options,
       method: "PUT",
-      body: body ? JSON.stringify(body) : undefined,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      body: isFormData ? body : body ? JSON.stringify(body) : undefined,
+      headers: isFormData
+        ? {
+            ...options?.headers,
+          }
+        : {
+            "Content-Type": "application/json",
+            ...options?.headers,
+          },
     });
+  };
 
-  const patch = (path: string, body?: any, options?: RequestInit) =>
-    request(path, {
+  const patch = (path: string, body?: any, options?: RequestInit) => {
+    const isFormData = body instanceof FormData;
+    return request(path, {
       ...options,
       method: "PATCH",
-      body: body ? JSON.stringify(body) : undefined,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      body: isFormData ? body : body ? JSON.stringify(body) : undefined,
+      headers: isFormData
+        ? {
+            ...options?.headers,
+          }
+        : {
+            "Content-Type": "application/json",
+            ...options?.headers,
+          },
     });
+  };
 
   const del = (path: string, options?: RequestInit) =>
     request(path, { ...options, method: "DELETE" });

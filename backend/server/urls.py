@@ -19,14 +19,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-# XXX: Temporary redirect to API
-from django.shortcuts import redirect
-def redirect_to_api(request):
-    return redirect("v1/")
+
 
 urlpatterns = [
-    path("", redirect_to_api),
     path("admin/", admin.site.urls),
     path("v1/", include("main.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+] + static(
+    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+)

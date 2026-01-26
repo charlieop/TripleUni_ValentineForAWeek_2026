@@ -2,6 +2,10 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from rest_framework.exceptions import ValidationError
 
+MAINTENANCE_MODE = False
+EXPECTED_MAINTENANCE_END = datetime(
+    year=2026, month=1, day=31, hour=23, minute=59, second=59, tzinfo=ZoneInfo("America/New_York")
+)
 
 # Configuration for the application
 class AvtivityDates:
@@ -10,39 +14,39 @@ class AvtivityDates:
     TIME_ZONE = ZoneInfo("America/New_York")
     
     APPLICATION_START = datetime(
-        year=2026, month=1, day=25, hour=23, minute=26, second=40, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     APPLICATION_END = datetime(
-        year=2026, month=1, day=24, hour=14, minute=27, second=59, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=1, minute=0, second=0, tzinfo=TIME_ZONE
     )
 
     FIRST_MATCH_RESULT_RELEASE = datetime(
-        year=2026, month=1, day=6, hour=6, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=6, minute=0, second=0, tzinfo=TIME_ZONE
     )
     FIRST_MATCH_CONFIRM_END = datetime(
-        year=2026, month=2, day=7, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
-    )
-
-    SECOND_MATCH_RESULT_RELEASE = datetime(
-        year=2026, month=2, day=7, hour=12, minute=0, second=0, tzinfo=TIME_ZONE
-    )
-
-    ACTIVITY_START = datetime(
-        year=2026, month=2, day=7, hour=22, minute=0, second=0, tzinfo=TIME_ZONE
-    )
-
-    FIRST_MISSION_RELEASE = datetime(
-        year=2026, month=1, day=23, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
-    )
-    FIRST_MISSION_END = datetime(
         year=2026, month=1, day=24, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
     )
 
+    SECOND_MATCH_RESULT_RELEASE = datetime(
+        year=2026, month=1, day=24, hour=7, minute=0, second=0, tzinfo=TIME_ZONE
+    )
+
+    ACTIVITY_START = datetime(
+        year=2026, month=1, day=24, hour=8, minute=0, second=0, tzinfo=TIME_ZONE
+    )
+
+    FIRST_MISSION_RELEASE = datetime(
+        year=2026, month=1, day=25, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
+    )
+    FIRST_MISSION_END = datetime(
+        year=2026, month=1, day=26, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
+    )
+
     EXIT_QUESTIONNAIRE_RELEASE = datetime(
-        year=2026, month=2, day=14, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=28, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     EXIT_QUESTIONNAIRE_END = datetime(
-        year=2026, month=2, day=16, hour=23, minute=59, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=29, hour=23, minute=59, second=0, tzinfo=TIME_ZONE
     )
     
     # TIME_ZONE = ZoneInfo("Asia/Shanghai")
@@ -100,7 +104,7 @@ class AvtivityDates:
         return date <= AvtivityDates.now()
     
     # XXX: TODO: Remove this before deployment
-    DEBUG = True
+    DEBUG = False
     
     @staticmethod
     def assert_valid_application_period():
@@ -122,7 +126,7 @@ class AvtivityDates:
     def assert_valid_set_match_result_period():
         if AvtivityDates.DEBUG:
             return
-        if not AvtivityDates.has_passed(AvtivityDates.FIRST_MATCH_CONFIRM_END):
+        if not AvtivityDates.has_passed(AvtivityDates.FIRST_MATCH_RESULT_RELEASE):
             raise ValidationError({"detail": "Match result has not been released yet"})
         elif AvtivityDates.has_passed(AvtivityDates.FIRST_MATCH_CONFIRM_END):
             raise ValidationError(
@@ -156,7 +160,7 @@ class AvtivityDates:
     def assert_valid_set_task_period(day: int):
         if AvtivityDates.DEBUG:
             return
-        if not AvtivityDates.has_passed(AvtivityDates.MISSION_SUBMIT_END_DAY(day)):
+        if not AvtivityDates.has_passed(AvtivityDates.MISSION_RELEASE_DAY(day)):
             raise ValidationError({"detail": f"Task for day {day} has not been released yet"})
         elif AvtivityDates.has_passed(AvtivityDates.MISSION_SUBMIT_END_DAY(day)):
             raise ValidationError({"detail": f"The task submission period for day {day} has ended"})

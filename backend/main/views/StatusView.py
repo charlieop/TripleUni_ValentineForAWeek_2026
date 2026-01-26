@@ -4,15 +4,18 @@ from rest_framework import status
 from enum import Enum
 from datetime import datetime
 from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import PermissionDenied
 
 from ..mixin import UtilMixin
 from ..logger import CustomLogger
-from ..configs import AvtivityDates
+from ..configs import AvtivityDates, MAINTENANCE_MODE, EXPECTED_MAINTENANCE_END
 
 logger = CustomLogger("status")
 
 
 class Status(Enum):
+    
+    MAINTENANCE = "MAINTENANCE"
     NOT_STARTED = "NOT_STARTED"
 
     APPLICATION_START = "APPLICATION_START"
@@ -35,7 +38,7 @@ class Status(Enum):
 class StatusView(APIView, UtilMixin):
     def _get_status(self, token: str) -> tuple[Status, datetime]:
         now = AvtivityDates.now()
-
+        
         # Before application starts
         if now < AvtivityDates.APPLICATION_START:
             return (Status.NOT_STARTED, AvtivityDates.APPLICATION_START)
@@ -49,10 +52,9 @@ class StatusView(APIView, UtilMixin):
                 if now < AvtivityDates.APPLICATION_END
                 else (Status.APPLICATION_END, None)
             )
-
-        # Check if applicant quit
-        if applicant.quitted:
+        except PermissionDenied:
             return (Status.QUITTED, None)
+
 
         # During application period
         if now < AvtivityDates.APPLICATION_END:
@@ -97,15 +99,9 @@ class StatusView(APIView, UtilMixin):
         return (Status.EXIT_QUESTIONNAIRE_END, None)
 
     def get(self, request):
-        return Response(
-            {
-                "data": {
-                    "status": Status.ACTIVITY_START.value,
-                    "deadline": AvtivityDates.APPLICATION_START.timestamp(),
-                }
-            },
-            status=status.HTTP_200_OK,
-        )
+        if MAINTENANCE_MODE:
+            return Response({"data": {"status": Status.MAINTENANCE.value, "deadline": EXPECTED_MAINTENANCE_END.timestamp()}}, status=status.HTTP_200_OK)
+
         token = self.get_token(request)
         openid = self.get_openid_by_token(token)
         status_obj, deadline = self._get_status(token)

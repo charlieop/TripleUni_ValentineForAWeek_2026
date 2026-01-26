@@ -1,6 +1,6 @@
 <template>
     <Transition name="modal-transition">
-        <div v-if="modelValue" class="modal-overlay" @click="handleOverlayClick">
+        <div v-if="modelValue" :class="class" class="modal-overlay" @click="handleOverlayClick">
             <div class="modal-content" @click.stop>
                 <button v-if="showCloseButton" class="modal-close" @click="close" aria-label="Close">
                     <IconCross size="1.5rem" color="var(--clr-text--muted)" />
@@ -17,6 +17,7 @@
 const props = withDefaults(defineProps<{
     modelValue: boolean;
     showCloseButton?: boolean;
+    class?: string;
 }>(), {
     showCloseButton: true
 });
@@ -33,6 +34,33 @@ const handleOverlayClick = () => {
     close();
 };
 
+// Disable body scrolling when modal is open
+let originalBodyOverflow: string | null = null;
+
+const disableBodyScroll = () => {
+    if (originalBodyOverflow === null) {
+        originalBodyOverflow = document.body.style.overflow;
+    }
+    document.body.style.overflow = 'hidden';
+};
+
+const enableBodyScroll = () => {
+    if (originalBodyOverflow !== null) {
+        document.body.style.overflow = originalBodyOverflow;
+        originalBodyOverflow = null;
+    } else {
+        document.body.style.overflow = '';
+    }
+};
+
+watch(() => props.modelValue, (isOpen) => {
+    if (isOpen) {
+        disableBodyScroll();
+    } else {
+        enableBodyScroll();
+    }
+}, { immediate: true });
+
 // Close modal on ESC key
 onMounted(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -43,6 +71,8 @@ onMounted(() => {
     window.addEventListener('keydown', handleEsc);
     onUnmounted(() => {
         window.removeEventListener('keydown', handleEsc);
+        // Ensure body scroll is re-enabled when component is unmounted
+        enableBodyScroll();
     });
 });
 </script>

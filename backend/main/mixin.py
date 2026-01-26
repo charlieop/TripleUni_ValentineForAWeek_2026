@@ -12,7 +12,9 @@ import pickle
 from django.core.cache import cache
 from django.db.models import Q
 
+from .configs import MAINTENANCE_MODE
 from .models import Applicant, Token, Match, WeChatInfo, Task
+
 
 class Gone(APIException):
     status_code = 410
@@ -29,6 +31,11 @@ class NoContent(APIException):
     status_code = 204
     default_detail = "No content"
     default_code = "no_content"
+    
+class InternalServerError(APIException):
+    status_code = 500
+    default_detail = "An internal server error occurred."
+    default_code = "internal_server_error"
 
 
 class UtilMixin:
@@ -36,6 +43,8 @@ class UtilMixin:
         token = request.headers.get("Authorization")
         if token is None:
             raise ParseError({"detail": 'Authorization header with user "token" is required'})
+        if MAINTENANCE_MODE:
+            raise InternalServerError({"detail": "We are currently undergoing maintenance. Please try again later."})
         return token
 
     def get_openid_by_token(self, token: str) -> str:
