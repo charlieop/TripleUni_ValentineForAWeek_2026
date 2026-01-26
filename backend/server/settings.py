@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import json
 from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,8 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ao@36m2i9$=@^w@(zo*fke!9xb*v937hdy)-%^!uetw-i4cgq$"
-
+with open(BASE_DIR / "SECRETS.json") as f:
+    secrets = json.load(f)
+    SECRET_KEY = secrets["DJANGO_SECRET_KEY"]
+    
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -32,6 +35,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -147,6 +151,11 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://api.charlieop.com"]
+
+UNFOLD = {
+    "SITE_TITLE": "一周CP 信息管理后台",
+    "SITE_HEADER": "一周CP 管理后台",
+}
 
 # Django REST Framework settings
 REST_FRAMEWORK = {
