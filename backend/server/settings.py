@@ -25,11 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 with open(BASE_DIR / "SECRETS.json") as f:
     secrets = json.load(f)
     SECRET_KEY = secrets["DJANGO_SECRET_KEY"]
-    
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["api.charlieop.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["api.charlieop.com", "localhost", "127.0.0.1", "43.134.231.69"]
 
 # Application definition
 
