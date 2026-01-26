@@ -42,12 +42,13 @@
                 ]" label="关于你" />
                 <FormStep name="page2" :elements="[
                     'h2_1',
+                    'p_14',
                     'hobbies',
-                    'travel_destination',
-                    'superpower',
-                    'use_of_money',
-                    'family',
-                    'lifestyle',
+                    'fav_movies',
+                    'wish',
+                    'weekend_arrangement',
+                    'reply_frequency',
+                    'expectation',
                     'divider_3',
                 ]" label="更多" />
                 <FormStep name="page3" label="关于ta" :elements="[
@@ -190,7 +191,7 @@
                     content="<div>如果你在网站上遇到了错误, 可以尝试以下步骤修复:<br><br> 1. 打开网站首页<br> 2. 点击左上方的「?」 标签<br> 3. 点击「清除页面缓存」按钮<br> 4. 重新登录</div>" />
                 <StaticElement name="divider" tag="hr" top="2" />
                 <CheckboxElement name="checkbox" field-name="规则及隐私条款" :rules="['accepted']"
-                    text="我已详细阅读、理解并同意以上所有内容并愿意参加活动。" :submit="false" />
+                    text="我已详细阅读、理解并同意以上所有内容并愿意参加活动." :submit="false" />
 
                 <StaticElement name="h2" tag="h2" content="个人信息" />
                 <StaticElement name="h3" tag="h3" content="基础信息" />
@@ -200,7 +201,7 @@
                     label: 12,
                     wrapper: 12,
                 }" :rules="['required', 'max:50']" label="你的微信号"
-                    description="请确定wxid正确，且可被搜索/ 添加。如果你的微信号是以wxid开头的原始id，请填入手机号。" placeholder="my_wechat_id" />
+                    description="请确定wxid正确，且可被搜索/ 添加. 如果你的微信号是以wxid开头的原始id，请填入手机号." placeholder="my_wechat_id" />
                 <RadiogroupElement name="sex" field-name="性别" view="tabs" :items="[
                     {
                         value: 'M',
@@ -311,13 +312,14 @@
                     { value: 'CN', label: '中国' },
                     { value: 'JP_KR', label: '日韩' },
                     { value: 'ASIA', label: '亚洲' },
+                    { value: 'OCEANIA', label: '大洋洲' },
                     { value: 'UK', label: '英国' },
                     { value: 'EU', label: '欧洲' },
                     { value: 'US', label: '美国' },
                     { value: 'CA', label: '加拿大' },
                     { value: 'NA', label: '北美洲' },
                     { value: 'OTHER', label: '其他' },
-                ]" label="你本学期最常在的地区" :rules="['required']" description="请选择最精确(小)的选项。如果你在多个地区之间频繁往返，请选择你待的时间最长的地区。" />
+                ]" label="你本学期最常在的地区" :rules="['required']" description="请选择最精确(小)的选项. 如果你在多个地区之间频繁往返，请选择你待的时间最长的地区." />
                 <StaticElement name="divider_1" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_1" tag="h3" content="MBTI 性格测试结果" />
                 <StaticElement name="p" tag="p"
@@ -354,182 +356,56 @@
 
                 <StaticElement name="h2_2" tag="h2" content="你的匹配偏好" />
                 <StaticElement name="h2_1" tag="h2" content="你的兴趣/ 爱好/ 想法" />
-                <TagsElement name="hobbies" field-name="兴趣爱好" :close-on-select="false" :items="[
+                <StaticElement name="p_14" tag="p" content="此页内容仅用于匹配, 不会有任何人, 包括你的CP与Mentor, 能够看到你的答案, 请放心填写." />
+                <TagsElement name="hobbies" :close-on-select="false" :search="true" autocomplete="off" :create="true"
+                    placeholder="输入最多三个" :floating="false" :append-new-option="false" :max="3" label="你有什么兴趣爱好" :rules="[
+                        'required',
+                    ]" description='可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' info="请直接输入, 并通过换行分隔" />
+                <TagsElement name="fav_movies" :close-on-select="false" :search="true" label="你最喜欢的书/ 电影/ 动漫/ 电视剧"
+                    autocomplete="off" :create="true" placeholder="输入最多三个" :floating="false" :append-new-option="false"
+                    :max="3" :rules="[
+                        'required',
+                    ]" info="请直接输入, 并通过换行分隔" />
+                <TextareaElement name="wish" :floating="false" :rows="3" :rules="[
+                    'required',
+                    'min:5',
+                    'max:50',
+                ]" description="不受任何限制的话, 你最想要做的是什么呢? (5-50字)" placeholder="因为是盗版的阿拉丁所以只能实现一个愿望...
+但是放心不会有副作用啦~" label='你拿到了"阿拉丙神灯"会许什么愿望' />
+                <TextareaElement name="weekend_arrangement" :floating="false" :rows="3" :rules="[
+                    'required',
+                    'min:5',
+                    'max:50',
+                ]" description="假设你没有作业, Project, 考试或者其他事情限制你, 你会做什么呢? (5-50字)" placeholder='请以"我"开头, 描述你预想中的周末
+' label="自由安排这个周末你会做什么" />
+                <RadiogroupElement name="reply_frequency" :items="[
                     {
-                        value: 'workout',
-                        label: '健身',
+                        value: '5',
+                        label: '一直在线, 基本秒回',
                     },
                     {
-                        value: 'read',
-                        label: '阅读',
+                        value: '4',
+                        label: '经常看手机, 看到就回',
                     },
                     {
-                        value: 'film',
-                        label: '看剧、电影',
+                        value: '3',
+                        label: '佛系查看, 不定时回复',
                     },
                     {
-                        value: 'music',
-                        label: '音乐',
+                        value: '2',
+                        label: '攒很多消息, 逐一回复',
                     },
                     {
-                        value: 'travel',
-                        label: '旅游',
+                        value: '1',
+                        label: '开启勿扰模式, 闲下来再回',
                     },
-                    {
-                        value: 'photography',
-                        label: '摄影',
-                    },
-                    {
-                        value: 'acg',
-                        label: '二次元',
-                    },
-                    {
-                        value: 'vediogame',
-                        label: '游戏',
-                    },
-                    {
-                        value: 'sport',
-                        label: '运动',
-                    },
-                    {
-                        value: 'cook',
-                        label: '做饭',
-                    },
-                    {
-                        value: 'paint',
-                        label: '绘画',
-                    },
-                    {
-                        value: 'create',
-                        label: '创作',
-                    },
-                ]" :native="false" label="选择你的爱好（多选）" :rules="['required']" :max="3" info="最多选择3个" />
-                <RadiogroupElement name="travel_destination" field-name="期待的旅游地点" view="blocks" :items="[
-                    {
-                        value: 'sea',
-                        label: '海边 ',
-                        description: null,
-                    },
-                    {
-                        value: 'town',
-                        label: '安静宜人的小镇',
-                        description: null,
-                    },
-                    {
-                        value: 'city',
-                        label: '现代化大都市',
-                        description: null,
-                    },
-                    {
-                        value: 'none',
-                        label: '我不喜欢旅游',
-                        description: null,
-                    },
-                ]" label="你更期待前往哪里旅游？
-    " :rules="['required']" />
-                <RadiogroupElement name="superpower" field-name="希望拥有的超能力" view="blocks" :items="[
-                    {
-                        value: 'animal',
-                        label: '能和所有动物交流',
-                        description: null,
-                    },
-                    {
-                        value: 'fly',
-                        label: '可以飞',
-                        description: null,
-                    },
-                    {
-                        value: 'mindreading',
-                        label: '读心术',
-                        description: null,
-                    },
-                    {
-                        value: 'prophecy',
-                        label: '可以预知1小时后的未来',
-                        description: null,
-                    },
-                    {
-                        value: 'resurrection',
-                        label: '可以复活一次',
-                        description: null,
-                    },
-                ]" label="你最希望拥有哪种超能力？" :rules="['required']" />
-                <RadiogroupElement name="use_of_money" field-name="如何处理意外财富" view="blocks" :items="[
-                    {
-                        value: 'invest',
-                        label: '投资理财',
-                        description: null,
-                    },
-                    {
-                        value: 'one_off',
-                        label: '旅行或购买心仪已久的东西',
-                        description: null,
-                    },
-                    {
-                        value: 'save',
-                        label: '储蓄起来，以备不时之需',
-                        description: null,
-                    },
-                    {
-                        value: 'daily',
-                        label: '摊开用来增加日常开销',
-                        description: null,
-                    },
-                    {
-                        value: 'charity',
-                        label: '捐赠给需要帮助的人',
-                        description: null,
-                    },
-                ]" label="面对一笔意外的财富，你会？" :rules="['required']" />
-                <RadiogroupElement name="family" field-name="原生家庭的重要性" view="blocks" :items="[
-                    {
-                        value: 2,
-                        label: '很重要，而且很难改变',
-                        description: null,
-                    },
-                    {
-                        value: 1,
-                        label: '重要，但是我们可以重塑自己',
-                        description: null,
-                    },
-                    {
-                        value: 0,
-                        label: '不重要，主要取决于自身',
-                        description: null,
-                    },
-                ]" label="你觉得原生家庭对一个人的影响？" :rules="['required']" />
-                <RadiogroupElement name="lifestyle" field-name="最喜欢的时代" view="blocks" :items="[
-                    {
-                        value: 'potter',
-                        label: '哈利波特',
-                        description: null,
-                    },
-                    {
-                        value: '1984',
-                        label: '1984',
-                        description: null,
-                    },
-                    {
-                        value: 'prince',
-                        label: '小王子',
-                        description: null,
-                    },
-                    {
-                        value: 'matrix',
-                        label: '黑客帝国',
-                        description: null,
-                    },
-                    {
-                        value: 'jurassic',
-                        label: '侏罗纪公园',
-                        description: null,
-                    },
-                    {
-                        value: 'gatsby',
-                        label: '了不起的盖茨比',
-                        description: null,
-                    },
-                ]" label="你更愿意在哪个书或电影中生活一段时间？" :rules="['required']" />
+                ]" label="你的聊天习惯是" :rules="['required']" size="md" />
+                <TextareaElement name="expectation" :floating="false" :rows="3" :rules="[
+                    'required',
+                    'min:5',
+                    'max:50',
+                ]" description="只是希望单纯交个朋友, 还是认真地希望进入一段关系?  是饭搭子, 网友还是恋人? 会考虑长期关系吗? (5-50字)" placeholder='请以"我"开头, 描述你参加活动的目的以及想法:
+' label="你期待与CP的关系是什么" />
                 <StaticElement name="divider_3" tag="hr" top="2" />
 
                 <StaticElement name="h3_2" tag="h3" content="硬性要求" />
@@ -820,5 +696,4 @@ function updateData(data: any) {
     --vf-line-height: 1.5;
     --vf-line-height-headings: 1.2;
 }
-
 </style>

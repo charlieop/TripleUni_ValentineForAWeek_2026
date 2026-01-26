@@ -18,8 +18,10 @@ class CommaSeparatedListField(serializers.Field):
 
 class ApplicantSerializer(serializers.ModelSerializer):
     # Handle array fields that come as lists but are stored as comma-separated strings
-    preferred_grades = CommaSeparatedListField(required=False)
-    preferred_schools = CommaSeparatedListField(required=False)
+    preferred_grades = CommaSeparatedListField()
+    preferred_schools = CommaSeparatedListField()
+    hobbies = CommaSeparatedListField()
+    fav_movies = CommaSeparatedListField()
 
     class Meta:
         model = Applicant
@@ -36,6 +38,12 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "mbti_sn",
             "mbti_tf",
             "mbti_jp",
+            "hobbies",
+            "fav_movies",
+            "wish",
+            "weekend_arrangement",
+            "reply_frequency",
+            "expectation",
             "preferred_sex",
             "preferred_grades",
             "preferred_schools",

@@ -17,7 +17,7 @@ class AvtivityDates:
         year=2026, month=1, day=22, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     APPLICATION_END = datetime(
-        year=2026, month=1, day=22, hour=1, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=30, hour=1, minute=0, second=0, tzinfo=TIME_ZONE
     )
 
     FIRST_MATCH_RESULT_RELEASE = datetime(

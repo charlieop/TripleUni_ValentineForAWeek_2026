@@ -57,6 +57,7 @@ class Applicant(models.Model):
         "CN": "中国",
         "JP_KR": "日韩",
         "ASIA": "亚洲",
+        "OCEANIA": "大洋洲",
         "UK": "英国",
         "EU": "欧洲",
         "US": "美国",
@@ -139,7 +140,40 @@ class Applicant(models.Model):
     comment = models.CharField(
         max_length=30, null=True, blank=True, verbose_name="留言"
     )
-    
+
+    hobbies = models.CharField(
+        max_length=50, null=False, blank=False, verbose_name="兴趣爱好"
+    )
+    fav_movies = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        verbose_name="最喜欢的书/电影/动漫/电视剧",
+    )
+    wish = models.CharField(
+        max_length=50, null=False, blank=False, verbose_name="阿拉丙神灯愿望"
+    )
+    weekend_arrangement = models.CharField(
+        max_length=50, null=False, blank=False, verbose_name="周末安排"
+    )
+    REPLY_FREQUENCY_CHOICES = {
+        "1": "开启勿扰模式, 闲下来再回",
+        "2": "攒很多消息, 逐一回复",
+        "3": "佛系查看, 不定时回复",
+        "4": "经常看手机, 看到就回",
+        "5": "一直在线, 基本秒回",
+    }
+    reply_frequency = models.CharField(
+        max_length=1,
+        choices=REPLY_FREQUENCY_CHOICES,
+        null=False,
+        blank=False,
+        verbose_name="聊天习惯",
+    )
+    expectation = models.CharField(
+        max_length=50, null=False, blank=False, verbose_name="期待的关系"
+    )
+
     linked_uni = models.BooleanField(default=False, verbose_name="是否绑定triple uni")
 
     payment = models.OneToOneField(
