@@ -53,13 +53,13 @@ const enableBodyScroll = () => {
     }
 };
 
-watch(() => props.modelValue, (isOpen) => {
-    if (isOpen) {
-        disableBodyScroll();
-    } else {
-        enableBodyScroll();
-    }
-}, { immediate: true });
+// watch(() => props.modelValue, (isOpen) => {
+//     if (isOpen) {
+//         disableBodyScroll();
+//     } else {
+//         enableBodyScroll();
+//     }
+// }, { immediate: true });
 
 // Close modal on ESC key
 onMounted(() => {

@@ -96,6 +96,7 @@ class MatchDetailSerializer(serializers.Serializer):
             "user_info": {
                 "name": user_applicant.name,
                 "head_image": user_head_image,
+                "linked_uni": user_applicant.linked_uni,
             },
             "partner_info": {
                 "name": other_applicant.name,

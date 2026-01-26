@@ -14,6 +14,7 @@ from .views.ImageView import (
 )
 from .views.WeChatPaymentView import WeChatPaymentView
 from .views.StatusView import StatusView
+from .views.LinkUniView import LinkUniView
 
 
 app_name = "main"
@@ -44,4 +45,7 @@ urlpatterns = [
     
     # Status endpoints
     path("status/", StatusView.as_view(), name="status"),
+    
+    # Link Uni endpoints
+    path("link-uni/", LinkUniView.as_view(), name="link_uni"),
 ]

@@ -57,8 +57,8 @@
                     <div class="score-stats">
                         <div class="stat-item">
                             <div class="stat-label">天数</div>
-                                <div v-if="matchData.match_info.current_day === 8" class="stat-value">结束</div>
-                                <div v-else class="stat-value">Day {{ matchData.match_info.current_day }}</div>
+                            <div v-if="matchData.match_info.current_day === 8" class="stat-value">结束</div>
+                            <div v-else class="stat-value">Day {{ matchData.match_info.current_day }}</div>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
@@ -99,6 +99,11 @@
             <section class="tasks-section">
                 <h2 class="section-title">任务进度</h2>
                 <div class="tasks-grid">
+                    <button class="task-card link-uni" @click="linkUNI"
+                        :class="{ completed: matchData.user_info.linked_uni }">
+                        <img src="@/assets/imgs/tripleuni-logo.webp" alt="绑定triple uni" class="task-icon">
+                    </button>
+
                     <button v-for="day in 7" :key="day" class="task-card" :class="{
                         'completed': matchData.match_info.basic_complete[day - 1],
                         'disabled': day > matchData.match_info.current_day,
@@ -111,6 +116,9 @@
                             <span v-else-if="day > matchData.match_info.current_day">🔒</span>
                             <span v-else>→</span>
                         </div>
+                    </button>
+                    <button class="task-card secret-mission" @click="navigateTo('/tasks/secret')">
+                        <div class="task-day">秘密任务</div>
                     </button>
                 </div>
             </section>
@@ -183,6 +191,31 @@
                 <button class="btn dark" @click="closeRulesModal">知道了</button>
             </div>
         </Modal>
+
+        <!-- Link Uni Modal -->
+        <Modal v-model="showLinkUniModal">
+            <h2 class="modal-title">绑定Triple Uni账户</h2>
+            <div class="link-uni-content">
+                <p class="link-uni-message">
+                    我们将使用你的教育邮箱来关联Triple Uni账户。
+                </p>
+                <p class="link-uni-desc">
+                    部分任务包含 Triple Uni 的一周CP板块中参与互动。为确保你拥有发言权限以及自动记分, 请授权并绑定Triple Uni账户。
+                </p>
+                <p class="link-uni-hint">
+                    如果绑定失败，请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn dark" @click="linkUniAccount">授权并绑定</button>
+                <div class="row">
+                    <a href="https://login.tripleuni.com/TripleUni?callback=%2Fhome" target="_blank" class="btn">
+                        去注册
+                    </a>
+                    <button class="btn" @click="() => { showLinkUniModal = false }">取消</button>
+                </div>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -194,6 +227,7 @@ const error = ref<string | null>(null);
 const showNameModal = ref(false);
 const showMentorModal = ref(false);
 const showRulesModal = ref(false);
+const showLinkUniModal = ref(false);
 const doNotShowAgain = ref(false);
 const newMatchName = ref("");
 
@@ -239,6 +273,34 @@ const loadMatchData = async () => {
         }
     } catch (err: any) {
         error.value = err.message || '加载匹配详情失败';
+        console.error(err);
+    }
+};
+
+const linkUNI = () => {
+    if (matchData.value.user_info.linked_uni) {
+        alert("已绑定Triple Uni账户");
+        return;
+    }
+    showLinkUniModal.value = true;
+};
+
+const linkUniAccount = async () => {
+    try {
+        const res = await post("link-uni/");
+        if (res.ok) {
+            if (matchData.value) {
+                matchData.value.user_info.linked_uni = true;
+            }
+            showLinkUniModal.value = false;
+            alert("成功绑定Triple Uni账户！");
+        } else {
+            const errorData = await res.json();
+            const errorMessage = errorData.detail || res.statusText;
+            alert(`绑定失败：${errorMessage}\n\n请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。`);
+        }
+    } catch (err: any) {
+        alert(`绑定失败：${err.message || '网络错误'}\n\n请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。`);
         console.error(err);
     }
 };
@@ -546,6 +608,20 @@ section {
     transform: translateY(-2px);
 }
 
+.task-card.link-uni img {
+    scale: 1.2;
+}
+
+.task-card.secret-mission {
+    background: #faedcf96
+}
+
+.task-card.secret-mission .task-day {
+    text-wrap: balance;
+    line-height: 1.2;
+
+}
+
 .past:not(.completed) {
     background: #6e6e6e7c;
     border-color: #6e6e6e7c;
@@ -725,5 +801,45 @@ section {
 
 .checkbox-label span {
     user-select: none;
+}
+
+.link-uni-content {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.link-uni-message {
+    font-size: var(--fs-300);
+    color: var(--clr-text);
+    line-height: 1.6;
+    padding: 0.5rem 1rem;
+    background: var(--clr-background--muted);
+    border-radius: 0.5rem;
+}
+
+.link-uni-desc,
+.link-uni-hint {
+    padding: 0 1rem;
+}
+
+.link-uni-hint {
+    font-size: var(--fs-200);
+    color: var(--clr-text--muted);
+    margin-bottom: 1rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+}
+
+.row>* {
+    flex: 1;
+    background: #bbbbbb8a;
+    color: #EEEEEE;
+    text-align: center;
 }
 </style>

@@ -14,32 +14,32 @@ class AvtivityDates:
     TIME_ZONE = ZoneInfo("America/New_York")
     
     APPLICATION_START = datetime(
-        year=2026, month=1, day=24, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     APPLICATION_END = datetime(
-        year=2026, month=1, day=24, hour=1, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=1, minute=0, second=0, tzinfo=TIME_ZONE
     )
 
     FIRST_MATCH_RESULT_RELEASE = datetime(
-        year=2026, month=1, day=24, hour=6, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=6, minute=0, second=0, tzinfo=TIME_ZONE
     )
     FIRST_MATCH_CONFIRM_END = datetime(
-        year=2026, month=1, day=24, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
     )
 
     SECOND_MATCH_RESULT_RELEASE = datetime(
-        year=2026, month=1, day=24, hour=7, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=7, minute=0, second=0, tzinfo=TIME_ZONE
     )
 
     ACTIVITY_START = datetime(
-        year=2026, month=1, day=24, hour=8, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=22, hour=8, minute=0, second=0, tzinfo=TIME_ZONE
     )
 
     FIRST_MISSION_RELEASE = datetime(
-        year=2026, month=1, day=25, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=23, hour=0, minute=0, second=0, tzinfo=TIME_ZONE
     )
     FIRST_MISSION_END = datetime(
-        year=2026, month=1, day=26, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
+        year=2026, month=1, day=24, hour=6, minute=5, second=0, tzinfo=TIME_ZONE
     )
 
     EXIT_QUESTIONNAIRE_RELEASE = datetime(

@@ -139,6 +139,8 @@ class Applicant(models.Model):
     comment = models.CharField(
         max_length=30, null=True, blank=True, verbose_name="留言"
     )
+    
+    linked_uni = models.BooleanField(default=False, verbose_name="是否绑定triple uni")
 
     payment = models.OneToOneField(
         "PaymentRecord",
