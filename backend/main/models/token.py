@@ -3,7 +3,9 @@ import uuid
 
 
 class Token(models.Model):
-    token = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False, verbose_name="Token")
+    token = models.UUIDField(
+        primary_key=False, default=uuid.uuid4, editable=False, verbose_name="Token"
+    )
     wechat_info = models.OneToOneField(
         "WeChatInfo",
         on_delete=models.PROTECT,

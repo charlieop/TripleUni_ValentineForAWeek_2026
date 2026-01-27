@@ -29,7 +29,7 @@ with open(BASE_DIR / "SECRETS.json") as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["api.charlieop.com", "localhost", "127.0.0.1", "43.134.231.69"]
+ALLOWED_HOSTS = ["api.charlieop.com", "localhost", "127.0.0.1", "43.134.231.69", "10.0.0.77"]
 
 # Application definition
 

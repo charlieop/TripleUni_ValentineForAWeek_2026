@@ -6,7 +6,7 @@
             </div>
             <div class="require-wechat-body">
                 <p>
-                    Triple Uni 需要使用你的微信信息用于<strong>登陆与验证</strong>,
+                    Triple Uni 需要使用你的微信信息用于<strong>登录与验证</strong>,
                     我们无法在非微信环境请求你的授权。
                 </p>
                 <br />

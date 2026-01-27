@@ -106,7 +106,7 @@ class Applicant(models.Model):
     )
 
     preferred_sex = models.CharField(max_length=1, choices=SEX, verbose_name="性别要求")
-    preferred_grades = models.CharField(max_length=30, verbose_name="年级要求")
+    preferred_grades = models.CharField(max_length=70, verbose_name="年级要求")
     preferred_schools = models.CharField(max_length=20, verbose_name="学校要求")
     max_time_difference = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(12)],
@@ -142,10 +142,10 @@ class Applicant(models.Model):
     )
 
     hobbies = models.CharField(
-        max_length=50, null=False, blank=False, verbose_name="兴趣爱好"
+        max_length=70, null=False, blank=False, verbose_name="兴趣爱好"
     )
     fav_movies = models.CharField(
-        max_length=50,
+        max_length=70,
         null=False,
         blank=False,
         verbose_name="最喜欢的书/电影/动漫/电视剧",

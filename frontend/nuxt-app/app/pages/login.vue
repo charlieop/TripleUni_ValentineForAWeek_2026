@@ -49,7 +49,7 @@ const { setToken } = useStore();
 const { post } = useRequest();
 
 const queryParams = route.query;
-const requestURL = "https://wechat-oauth.uuunnniii.com";
+const requestURL = "https://wechat-oauth.tripleuuunnniii.com";
 
 let url =
   requestURL +

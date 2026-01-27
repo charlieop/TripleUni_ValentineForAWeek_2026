@@ -2,26 +2,26 @@ from rest_framework import serializers
 from ..models import Applicant
 
 
-class CommaSeparatedListField(serializers.Field):
+class PipeSeparatedListField(serializers.Field):
     """Custom field to handle comma-separated strings as lists"""
 
     def to_internal_value(self, data):
         if isinstance(data, list):
-            return ",".join(sorted(data))
+            return " | ".join(sorted(data))
         return data
 
     def to_representation(self, value):
         if value:
-            return value.split(",")
+            return value.split(" | ")
         return []
 
 
 class ApplicantSerializer(serializers.ModelSerializer):
     # Handle array fields that come as lists but are stored as comma-separated strings
-    preferred_grades = CommaSeparatedListField()
-    preferred_schools = CommaSeparatedListField()
-    hobbies = CommaSeparatedListField()
-    fav_movies = CommaSeparatedListField()
+    preferred_grades = PipeSeparatedListField()
+    preferred_schools = PipeSeparatedListField()
+    hobbies = PipeSeparatedListField()
+    fav_movies = PipeSeparatedListField()
 
     class Meta:
         model = Applicant

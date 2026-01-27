@@ -14,7 +14,7 @@ class Task(models.Model):
     )
 
     submit_text = models.TextField(blank=True, null=True, verbose_name="提交内容")
-    
+
     updated_by = models.ForeignKey(
         "Applicant",
         null=True,
@@ -40,3 +40,4 @@ class Task(models.Model):
         verbose_name_plural = "任务"
         db_table = "task"
         ordering = ["day", "created_at"]
+        unique_together = [["match", "day"]]

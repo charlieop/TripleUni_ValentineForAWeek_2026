@@ -31,12 +31,12 @@ touch db.sqlite3
 1. **Build the Docker image:**
    ```bash
    cd /path/to/backend
-   docker-compose build
+   docker compose build
    ```
 
 2. **Start the container:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
    The container will:
@@ -46,51 +46,57 @@ touch db.sqlite3
 
 3. **Check if it's running:**
    ```bash
-   docker-compose ps
-   docker-compose logs -f
+   docker compose ps
+   docker compose logs -f
    ```
 
 ### Create Django Superuser
 
 ```bash
-docker-compose exec django python manage.py createsuperuser
+docker compose exec django python manage.py createsuperuser
 ```
 
 ## Managing the Container
 
 ### Start the container
 ```bash
-docker-compose start
+docker compose start
 ```
 
 ### Stop the container
 ```bash
-docker-compose stop
+docker compose stop
 ```
 
 ### Restart the container (after code updates)
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ### View logs
 ```bash
 # Follow logs in real-time
-docker-compose logs -f
+docker compose logs -f
 
 # View last 100 lines
-docker-compose logs --tail=100
+docker compose logs --tail=100
 
 # View logs for specific service
-docker-compose logs -f django
+docker compose logs -f django
 ```
 
 ### Rebuild after dependency changes
 If you update `requirements.txt`:
 ```bash
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+sudo docker compose exec django chown -R www-data:www-data /app/static
+
+cd /home/ubuntu/TripleUni_ValentineForAWeek_2026/backend
+sudo chown -R www-data:www-data static
+sudo chmod -R 755 static
+sudo find static -type f -exec chmod 644 {} \;
 ```
 
 ## After Code Updates
@@ -99,14 +105,14 @@ When you update your code in the project folder:
 
 ### Option 1: Quick restart (for Python code changes)
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ### Option 2: Full rebuild (for dependency or Dockerfile changes)
 ```bash
-docker-compose down
-docker-compose build
-docker-compose up -d
+docker compose down
+docker compose build
+docker compose up -d
 ```
 
 ## Running Django Management Commands
@@ -115,25 +121,25 @@ Execute any Django management command inside the container:
 
 ```bash
 # Run migrations
-docker-compose exec django python manage.py migrate
+docker compose exec django python manage.py migrate
 
 # Create superuser
-docker-compose exec django python manage.py createsuperuser
+docker compose exec django python manage.py createsuperuser
 
 # Collect static files
-docker-compose exec django python manage.py collectstatic --noinput
+docker compose exec django python manage.py collectstatic --noinput
 
 # Open Django shell
-docker-compose exec django python manage.py shell
+docker compose exec django python manage.py shell
 
 # Run custom commands
-docker-compose exec django python manage.py <your_command>
+docker compose exec django python manage.py <your_command>
 ```
 
 ## Accessing the Container Shell
 
 ```bash
-docker-compose exec django bash
+docker compose exec django bash
 ```
 
 ## Troubleshooting
@@ -141,7 +147,7 @@ docker-compose exec django bash
 ### Container won't start
 ```bash
 # Check logs
-docker-compose logs
+docker compose logs
 
 # Check if port 8000 is already in use
 sudo netstat -tlnp | grep 8000
@@ -156,12 +162,12 @@ sudo chown -R $USER:$USER media logs db.sqlite3
 ### Database is locked
 This can happen if the SQLite database is accessed by multiple processes:
 ```bash
-docker-compose restart
+docker compose restart
 ```
 
 ### Static files not updating
 ```bash
-docker-compose exec django python manage.py collectstatic --noinput --clear
+docker compose exec django python manage.py collectstatic --noinput --clear
 ```
 
 ## Complete Cleanup
@@ -169,7 +175,7 @@ docker-compose exec django python manage.py collectstatic --noinput --clear
 To completely remove the container and image:
 
 ```bash
-docker-compose down
+docker compose down
 docker rmi valentine_django
 ```
 
@@ -197,9 +203,9 @@ docker stats valentine_django
 
 ### Check container health
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 ### Access logs location
 - Application logs: `./logs/access.log` and `./logs/error.log`
-- Docker logs: `docker-compose logs`
+- Docker logs: `docker compose logs`

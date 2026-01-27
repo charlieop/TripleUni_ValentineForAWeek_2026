@@ -163,11 +163,11 @@
             <div>
                 我们将会收集并保存以下隐私信息:<br>
                 <br>
-                [通过微信登陆授权]<br>
+                [通过微信登录授权]<br>
                 <ul>
                     <li class='vf-li'>你的微信头像</li>
                     <li class='vf-li'>你的微信昵称</li>
-                    <li class='vf-li'>你的微信OpenID (用作网站登陆, 微信支付)</li>
+                    <li class='vf-li'>你的微信OpenID (用作网站登录, 微信支付)</li>
                 </ul>
                 <br>
                 [通过填写问卷]<br>
@@ -308,7 +308,7 @@
                     { value: 'HK', label: '香港' },
                     { value: 'SZ', label: '深圳' },
                     { value: 'GD', label: '广东省' },
-                    { value: 'TW', label: '台湾' },
+                    { value: 'TW', label: '台湾省' },
                     { value: 'CN', label: '中国' },
                     { value: 'JP_KR', label: '日韩' },
                     { value: 'ASIA', label: '亚洲' },
@@ -319,7 +319,8 @@
                     { value: 'CA', label: '加拿大' },
                     { value: 'NA', label: '北美洲' },
                     { value: 'OTHER', label: '其他' },
-                ]" label="你本学期最常在的地区" :rules="['required']" description="请选择最精确(小)的选项. 如果你在多个地区之间频繁往返，请选择你待的时间最长的地区." />
+                ]" label="你本学期最常在的地区" :rules="['required']"
+                    description="请选择<strong>最精确(小)的选项</strong>. 如果你在多个地区之间频繁往返，请选择你待的时间最长的地区." />
                 <StaticElement name="divider_1" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_1" tag="h3" content="MBTI 性格测试结果" />
                 <StaticElement name="p" tag="p"
@@ -358,26 +359,32 @@
                 <StaticElement name="h2_1" tag="h2" content="你的兴趣/ 爱好/ 想法" />
                 <StaticElement name="p_14" tag="p" content="此页内容仅用于匹配, 不会有任何人, 包括你的CP与Mentor, 能够看到你的答案, 请放心填写." />
                 <TagsElement name="hobbies" :close-on-select="false" :search="true" autocomplete="off" :create="true"
-                    placeholder="输入最多三个" :floating="false" :append-new-option="false" :max="3" label="你有什么兴趣爱好" :rules="[
+                    placeholder="通过换行添加, 最多五个" :floating="false" :append-new-option="false" :max="5" label="你有什么兴趣爱好"
+                    :rules="[
                         'required',
-                    ]" description='可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' info="请直接输入, 并通过换行分隔" />
+                    ]" :caret="false" :items="hobbiesItems"
+                    description='可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' />
                 <TagsElement name="fav_movies" :close-on-select="false" :search="true" label="你最喜欢的书/ 电影/ 动漫/ 电视剧"
-                    autocomplete="off" :create="true" placeholder="输入最多三个" :floating="false" :append-new-option="false"
-                    :max="3" :rules="[
+                    autocomplete="off" :create="true" placeholder="通过换行添加, 最多五个" :floating="false"
+                    :append-new-option="false" :max="5" :rules="[
                         'required',
-                    ]" info="请直接输入, 并通过换行分隔" />
+                    ]" :caret="false" :items="favMoviesItems" />
                 <TextareaElement name="wish" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',
                     'max:50',
                 ]" description="不受任何限制的话, 你最想要做的是什么呢? (5-50字)" placeholder="因为是盗版的阿拉丁所以只能实现一个愿望...
-但是放心不会有副作用啦~" label='你拿到了"阿拉丙神灯"会许什么愿望' />
+但是放心不会有副作用啦~" label='你拿到了"阿拉丙神灯"会许什么愿望' :addons="{
+    after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+}" />
                 <TextareaElement name="weekend_arrangement" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',
                     'max:50',
-                ]" description="假设你没有作业, Project, 考试或者其他事情限制你, 你会做什么呢? (5-50字)" placeholder='请以"我"开头, 描述你预想中的周末
-' label="自由安排这个周末你会做什么" />
+                ]" description="假设你没有作业, Project, 考试或者其他事情限制你, 你会做什么呢? (5-50字)" placeholder='描述你预想中的周末
+' label="自由安排这个周末你会做什么" :addons="{
+    after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+}" />
                 <RadiogroupElement name="reply_frequency" :items="[
                     {
                         value: '5',
@@ -402,10 +409,12 @@
                 ]" label="你的聊天习惯是" :rules="['required']" size="md" />
                 <TextareaElement name="expectation" :floating="false" :rows="3" :rules="[
                     'required',
-                    'min:5',
+                    'min:10',
                     'max:50',
-                ]" description="只是希望单纯交个朋友, 还是认真地希望进入一段关系?  是饭搭子, 网友还是恋人? 会考虑长期关系吗? (5-50字)" placeholder='请以"我"开头, 描述你参加活动的目的以及想法:
-' label="你期待与CP的关系是什么" />
+                ]" description="只是希望单纯交个朋友, 还是认真地希望进入一段关系?  是饭搭子, 网友还是恋人? 会考虑长期关系吗? (10-50字)" placeholder='描述你参加活动的目的以及想法
+' label="你期待与CP的关系是什么" :addons="{
+    after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+}" />
                 <StaticElement name="divider_3" tag="hr" top="2" />
 
                 <StaticElement name="h3_2" tag="h3" content="硬性要求" />
@@ -573,11 +582,15 @@
                 <StaticElement name="h3_11" tag="h3" content="简单介绍自己" />
                 <TextareaElement name="message_to_partner" label="给对方的留言"
                     placeholder="这段话将在匹配成功后展示给对方. 请不要在此留下你的联系方式, 否则将会被退出活动且押金将不予退还" :rows="5"
-                    :rules="['max:50', 'min:10', 'required']" description="最少输入10个字符, 最多输入50个字符" />
+                    :rules="['max:50', 'min:10', 'required']" description="最少输入10个字符, 最多输入50个字符" :addons="{
+                        after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+                    }" />
                 <StaticElement name="divider_7" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_6" tag="h3" content="写给主办方" />
                 <TextareaElement name="comment" label="还有什么想补充的吗?"
-                    placeholder="请注意, 我们无法得知申请者的外貌/ 身高/ 性格等信息, 也无法根据此进行匹配" :rows="5" />
+                    placeholder="请注意, 我们无法得知申请者的外貌/ 身高/ 性格等信息, 也无法根据此进行匹配" :rows="5" :addons="{
+                        after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+                    }" />
                 <CheckboxElement name="confirm1" field-name="信息无误"
                     text="我确认所填写的信息准确无误, 由信息填写错误而导致的任何问题, 我将负全部责任. 如果因为填写错误导致对方要求退出, 我的押金将完全 [不退还]" :submit="false"
                     :rules="['accepted']" />
@@ -596,6 +609,12 @@ const form$: Ref<null | VueformInstance> = ref(null);
 const router = useRouter();
 const { setApplicationFormData, getApplicationFormData, deleteApplicationFormData } = useStore();
 const { post } = useRequest();
+const hobbiesItems = computed(() => {
+    return form$.value?.data.hobbies || [];
+});
+const favMoviesItems = computed(() => {
+    return form$.value?.data.fav_movies || [];
+});
 
 // detect user's timezone and return the closest UTC offset
 const defaultTimezone = computed(() => {
@@ -618,13 +637,27 @@ const defaultTimezone = computed(() => {
 onMounted(() => {
     const savedData = getApplicationFormData();
     if (savedData) {
-        // Use nextTick to ensure form is fully initialized
-        nextTick(() => {
-            if (form$.value) {
-                form$.value.load(savedData);
-            }
-        });
+        if (form$.value) {
+            form$.value.load(savedData);
+            console.log(form$.value.data);
+        }
     }
+    const textareaContainers = document.querySelectorAll('.vf-input-group-textarea');
+    textareaContainers.forEach(container => {
+        const textarea = container.querySelector('textarea');
+        if (textarea) {
+            const wordCountElement = container.querySelector('.word-count');
+
+            const observer = new MutationObserver(() => {
+                const wordCount = textarea.value.length;
+                if (wordCountElement) {
+                    wordCountElement.textContent = `(${wordCount})`;
+                }
+            });
+            observer.observe(textarea, { attributes: true, attributeFilter: ['value'] });
+
+        }
+    });
 });
 
 async function handleSubmit(form: VueformInstance, formData: any) {
@@ -644,7 +677,18 @@ async function handleSubmit(form: VueformInstance, formData: any) {
         }
         if (!res.ok) {
             const errorData = await res.json();
-            throw new Error(errorData.detail || `报名失败: ${res.statusText}`);
+            console.error(errorData);
+            if (errorData.detail) {
+                throw new Error(errorData.detail);
+            }
+            else if (typeof errorData === "object") {
+                let errorMessage = "";
+                Object.entries(errorData).forEach(([field, message]) => {
+                    errorMessage += `${field}: ${message}\n`;
+                });
+                throw new Error(errorMessage);
+            }
+            throw new Error(`报名失败: ${res.status}`);
         }
 
         const responseData = await res.json();
@@ -695,5 +739,24 @@ function updateData(data: any) {
 
     --vf-line-height: 1.5;
     --vf-line-height-headings: 1.2;
+}
+
+#hobbies-dropdown,
+#fav_movies-dropdown {
+    display: none;
+}
+
+.vf-input-group-textarea {
+    position: relative;
+}
+
+.vf-input-group-textarea .word-count {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0;
+    font-family: monospace;
+    letter-spacing: -2px;
+    font-size: var(--fs-200);
+    color: var(--clr-text--muted);
 }
 </style>
