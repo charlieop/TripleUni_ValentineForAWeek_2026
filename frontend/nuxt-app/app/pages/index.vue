@@ -23,7 +23,7 @@
     <div class="button-group" v-else-if="userState === UserStates.APPLIED">
       <button @click="navigateTo('/payment')" class="btn primary">支付押金</button>
       <div class="row">
-        <button @click="navigateTo('/apply')" class="btn">修改报名</button>
+        <button @click="navigateTo('/apply')" class="btn transparent">修改报名</button>
         <button @click="navigateTo('/withdraw')" class="btn danger">取消报名</button>
       </div>
 
@@ -61,6 +61,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.WAITING_FOR_FIRST_MATCH_RESULT">
       <button class="btn primary" disabled>第一轮匹配中...</button>
+      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
 
       <div class="info-block">
         <span class="info-text">距发布第一轮还有</span>
@@ -70,6 +71,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.FIRST_MATCH_RESULT_RELEASE">
       <button class="btn primary" @click="navigateTo('/match-result')">查看我的匹配</button>
+      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
 
       <div class="info-block">
         <span class="info-text">距第一轮确认截止还有</span>
@@ -79,6 +81,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.FIRST_MATCH_CONFIRM_END">
       <button class="btn primary" @click="navigateTo('/match-result')">查看我的匹配</button>
+      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
 
       <div class="info-block">
         <span class="info-text">距发布第二轮还有</span>
@@ -88,6 +91,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.SECOND_MATCH_RESULT_RELEASE">
       <button class="btn primary" @click="navigateTo('/match-result')">查看我的匹配</button>
+      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
 
       <div class="info-block">
         <span class="info-text">距活动开始还有</span>
@@ -97,10 +101,14 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.ACTIVITY_START">
       <button class="btn primary" @click="navigateTo('/match')">开启CP之旅</button>
+      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
     </div>
     <div class="button-group" v-else-if="userState === UserStates.EXIT_QUESTIONNAIRE_RELEASE">
       <button class="btn primary" @click="navigateTo('/match')">开启CP之旅</button>
-      <button class="btn" @click="navigateTo('/exit-questionnaire')">填写结束问卷</button>
+      <div class="row">
+        <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
+        <button class="btn primary" @click="navigateTo('/exit-questionnaire')">结束问卷</button>
+      </div>
 
       <div class="info-block">
         <span class="info-text">距问卷填写截止还有</span>
@@ -302,5 +310,9 @@ function clearCache() {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.btn.transparent {
+  background: #FBFBFB0A;
 }
 </style>

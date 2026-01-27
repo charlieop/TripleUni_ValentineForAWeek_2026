@@ -190,17 +190,17 @@
                 <StaticElement name="p_9" tag="p"
                     content="<div>如果你在网站上遇到了错误, 可以尝试以下步骤修复:<br><br> 1. 打开网站首页<br> 2. 点击左上方的「?」 标签<br> 3. 点击「清除页面缓存」按钮<br> 4. 重新登录</div>" />
                 <StaticElement name="divider" tag="hr" top="2" />
-                <CheckboxElement name="checkbox" field-name="规则及隐私条款" :rules="['accepted']"
-                    text="我已详细阅读、理解并同意以上所有内容并愿意参加活动." :submit="false" />
+                <CheckboxElement name="checkbox" field-name="规则及隐私条款" :rules="['accepted']" :disabled="formDisabled"
+                    text="我已详细阅读、理解并同意以上所有内容以及<a href='/agreement'>《一周CP2026协议书》</a>并愿意参加活动." :submit="false" />
 
                 <StaticElement name="h2" tag="h2" content="个人信息" />
                 <StaticElement name="h3" tag="h3" content="基础信息" />
-                <TextElement name="name" field-name="姓名" label="你的中文全名" placeholder="张三"
-                    :rules="['required', 'max:4']" />
+                <TextElement name="name" field-name="姓名" label="你的中文全名" placeholder="张三" :rules="['required', 'max:4']"
+                    :disabled="formDisabled" />
                 <TextElement name="wxid" field-name="微信号" :columns="{
                     label: 12,
                     wrapper: 12,
-                }" :rules="['required', 'max:50']" label="你的微信号"
+                }" :rules="['required', 'max:50']" label="你的微信号" :disabled="formDisabled"
                     description="请确定wxid正确，且可被搜索/ 添加. 如果你的微信号是以wxid开头的原始id，请填入手机号." placeholder="my_wechat_id" />
                 <RadiogroupElement name="sex" field-name="性别" view="tabs" :items="[
                     {
@@ -211,7 +211,7 @@
                         value: 'F',
                         label: '女',
                     },
-                ]" label="你的性别" :rules="['required']" />
+                ]" label="你的性别" :rules="['required']" :disabled="formDisabled" />
                 <RadiogroupElement name="school" field-name="就读学校" view="blocks" :items="[
                     {
                         value: 'HKU',
@@ -228,12 +228,13 @@
                         label: 'HKUST',
                         description: null,
                     },
-                ]" label="你就读的学校" :rules="['required']" />
+                ]" label="你就读的学校" :rules="['required']" :disabled="formDisabled" />
                 <TextElement name="email" input-type="email" :rules="[
                     'regex:^[a-zA-Z0-9._%+-]+@(connect\\.ust\\.hk|connect\\.hku\\.hk|link\\.cuhk\\.edu\\.hk)$',
                     'email',
                     'required'
-                ]" label="你的学校邮箱" placeholder="email@example.com" description="我们会发送验证码至此邮箱以验证归属, 请确认邮箱填写正确" />
+                ]" label="你的学校邮箱" placeholder="email@example.com" description="我们会发送验证码至此邮箱以验证归属, 请确认邮箱填写正确"
+                    :disabled="formDisabled" />
                 <RadiogroupElement name="grade" field-name="年级" view="blocks" :items="[
                     {
                         value: 'UG1',
@@ -275,7 +276,7 @@
                         label: '教授',
                         description: null,
                     },
-                ]" label="你目前的年级" :rules="['required']" />
+                ]" label="你目前的年级" :rules="['required']" :disabled="formDisabled" />
                 <SelectElement name="timezone" field-name="时区" :native="false" :items="[
                     { value: 'UTC-12', label: 'UTC-12:00 (贝克岛)' },
                     { value: 'UTC-11', label: 'UTC-11:00 (美属萨摩亚)' },
@@ -303,7 +304,8 @@
                     { value: 'UTC+10', label: 'UTC+10:00 (悉尼、墨尔本)' },
                     { value: 'UTC+11', label: 'UTC+11:00 (所罗门群岛)' },
                     { value: 'UTC+12', label: 'UTC+12:00 (奥克兰、惠灵顿)' },
-                ]" label="你所在的时区" placeholder="选择你的时区" :default="defaultTimezone" :rules="['required']" />
+                ]" label="你所在的时区" placeholder="选择你的时区" :default="defaultTimezone" :rules="['required']"
+                    :disabled="formDisabled" />
                 <SelectElement name="location" field-name="所在地区" :native="false" :items="[
                     { value: 'HK', label: '香港' },
                     { value: 'SZ', label: '深圳' },
@@ -319,7 +321,7 @@
                     { value: 'CA', label: '加拿大' },
                     { value: 'NA', label: '北美洲' },
                     { value: 'OTHER', label: '其他' },
-                ]" label="你本学期最常在的地区" :rules="['required']"
+                ]" label="你本学期最常在的地区" :rules="['required']" :disabled="formDisabled"
                     description="请选择<strong>最精确(小)的选项</strong>. 如果你在多个地区之间频繁往返，请选择你待的时间最长的地区." />
                 <StaticElement name="divider_1" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_1" tag="h3" content="MBTI 性格测试结果" />
@@ -331,28 +333,28 @@
                     }" size="lg" :rules="['required']" after="<div style='display:flex; margin-block: 0.5rem 0.5rem; justify-content: space-between; padding-inline: 0.5rem;'>
     <p>E (外向)</p>
     <p>I (内向)</p>
-    </div>" />
+    </div>" :disabled="formDisabled" />
                 <SliderElement name="mbti_sn" label="在MBTI“感知偏好”维度中，你认为自己更偏向" :default="50" show-tooltip="drag" :min="0"
                     :max="100" :step="1" :format="{
                         suffix: '%',
                     }" size="lg" :rules="['required']" after="<div style='display:flex; margin-block: 0.5rem 0.5rem; justify-content: space-between; padding-inline: 0.5rem;'>
     <p>S (实感)</p>
     <p>N (直觉)</p>
-    </div>" />
+    </div>" :disabled="formDisabled" />
                 <SliderElement name="mbti_tf" label="在MBTI“判断偏好”维度中，你认为自己更偏向" :default="50" show-tooltip="drag" :min="0"
                     :max="100" :step="1" :format="{
                         suffix: '%',
                     }" size="lg" :rules="['required']" after="<div style='display:flex; margin-block: 0.5rem 0.5rem; justify-content: space-between; padding-inline: 0.5rem;'>
     <p>T (思考)</p>
     <p>F (情感)</p>
-    </div>" />
+    </div>" :disabled="formDisabled" />
                 <SliderElement name="mbti_jp" label="在MBTI“行为模式”维度中，你认为自己更偏向" :default="50" show-tooltip="drag" :min="0"
                     :max="100" :step="1" :format="{
                         suffix: '%',
                     }" size="lg" :rules="['required']" after="<div style='display:flex; margin-block: 0.5rem 0.5rem; justify-content: space-between; padding-inline: 0.5rem;'>
     <p>J (判断)</p>
     <p>P (感知)</p>
-    </div>" />
+    </div>" :disabled="formDisabled" />
                 <StaticElement name="divider_2" tag="hr" top="2" />
 
                 <StaticElement name="h2_2" tag="h2" content="你的匹配偏好" />
@@ -362,13 +364,13 @@
                     placeholder="通过换行添加, 最多五个" :floating="false" :append-new-option="false" :max="5" label="你有什么兴趣爱好"
                     :rules="[
                         'required',
-                    ]" :caret="false" :items="hobbiesItems"
+                    ]" :caret="false" :items="hobbiesItems" :disabled="formDisabled"
                     description='可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' />
                 <TagsElement name="fav_movies" :close-on-select="false" :search="true" label="你最喜欢的书/ 电影/ 动漫/ 电视剧"
                     autocomplete="off" :create="true" placeholder="通过换行添加, 最多五个" :floating="false"
                     :append-new-option="false" :max="5" :rules="[
                         'required',
-                    ]" :caret="false" :items="favMoviesItems" />
+                    ]" :caret="false" :items="favMoviesItems" :disabled="formDisabled" />
                 <TextareaElement name="wish" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',
@@ -376,7 +378,7 @@
                 ]" description="不受任何限制的话, 你最想要做的是什么呢? (5-50字)" placeholder="因为是盗版的阿拉丁所以只能实现一个愿望...
 但是放心不会有副作用啦~" label='你拿到了"阿拉丙神灯"会许什么愿望' :addons="{
     after: '<div class=\&#39;word-count\&#39;>(0)</div>',
-}" />
+}" :disabled="formDisabled" />
                 <TextareaElement name="weekend_arrangement" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',
@@ -384,7 +386,7 @@
                 ]" description="假设你没有作业, Project, 考试或者其他事情限制你, 你会做什么呢? (5-50字)" placeholder='描述你预想中的周末
 ' label="自由安排这个周末你会做什么" :addons="{
     after: '<div class=\&#39;word-count\&#39;>(0)</div>',
-}" />
+}" :disabled="formDisabled" />
                 <RadiogroupElement name="reply_frequency" :items="[
                     {
                         value: '5',
@@ -406,7 +408,7 @@
                         value: '1',
                         label: '开启勿扰模式, 闲下来再回',
                     },
-                ]" label="你的聊天习惯是" :rules="['required']" size="md" />
+                ]" label="你的聊天习惯是" :rules="['required']" size="md" :disabled="formDisabled" />
                 <TextareaElement name="expectation" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:10',
@@ -414,7 +416,7 @@
                 ]" description="只是希望单纯交个朋友, 还是认真地希望进入一段关系?  是饭搭子, 网友还是恋人? 会考虑长期关系吗? (10-50字)" placeholder='描述你参加活动的目的以及想法
 ' label="你期待与CP的关系是什么" :addons="{
     after: '<div class=\&#39;word-count\&#39;>(0)</div>',
-}" />
+}" :disabled="formDisabled" />
                 <StaticElement name="divider_3" tag="hr" top="2" />
 
                 <StaticElement name="h3_2" tag="h3" content="硬性要求" />
@@ -429,7 +431,7 @@
                         value: 'F',
                         label: '女',
                     },
-                ]" label="你要求对方的性别是" :rules="['required']" />
+                ]" label="你要求对方的性别是" :rules="['required']" :disabled="formDisabled" />
                 <CheckboxgroupElement name="preferred_grades" field-name="期望对方年级" view="blocks" :items="[
                     {
                         value: 'UG1',
@@ -471,7 +473,7 @@
                         label: '教授',
                         description: null,
                     },
-                ]" label="你接受对方的年级是（多选）" :rules="['required']" />
+                ]" label="你接受对方的年级是（多选）" :rules="['required']" :disabled="formDisabled" />
                 <CheckboxgroupElement name="preferred_schools" field-name="期望对方就读学校" view="blocks" :items="[
                     {
                         value: 'HKU',
@@ -488,18 +490,18 @@
                         label: 'HKUST',
                         description: null,
                     },
-                ]" label="你接受对方的学校是（多选）" :rules="['required']" />
+                ]" label="你接受对方的学校是（多选）" :rules="['required']" :disabled="formDisabled" />
                 <SliderElement name="max_time_difference" field-name="最大时差" label="你能接受的最大时差" :default="3" :min="0"
                     :max="12" :step="1" :format="{
                         suffix: ' 小时', decimals: 0,
                     }" :rules="['required']" before="<div style='margin-block: 1.5rem;'></div>" size="lg" after="<div style='display:flex; margin-block: 0.5rem 0.5rem; justify-content: space-between; padding-inline: 0.5rem; font-size: 0.875em;'>
                     <p>不接受任何时差</p>
                     <p>地球另一面也行</p>
-                    </div>" />
+                    </div>" :disabled="formDisabled" />
                 <RadiogroupElement name="same_location_only" field-name="地区匹配偏好" view="tabs" :items="[
                     { value: true, label: '同地区' },
                     { value: false, label: '无所谓' },
-                ]" label="你要求对方的位置" :rules="['required']" info="深圳/中国/亚洲 会被看作三个不同的地区" />
+                ]" label="你要求对方的位置" :rules="['required']" info="深圳/中国/亚洲 会被看作三个不同的地区" :disabled="formDisabled" />
                 <StaticElement name="divider_4" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_3" tag="h3" content="软性要求" />
                 <StaticElement name="p_3" tag="p"
@@ -517,7 +519,7 @@
                         value: 'i',
                         label: 'I 内向',
                     },
-                ]" label="在MBTI“能量来源”维度中，你更希望对方是 " :rules="['required']" />
+                ]" label="在MBTI“能量来源”维度中，你更希望对方是 " :rules="['required']" :disabled="formDisabled" />
                 <RadiogroupElement name="preferred_mbti_sn" field-name="期望对方感知偏好" view="tabs" :items="[
                     {
                         value: 's',
@@ -531,7 +533,7 @@
                         value: 'n',
                         label: 'N 直觉',
                     },
-                ]" label="在MBTI“感知偏好”维度中，你更希望对方是" :rules="['required']" />
+                ]" label="在MBTI“感知偏好”维度中，你更希望对方是" :rules="['required']" :disabled="formDisabled" />
                 <RadiogroupElement name="preferred_mbti_tf" field-name="期望对方判断偏好" view="tabs" :items="[
                     {
                         value: 't',
@@ -545,7 +547,7 @@
                         value: 'f',
                         label: 'F 情感 ',
                     },
-                ]" label="在MBTI“判断偏好”维度中，你更希望对方是" :rules="['required']" />
+                ]" label="在MBTI“判断偏好”维度中，你更希望对方是" :rules="['required']" :disabled="formDisabled" />
                 <RadiogroupElement name="preferred_mbti_jp" field-name="期望对方认知态度" view="tabs" :items="[
                     {
                         value: 'j',
@@ -559,12 +561,12 @@
                         value: 'p',
                         label: 'P 感知',
                     },
-                ]" label="在MBTI“认知态度”维度中，你更希望对方是" :rules="['required']" />
+                ]" label="在MBTI“认知态度”维度中，你更希望对方是" :rules="['required']" :disabled="formDisabled" />
                 <StaticElement name="divider_6" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_4" tag="h3" content="心仪的人" />
                 <TextElement name="preferred_wxid" label="如果你有想匹配的人，请留下ta的微信号"
                     description="（请注意，这并不保证100%成功，前提是对方也希望与你匹配）请确定微信号填写正确，且可被添加，请留下微信号而非电话号码，若有一方留下电话号码，而另一方留下微信号，系统将不能成功匹配."
-                    :rules="['max:50']" />
+                    :rules="['max:50']" :disabled="formDisabled" />
                 <RadiogroupElement name="continue_match" field-name="是否继续匹配" view="tabs" label="如果和ta匹配失败，是否愿意继续随机匹配"
                     :rules="['required']" :conditions="[['preferred_wxid', 'not_empty']]" :items="[
                         {
@@ -575,7 +577,7 @@
                             value: false,
                             label: '否',
                         },
-                    ]" />
+                    ]" :disabled="formDisabled" />
                 <StaticElement name="divider_5" tag="hr" top="2" />
 
                 <StaticElement name="h2_3" tag="h2" content="留言" />
@@ -584,19 +586,20 @@
                     placeholder="这段话将在匹配成功后展示给对方. 请不要在此留下你的联系方式, 否则将会被退出活动且押金将不予退还" :rows="5"
                     :rules="['max:50', 'min:10', 'required']" description="最少输入10个字符, 最多输入50个字符" :addons="{
                         after: '<div class=\&#39;word-count\&#39;>(0)</div>',
-                    }" />
+                    }" :disabled="formDisabled" />
                 <StaticElement name="divider_7" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_6" tag="h3" content="写给主办方" />
                 <TextareaElement name="comment" label="还有什么想补充的吗?"
                     placeholder="请注意, 我们无法得知申请者的外貌/ 身高/ 性格等信息, 也无法根据此进行匹配" :rows="5" :addons="{
                         after: '<div class=\&#39;word-count\&#39;>(0)</div>',
-                    }" />
+                    }" :disabled="formDisabled" />
                 <CheckboxElement name="confirm1" field-name="信息无误"
                     text="我确认所填写的信息准确无误, 由信息填写错误而导致的任何问题, 我将负全部责任. 如果因为填写错误导致对方要求退出, 我的押金将完全 [不退还]" :submit="false"
-                    :rules="['accepted']" />
+                    :rules="['accepted']" :disabled="formDisabled" />
                 <CheckboxElement name="confirm2" field-name="重新提交须知" :submit="false" :rules="['accepted']"
-                    text="我的申请将会与我的微信绑定, 在申请截止前我可以随时修改我的申请, 只有最新的提交会被保存. 一旦申请截止, 我将不能再次修改我的申请." />
-                <StaticElement name="divider_8" tag="hr" top="2" />
+                    text="我的申请将会与我的微信绑定, 在申请截止前我可以随时修改我的申请, 只有最新的提交会被保存. 一旦申请截止, 我将不能再次修改我的申请."
+                    :disabled="formDisabled" />
+                <StaticElement name="divider_8" tag="hr" top="2" :disabled="formDisabled" />
             </FormElements>
 
             <FormStepsControls />
@@ -608,12 +611,22 @@
 const form$: Ref<null | VueformInstance> = ref(null);
 const router = useRouter();
 const { setApplicationFormData, getApplicationFormData, deleteApplicationFormData } = useStore();
-const { post } = useRequest();
+const { get, post } = useRequest();
 const hobbiesItems = computed(() => {
     return form$.value?.data.hobbies || [];
 });
 const favMoviesItems = computed(() => {
     return form$.value?.data.fav_movies || [];
+});
+const formDisabled = computed(() => {
+    if (
+        userState.value === UserStates.APPLICATION_START ||
+        userState.value === UserStates.APPLIED ||
+        userState.value === UserStates.PAID
+    ) {
+        return false;
+    }
+    return true;
 });
 
 // detect user's timezone and return the closest UTC offset
@@ -634,14 +647,7 @@ const defaultTimezone = computed(() => {
 });
 
 // Load saved form data when component mounts
-onMounted(() => {
-    const savedData = getApplicationFormData();
-    if (savedData) {
-        if (form$.value) {
-            form$.value.load(savedData);
-            console.log(form$.value.data);
-        }
-    }
+onMounted(async () => {
     const textareaContainers = document.querySelectorAll('.vf-input-group-textarea');
     textareaContainers.forEach(container => {
         const textarea = container.querySelector('textarea');
@@ -658,9 +664,51 @@ onMounted(() => {
 
         }
     });
+
+    let savedData = getApplicationFormData();
+    if (
+        userState.value !== UserStates.APPLICATION_START
+    ) {
+        try {
+            const res = await get("applicants/");
+            if (res.ok) {
+                const responseData = await res.json();
+                savedData = responseData.data.form_data;
+                savedData.checkbox = true;
+                savedData.confirm1 = true;
+                savedData.confirm2 = true;
+            }
+            else if (res.status === 403) {
+                alert("你已经退出了活动");
+                router.push("/");
+                return;
+            }
+            else {
+                const errorData = await res.json();
+                console.error(errorData);
+                throw new Error(errorData.detail || "获取表单数据失败: " + res.status);
+            }
+        } catch (err: any) {
+            alert(err.message);
+            console.error(err);
+        }
+    }
+ 
+    if (savedData) {
+        if (form$.value) {
+            form$.value.load(savedData);
+            console.log(form$.value.data);
+        }
+    }
+
 });
 
 async function handleSubmit(form: VueformInstance, formData: any) {
+
+    if (formDisabled.value) {
+        return
+    }
+
     form.submitting = true;
     const data = form.data;
     if (data.continue_match === null) {

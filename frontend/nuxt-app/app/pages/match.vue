@@ -177,7 +177,7 @@
                     <li>任务分为基础任务、支线任务与每日任务, <strong>基础任务为每日必做</strong>, 支线任务与每日任务为可选任务</li>
                     <li>每天任务提交截止时间为下一天<strong>05:59 AM</strong></li>
                     <li>提交的任务将在截止后由AI模型自动评分, <strong>请不要遮挡/ 拼接/ 模糊你提交的图片</strong>以确保评分准确</li>
-                    <li>如有问题请及时联系Mentor获取帮助</li>
+                    <li>如有问题请及时联系 Mentor 获取帮助</li>
                     <li>预祝你享受这段美好时光 💖</li>
                 </ul>
             </div>
@@ -197,13 +197,13 @@
             <h2 class="modal-title">绑定Triple Uni账户</h2>
             <div class="link-uni-content">
                 <p class="link-uni-message">
-                    我们将使用你的教育邮箱来关联Triple Uni账户。
+                    我们将使用你填写的教育邮箱来关联Triple Uni账户。
                 </p>
                 <p class="link-uni-desc">
                     部分任务包含 Triple Uni 的一周CP板块中参与互动。为确保你拥有发言权限以及自动记分, 请授权并绑定Triple Uni账户。
                 </p>
                 <p class="link-uni-hint">
-                    如果绑定失败，请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。
+                    如果绑定失败，请先注册Triple Uni账户，或联系 Mentor 修改你注册的邮箱。
                 </p>
             </div>
             <div class="modal-actions">
@@ -297,10 +297,10 @@ const linkUniAccount = async () => {
         } else {
             const errorData = await res.json();
             const errorMessage = errorData.detail || res.statusText;
-            alert(`绑定失败：${errorMessage}\n\n请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。`);
+            alert(`绑定失败：${errorMessage}\n\n请先注册Triple Uni账户，或联系 Mentor 修改你注册的邮箱。`);
         }
     } catch (err: any) {
-        alert(`绑定失败：${err.message || '网络错误'}\n\n请先注册Triple Uni账户，或联系Mentor修改你注册的邮箱。`);
+        alert(`绑定失败：${err.message || '网络错误'}\n\n请先注册Triple Uni账户，或联系 Mentor 修改你注册的邮箱。`);
         console.error(err);
     }
 };

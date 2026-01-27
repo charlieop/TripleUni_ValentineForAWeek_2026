@@ -99,6 +99,9 @@ class StatusView(APIView, UtilMixin):
         return (Status.EXIT_QUESTIONNAIRE_END, None)
 
     def get(self, request):
+        
+        return Response({"data": {"status": Status.EXIT_QUESTIONNAIRE_RELEASE.value, "deadline": None}}, status=status.HTTP_200_OK)
+        
         if MAINTENANCE_MODE:
             return Response({"data": {"status": Status.MAINTENANCE.value, "deadline": EXPECTED_MAINTENANCE_END.timestamp()}}, status=status.HTTP_200_OK)
 
