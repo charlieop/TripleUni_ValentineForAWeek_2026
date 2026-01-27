@@ -24,9 +24,9 @@ with open(settings.BASE_DIR / "SECRETS.json") as f:
 with open(settings.BASE_DIR / "apiclient_key.pem") as f:
     PRIVATE_KEY = f.read()
 
-# XXX: change this to 70 * 100
+# XXX: change this to 99 * 100
 PRICE = 1
-# PRICE = 70 * 100
+# PRICE = 99 * 100
 
 EXPIRES_IN = 7 * 60
 DESCRIPTION = "Triple Uni 一周CP 2026 活动押金"

@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from django.db.models import Sum, F
 
 from ..mixin import UtilMixin
 from ..models import Task, Match
@@ -117,27 +116,15 @@ class MatchDetailView(APIView, UtilMixin):
             if task and task.basic_completed:
                 basic_complete[i - 1] = True
 
-
         day = (AvtivityDates.now() - AvtivityDates.FIRST_MISSION_RELEASE).days + 1
         day = max(min(day, 8), 0)
 
-        # Calculate rank by counting matches with higher total scores
-        # Since total_score is a property, we need to calculate it via aggregation
+        # Get rank using the mixin method (calculates all ranks and caches for 15 minutes)
         current_score = match.total_score
-
-        # Count matches with higher scores
-        matches_with_higher_scores = Match.objects.annotate(
-            score=Sum(
-                F("tasks__basic_score")
-                + F("tasks__bonus_score")
-                + F("tasks__daily_score")
-            )
-        ).filter(score__gt=current_score)
-
-        rank = matches_with_higher_scores.count() + 1
+        rank = self.get_rank(match.id)
 
         logger.info(
-            f"GET match: {applicant.wechat_info.openid}, match_id: {match.id}, score: {current_score}"
+            f"GET match: {applicant.wechat_info.openid}, match_id: {match.id}, score: {current_score}, rank: {rank}"
         )
 
         # Prepare data for serializer

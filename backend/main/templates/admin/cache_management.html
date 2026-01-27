@@ -1,0 +1,235 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}Cache Management{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; Cache Management
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="cache-management">
+    <h1>Cache Management</h1>
+    
+    <div class="cache-controls" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+        <form method="get" action="{% url 'admin:cache_management' %}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label for="path-input" style="font-weight: bold;">Current Path:</label>
+            <input 
+                type="text" 
+                id="path-input" 
+                name="path" 
+                value="{{ current_path }}" 
+                placeholder="e.g., token: or match:applicant:"
+                style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"
+            />
+            <button type="submit" style="padding: 8px 16px; background: #417690; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Refresh
+            </button>
+        </form>
+        
+        {% if parent_path or current_path %}
+        <div style="margin-top: 10px;">
+            <a href="{% url 'admin:cache_management' %}?path={{ parent_path }}" 
+               style="padding: 6px 12px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">
+                ← Back
+            </a>
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 10px;">
+            <form method="post" action="{% url 'admin:cache_management' %}?path={{ current_path }}" 
+                  onsubmit="return confirm('Are you sure you want to flush ALL cache? This action cannot be undone.');"
+                  style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="flush_all">
+                <button type="submit" 
+                        style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Flush All Cache
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="cache-stats" style="margin-bottom: 20px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+        <strong>Statistics:</strong>
+        <span style="margin-left: 10px;">Directories: {{ total_directories }}</span>
+        <span style="margin-left: 10px;">Keys shown: {{ total_keys_shown }}</span>
+        {% if has_more_keys %}
+        <span style="margin-left: 10px; color: #856404;">(Showing first 50 keys)</span>
+        {% endif %}
+    </div>
+    
+    <div class="cache-content">
+        {% if directories or cache_items %}
+            {% if directories %}
+            <div class="directories-section" style="margin-bottom: 30px;">
+                <h2 style="font-size: 18px; margin-bottom: 10px;">Directories</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f1f1f1;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Directory</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for directory in directories %}
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <a href="{% url 'admin:cache_management' %}?path={{ current_path }}{{ directory }}:" 
+                                   style="color: #417690; text-decoration: none; font-weight: bold;">
+                                    📁 {{ directory }}
+                                </a>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <a href="{% url 'admin:cache_management' %}?path={{ current_path }}{{ directory }}:" 
+                                   style="color: #417690; text-decoration: none;">
+                                    View →
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            
+            {% if cache_items %}
+            <div class="keys-section">
+                <h2 style="font-size: 18px; margin-bottom: 10px;">Cache Keys</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f1f1f1;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Value Preview</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cache_items %}
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace; word-break: break-all;">
+                                {{ item.key }}
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; max-width: 400px;">
+                                <div style="max-height: 100px; overflow: auto; font-size: 12px; background: #f8f9fa; padding: 5px; border-radius: 3px;">
+                                    {% if item.formatted_value|length > 200 %}
+                                        {{ item.formatted_value|truncatewords:30 }}
+                                        <button onclick="showFullValue('{{ item.key }}')" 
+                                                style="margin-left: 5px; padding: 2px 6px; background: #417690; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 11px;">
+                                            Show Full
+                                        </button>
+                                    {% else %}
+                                        {{ item.formatted_value }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <button onclick="showFullValue('{{ item.key }}')" 
+                                        style="padding: 4px 8px; background: #417690; color: white; border: none; border-radius: 3px; cursor: pointer; margin-right: 5px;">
+                                    View
+                                </button>
+                                <form method="post" 
+                                      action="{% url 'admin:cache_management' %}?path={{ current_path }}" 
+                                      onsubmit="return confirm('Are you sure you want to delete this cache key?');"
+                                      style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_key">
+                                    <input type="hidden" name="key" value="{{ item.key }}">
+                                    <button type="submit" 
+                                            style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        {% else %}
+            <div style="padding: 20px; text-align: center; color: #6c757d;">
+                <p>No cache keys found{% if current_path %} under "{{ current_path }}"{% endif %}.</p>
+                {% if current_path %}
+                <p><a href="{% url 'admin:cache_management' %}">Go to root</a></p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal for showing full cache value -->
+<div id="valueModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 4px; max-height: 80vh; overflow: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="margin: 0;">Cache Value</h2>
+            <button onclick="closeModal()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+            <strong>Key:</strong> <span id="modal-key" style="font-family: monospace; word-break: break-all;"></span>
+        </div>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
+            <pre id="modal-value" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 12px;"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+function showFullValue(key) {
+    fetch(`{% url 'admin:cache_key_detail' %}?key=${encodeURIComponent(key)}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('modal-key').textContent = data.key;
+            if (data.exists) {
+                document.getElementById('modal-value').textContent = data.value;
+            } else {
+                document.getElementById('modal-value').textContent = data.message || 'Key not found';
+            }
+            document.getElementById('valueModal').style.display = 'block';
+        })
+        .catch(error => {
+            document.getElementById('modal-key').textContent = key;
+            document.getElementById('modal-value').textContent = 'Error loading value: ' + error;
+            document.getElementById('valueModal').style.display = 'block';
+        });
+}
+
+function closeModal() {
+    document.getElementById('valueModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('valueModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+
+<style>
+.cache-management {
+    max-width: 1400px;
+}
+
+.cache-management h1 {
+    margin-bottom: 20px;
+}
+
+.cache-management h2 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+table {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

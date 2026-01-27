@@ -95,7 +95,6 @@ class ImageView(APIView, UtilMixin):
             # Validate MIME type
             content_type = getattr(img_file, "content_type", None)
             if not content_type or content_type not in VALID_MIME_TYPES:
-                print(f"Warning: Unknown MIME type: {content_type} for image {idx + 1}")
                 # Fallback: check file extension
                 file_name = getattr(img_file, "name", "").lower()
                 if not any(file_name.endswith(ext) for ext in VALID_FILE_EXTENSIONS):

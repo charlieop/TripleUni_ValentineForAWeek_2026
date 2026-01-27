@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.cache import cache
 
 
 class Task(models.Model):
@@ -31,6 +32,56 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Store old values before save for cache invalidation
+        old_match_id = None
+        old_day = None
+        if self.pk:
+            try:
+                old_instance = Task.objects.get(pk=self.pk)
+                old_match_id = old_instance.match_id
+                old_day = old_instance.day
+            except Task.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Invalidate task cache for this match and day
+        cache.delete(f"task:match:{self.match.id}:day:{self.day}")
+        # Invalidate old task cache if match or day changed
+        if old_match_id and (old_match_id != self.match_id or old_day != self.day):
+            cache.delete(f"task:match:{old_match_id}:day:{old_day}")
+
+        # Note: We don't invalidate ranking cache here to allow it to persist for full 15 minutes
+        # The ranking cache will be recalculated on next get_rank() call after expiration
+        if self.match:
+            cache.delete(f"match:applicant:{self.match.applicant1_id}")
+            cache.delete(f"match:applicant:{self.match.applicant2_id}")
+
+    def delete(self, *args, **kwargs):
+        # Store values before deletion for cache invalidation
+        match_id = self.match_id if self.match else None
+        day = self.day
+        applicant1_id = None
+        applicant2_id = None
+        if self.match:
+            applicant1_id = self.match.applicant1_id
+            applicant2_id = self.match.applicant2_id
+
+        super().delete(*args, **kwargs)
+
+        # Invalidate cache
+        from django.core.cache import cache
+
+        if match_id:
+            cache.delete(f"task:match:{match_id}:day:{day}")
+        # Invalidate ranking cache when task is deleted
+        cache.delete("match:ranking:all")
+        if applicant1_id:
+            cache.delete(f"match:applicant:{applicant1_id}")
+        if applicant2_id:
+            cache.delete(f"match:applicant:{applicant2_id}")
 
     def __str__(self):
         return f"第{self.day}天: #{self.match.id}-{self.match.name}"

@@ -103,15 +103,10 @@ def _saveToModel(openid, nickname, headimgurl, unionid):
                 logger.info(f"Updated head image for: {openid}")
         existing_user.save()
 
-        token = existing_user.token
-        if not token:
+        try:
+            token = existing_user.token
+        except Token.DoesNotExist:
             token = Token.objects.create(wechat_info=existing_user)
-            if not token:
-                logger.error(f"Failed to create token for existing user: {openid}")
-                return Response(
-                    {"detail": "Failed to create token"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
         logger.info(f"Login successful for: {openid}")
         return Response({"data": {"token": token.token}}, status=status.HTTP_200_OK)
 

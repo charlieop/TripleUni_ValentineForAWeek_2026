@@ -8,13 +8,14 @@ from rest_framework.exceptions import PermissionDenied
 
 from ..mixin import UtilMixin
 from ..logger import CustomLogger
-from ..configs import AvtivityDates, MAINTENANCE_MODE, EXPECTED_MAINTENANCE_END
+from .. import configs
+from ..configs import AvtivityDates
 
 logger = CustomLogger("status")
 
 
 class Status(Enum):
-    
+
     MAINTENANCE = "MAINTENANCE"
     NOT_STARTED = "NOT_STARTED"
 
@@ -38,7 +39,7 @@ class Status(Enum):
 class StatusView(APIView, UtilMixin):
     def _get_status(self, token: str) -> tuple[Status, datetime]:
         now = AvtivityDates.now()
-        
+
         # Before application starts
         if now < AvtivityDates.APPLICATION_START:
             return (Status.NOT_STARTED, AvtivityDates.APPLICATION_START)
@@ -55,10 +56,13 @@ class StatusView(APIView, UtilMixin):
         except PermissionDenied:
             return (Status.QUITTED, None)
 
-
         # During application period
         if now < AvtivityDates.APPLICATION_END:
-            return (Status.PAID, AvtivityDates.APPLICATION_END) if applicant.has_paid() else (Status.APPLIED, AvtivityDates.APPLICATION_END)
+            return (
+                (Status.PAID, AvtivityDates.APPLICATION_END)
+                if applicant.has_paid()
+                else (Status.APPLIED, AvtivityDates.APPLICATION_END)
+            )
 
         # After application period - must have paid to continue
         if not applicant.has_paid():
@@ -78,14 +82,14 @@ class StatusView(APIView, UtilMixin):
         for deadline, status_value in status_timeline:
             if now < deadline:
                 return (status_value, deadline)
-            
+
         try:
             match, user_role = self.get_match_by_applicant(applicant)
         except NotFound:
             return (Status.QUITTED, None)
         if match.discarded:
             return (Status.QUITTED, None)
-            
+
         # Time-based status progression after application period
         status_timeline = [
             (AvtivityDates.EXIT_QUESTIONNAIRE_RELEASE, Status.ACTIVITY_START),
@@ -99,14 +103,27 @@ class StatusView(APIView, UtilMixin):
         return (Status.EXIT_QUESTIONNAIRE_END, None)
 
     def get(self, request):
-        
-        return Response({"data": {"status": Status.EXIT_QUESTIONNAIRE_RELEASE.value, "deadline": None}}, status=status.HTTP_200_OK)
-        
-        if MAINTENANCE_MODE:
-            return Response({"data": {"status": Status.MAINTENANCE.value, "deadline": EXPECTED_MAINTENANCE_END.timestamp()}}, status=status.HTTP_200_OK)
+        if configs.MAINTENANCE_MODE:
+            return Response(
+                {
+                    "data": {
+                        "status": Status.MAINTENANCE.value,
+                        "deadline": configs.EXPECTED_MAINTENANCE_END.timestamp(),
+                    }
+                },
+                status=status.HTTP_200_OK,
+            )
 
         token = self.get_token(request)
         openid = self.get_openid_by_token(token)
         status_obj, deadline = self._get_status(token)
         logger.info(f"GET: {openid}, status: {status_obj.value}")
-        return Response({"data": {"status": status_obj.value, "deadline": deadline.timestamp() if deadline else None}}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "data": {
+                    "status": status_obj.value,
+                    "deadline": deadline.timestamp() if deadline else None,
+                }
+            },
+            status=status.HTTP_200_OK,
+        )

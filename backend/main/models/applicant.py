@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib import admin
+from django.core.cache import cache
 
 
 class Applicant(models.Model):
@@ -196,6 +197,65 @@ class Applicant(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Store old values before save for cache invalidation
+        old_wechat_info_id = None
+        if self.pk:
+            try:
+                old_instance = Applicant.objects.get(pk=self.pk)
+                old_wechat_info_id = old_instance.wechat_info_id
+            except Applicant.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Invalidate by openid
+        if self.wechat_info:
+            cache.delete(f"applicant:openid:{self.wechat_info.openid}")
+        # Invalidate by old wechat_info if it changed
+        if old_wechat_info_id and old_wechat_info_id != self.wechat_info_id:
+            try:
+                from .wechat_info import WeChatInfo
+
+                old_wechat_info = WeChatInfo.objects.get(pk=old_wechat_info_id)
+                cache.delete(f"applicant:openid:{old_wechat_info.openid}")
+            except WeChatInfo.DoesNotExist:
+                pass
+
+        # Invalidate token-based applicant cache
+        if self.wechat_info:
+            try:
+                token = self.wechat_info.token
+                cache.delete(f"token:{token.token}:applicant")
+            except:
+                pass
+
+        # Invalidate match cache for this applicant
+        cache.delete(f"match:applicant:{self.id}")
+
+    def delete(self, *args, **kwargs):
+        # Store values before deletion for cache invalidation
+        wechat_info_openid = self.wechat_info.openid if self.wechat_info else None
+        applicant_id = self.id
+        token_str = None
+        if self.wechat_info:
+            try:
+                token = self.wechat_info.token
+                token_str = str(token.token)
+            except:
+                pass
+
+        super().delete(*args, **kwargs)
+
+        # Invalidate cache
+        from django.core.cache import cache
+
+        if wechat_info_openid:
+            cache.delete(f"applicant:openid:{wechat_info_openid}")
+        if token_str:
+            cache.delete(f"token:{token_str}:applicant")
+        cache.delete(f"match:applicant:{applicant_id}")
 
     def __str__(self):
         return f"{self.name}-{Applicant.SEX[self.sex]}-{self.school}-{Applicant.GRADE[self.grade]}"

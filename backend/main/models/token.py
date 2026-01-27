@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import cache
 import uuid
 
 
@@ -15,6 +16,21 @@ class Token(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Invalidate cache for this token
+        cache.delete(f"token:{self.token}:openid")
+        cache.delete(f"token:{self.token}:wechat_info")
+        cache.delete(f"token:{self.token}:applicant")
+
+    def delete(self, *args, **kwargs):
+        token_str = str(self.token)
+        super().delete(*args, **kwargs)
+        # Invalidate cache for this token
+        cache.delete(f"token:{token_str}:openid")
+        cache.delete(f"token:{token_str}:wechat_info")
+        cache.delete(f"token:{token_str}:applicant")
 
     def __str__(self):
         return f"{self.wechat_info.nickname} - {self.token}"

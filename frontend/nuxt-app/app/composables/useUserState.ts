@@ -1,4 +1,5 @@
 const { get } = useRequest();
+const { clearToken } = useStore();
 
 export enum UserStates {
     UNKNOWN = "UNKNOWN",
@@ -30,7 +31,11 @@ export const nextStatusDeadlineReached = ref<boolean>(false);
 
 export const fetchUserState = async () => {
     const response = await get("status/");
-    if (!response.ok) {
+    if (response.status === 403 || response.status === 401) {
+        clearToken();
+        return navigateTo("/login");
+    }
+    else if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Failed to get user state");
     }

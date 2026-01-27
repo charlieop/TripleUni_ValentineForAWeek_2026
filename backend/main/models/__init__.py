@@ -7,6 +7,7 @@ from .match import Match
 from .task import Task
 from .image import Image
 from .mission import Mission
+from .config import Config
 
 __all__ = [
     "WeChatInfo",
@@ -18,4 +19,5 @@ __all__ = [
     "Task",
     "Image",
     "Mission",
+    "Config",
 ]

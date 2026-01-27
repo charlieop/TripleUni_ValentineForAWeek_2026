@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import cache
 
 
 class Match(models.Model):
@@ -42,6 +43,51 @@ class Match(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Store old values before save for cache invalidation
+        old_applicant1_id = None
+        old_applicant2_id = None
+        if self.pk:
+            try:
+                old_instance = Match.objects.get(pk=self.pk)
+                old_applicant1_id = old_instance.applicant1_id
+                old_applicant2_id = old_instance.applicant2_id
+            except Match.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Invalidate match cache for both applicants
+        if self.applicant1:
+            cache.delete(f"match:applicant:{self.applicant1.id}")
+        if self.applicant2:
+            cache.delete(f"match:applicant:{self.applicant2.id}")
+        # Invalidate old applicants if they changed
+        if old_applicant1_id and old_applicant1_id != self.applicant1_id:
+            cache.delete(f"match:applicant:{old_applicant1_id}")
+        if old_applicant2_id and old_applicant2_id != self.applicant2_id:
+            cache.delete(f"match:applicant:{old_applicant2_id}")
+
+        # Note: We don't invalidate ranking cache here to allow it to persist for full 15 minutes
+        # The ranking cache will be recalculated on next get_rank() call after expiration
+
+    def delete(self, *args, **kwargs):
+        # Store values before deletion for cache invalidation
+        applicant1_id = self.applicant1_id if self.applicant1 else None
+        applicant2_id = self.applicant2_id if self.applicant2 else None
+
+        super().delete(*args, **kwargs)
+
+        # Invalidate cache
+        from django.core.cache import cache
+
+        if applicant1_id:
+            cache.delete(f"match:applicant:{applicant1_id}")
+        if applicant2_id:
+            cache.delete(f"match:applicant:{applicant2_id}")
+        # Invalidate ranking cache when match is deleted
+        cache.delete("match:ranking:all")
 
     def __str__(self):
         return f"#{self.id}-{self.name}  | Mentor: {self.mentor.name}"
