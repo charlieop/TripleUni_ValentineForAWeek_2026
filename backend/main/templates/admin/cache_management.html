@@ -170,6 +170,11 @@
         </div>
         <div style="margin-bottom: 10px;">
             <strong>Key:</strong> <span id="modal-key" style="font-family: monospace; word-break: break-all;"></span>
+            <span id="modal-model-badge" style="display: none; margin-left: 10px; padding: 4px 8px; background: #28a745; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">Django Model</span>
+        </div>
+        <div id="modal-model-info" style="display: none; margin-bottom: 10px; padding: 8px; background: #e7f3ff; border-left: 3px solid #2196F3; border-radius: 3px; font-size: 12px;">
+            <strong>Model:</strong> <span id="modal-model-name"></span> | 
+            <strong>PK:</strong> <span id="modal-model-pk"></span>
         </div>
         <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #ddd;">
             <pre id="modal-value" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 12px;"></pre>
@@ -183,6 +188,23 @@ function showFullValue(key) {
         .then(response => response.json())
         .then(data => {
             document.getElementById('modal-key').textContent = data.key;
+            
+            // Show/hide Django model badge and info
+            const modelBadge = document.getElementById('modal-model-badge');
+            const modelInfo = document.getElementById('modal-model-info');
+            const modelNameSpan = document.getElementById('modal-model-name');
+            const modelPkSpan = document.getElementById('modal-model-pk');
+            
+            if (data.is_django_model && data.model_info) {
+                modelBadge.style.display = 'inline-block';
+                modelInfo.style.display = 'block';
+                modelNameSpan.textContent = `${data.model_info.app_label}.${data.model_info.model_name}`;
+                modelPkSpan.textContent = data.model_info.pk;
+            } else {
+                modelBadge.style.display = 'none';
+                modelInfo.style.display = 'none';
+            }
+            
             if (data.exists) {
                 document.getElementById('modal-value').textContent = data.value;
             } else {
@@ -193,6 +215,8 @@ function showFullValue(key) {
         .catch(error => {
             document.getElementById('modal-key').textContent = key;
             document.getElementById('modal-value').textContent = 'Error loading value: ' + error;
+            document.getElementById('modal-model-badge').style.display = 'none';
+            document.getElementById('modal-model-info').style.display = 'none';
             document.getElementById('valueModal').style.display = 'block';
         });
 }

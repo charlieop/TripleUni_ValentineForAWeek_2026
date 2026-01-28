@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}系统操作{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; 系统操作
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="system-actions">
+    <h1>系统操作</h1>
+    
+    <div class="actions-container" style="margin-top: 30px;">
+        <div class="action-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="margin-top: 0; color: #417690;">缓存管理</h2>
+            <p style="color: #666; margin-bottom: 15px;">查看和管理系统缓存，包括缓存键的浏览、查看和删除操作。</p>
+            <a href="{{ cache_management_url }}" 
+               style="display: inline-block; padding: 10px 20px; background: #417690; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; transition: background-color 0.3s;">
+                前往缓存管理 →
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.system-actions {
+    max-width: 1200px;
+}
+
+.system-actions h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.action-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.action-card a:hover {
+    background: #205067 !important;
+}
+</style>
+{% endblock %}
