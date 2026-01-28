@@ -94,6 +94,16 @@ docker compose up -d
 sudo docker compose exec django chown -R www-data:www-data /app/static
 
 cd /home/ubuntu/TripleUni_ValentineForAWeek_2026/backend
+
+rm -f db.sqlite3
+touch db.sqlite3
+
+sudo chown $USER:$USER db.sqlite3
+sudo chmod 664 db.sqlite3
+mkdir -p media logs static
+sudo chown -R $USER:$USER media logs static
+sudo chmod -R 755 media logs static
+
 sudo chown -R www-data:www-data static
 sudo chmod -R 755 static
 sudo find static -type f -exec chmod 644 {} \;
