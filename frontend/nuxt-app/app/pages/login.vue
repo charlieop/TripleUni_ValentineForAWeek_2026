@@ -11,7 +11,7 @@
 
 
       <div class="notes">
-        <img src="@/assets/imgs/login-text-bg.png" alt="" class="note-bg">
+        <img src="/imgs/login-text-bg.png" alt="" class="note-bg">
         <div class="note-content">
           <template v-if="!hasCode">
             <h1>请使用<strong>真实账户</strong>授权</h1>

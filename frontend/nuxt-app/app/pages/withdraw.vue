@@ -4,7 +4,7 @@
         <h1 class="page-title">退出活动</h1>
 
         <div class="info-section">
-            <img src="@/assets/imgs/paperslip.png" alt="" class="bg-img">
+            <img src="/imgs/paperslip.png" alt="" class="bg-img">
             <div class="warning-card">
                 <p class="warning-title">请注意: </p>
                 <p class="warning-text">

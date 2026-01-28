@@ -79,6 +79,8 @@
                     'h3_11',
                     'message_to_partner',
                     'divider_7',
+                    'h2_5',
+                    'p_15',
                     'h3_6',
                     'comment',
                     'confirm1',
@@ -117,6 +119,10 @@
                     <li class='vf-li'>2月15日05:59 AM - 第七天任务提交截止</li>
                     <li class='vf-li'>2月16日23:59 - 反馈问卷提交截止</li>
                 </ol>
+                <br>
+                <p>若你希望通过微信<strong>收到匹配结果以及每日任务截止提醒</strong>, 请扫码关注 Triple Uni 公众号</p>
+                <img src='/imgs/uni_qrcode.jpg' style='margin: 1rem auto; width: 80%;'>
+
             </div>" />
                 <StaticElement name="h3_13" tag="h3" content="关于匹配" top="2" />
                 <StaticElement name="p_13" tag="p" content="
@@ -192,6 +198,9 @@
                 <StaticElement name="divider" tag="hr" top="2" />
                 <CheckboxElement name="checkbox" field-name="规则及隐私条款" :rules="['accepted']" :disabled="formDisabled"
                     text="我已详细阅读、理解并同意以上所有内容以及<a href='/agreement'>《一周CP2026协议书》</a>并愿意参加活动." :submit="false" />
+
+
+
 
                 <StaticElement name="h2" tag="h2" content="个人信息" />
                 <StaticElement name="h3" tag="h3" content="基础信息" />
@@ -357,7 +366,9 @@
     </div>" :disabled="formDisabled" />
                 <StaticElement name="divider_2" tag="hr" top="2" />
 
-                <StaticElement name="h2_2" tag="h2" content="你的匹配偏好" />
+
+
+
                 <StaticElement name="h2_1" tag="h2" content="你的兴趣/ 爱好/ 想法" />
                 <StaticElement name="p_14" tag="p" content="此页内容仅用于匹配, 不会有任何人, 包括你的CP与Mentor, 能够看到你的答案, 请放心填写." />
                 <TagsElement name="hobbies" :close-on-select="false" :search="true" autocomplete="off" :create="true"
@@ -419,6 +430,9 @@
 }" :disabled="formDisabled" />
                 <StaticElement name="divider_3" tag="hr" top="2" />
 
+
+
+                <StaticElement name="h2_2" tag="h2" content="你的匹配偏好" />
                 <StaticElement name="h3_2" tag="h3" content="硬性要求" />
                 <StaticElement name="p_1" tag="p"
                     content="<div>对于硬性要求, 我们将<strong>过滤掉</strong>不符合的人选<br>以下选项<strong>会减少</strong>你可匹配的人选数量.</div>" />
@@ -580,6 +594,8 @@
                     ]" :disabled="formDisabled" />
                 <StaticElement name="divider_5" tag="hr" top="2" />
 
+
+
                 <StaticElement name="h2_3" tag="h2" content="留言" />
                 <StaticElement name="h3_11" tag="h3" content="简单介绍自己" />
                 <TextareaElement name="message_to_partner" label="给对方的留言"
@@ -588,6 +604,13 @@
                         after: '<div class=\&#39;word-count\&#39;>(0)</div>',
                     }" :disabled="formDisabled" />
                 <StaticElement name="divider_7" tag="hr" top="1" bottom="1" />
+                <StaticElement name="h2_5" tag="h3" content="关于通知" />
+                <StaticElement name="p_15" tag="p" content="
+                <div>
+                    <p>若你希望通过微信<strong>收到匹配结果以及每日任务截止提醒</strong>, 请扫码关注 Triple Uni 公众号</p>
+                    <img src='/imgs/uni_qrcode.jpg' style='margin: 1rem auto; width: 80%;'>
+
+                </div>" />
                 <StaticElement name="h3_6" tag="h3" content="写给主办方" />
                 <TextareaElement name="comment" label="还有什么想补充的吗?"
                     placeholder="请注意, 我们无法得知申请者的外貌/ 身高/ 性格等信息, 也无法根据此进行匹配" :rows="5" :addons="{
@@ -693,7 +716,7 @@ onMounted(async () => {
             console.error(err);
         }
     }
- 
+
     if (savedData) {
         if (form$.value) {
             form$.value.load(savedData);

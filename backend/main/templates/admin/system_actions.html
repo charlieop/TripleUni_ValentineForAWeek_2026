@@ -16,17 +16,55 @@
     
     <div class="actions-container" style="margin-top: 30px;">
         <div class="action-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h2 style="margin-top: 0; color: #417690;">缓存管理</h2>
-            <p style="color: #666; margin-bottom: 15px;">查看和管理系统缓存，包括缓存键的浏览、查看和删除操作。</p>
+            <h2>缓存管理</h2>
+            <p class="description">查看和管理系统缓存，包括缓存键的浏览、查看和删除操作。</p>
             <a href="{{ cache_management_url }}" 
-               style="display: inline-block; padding: 10px 20px; background: #417690; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; transition: background-color 0.3s;">
+               class="btn"
+               >
                 前往缓存管理 →
             </a>
+        </div>
+        
+        <div class="action-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2>计算排名</h2>
+            <p class="description">重新计算所有匹配的排名并更新缓存。排名基于任务的总分（基础分 + 奖励分 + 每日分）。</p>
+            <form method="post" action="{{ calculate_rank_url }}">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="btn"
+                        style="background: #559041;">
+                    计算排名
+                </button>
+            </form>
         </div>
     </div>
 </div>
 
 <style>
+
+.action-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-card .description {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.action-card .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #417690;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
 .system-actions {
     max-width: 1200px;
 }
@@ -45,8 +83,9 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.action-card a:hover {
-    background: #205067 !important;
+.action-card a:hover,
+.action-card button:hover {
+    filter: brightness(0.8);
 }
 </style>
 {% endblock %}

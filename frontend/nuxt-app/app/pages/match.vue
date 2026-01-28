@@ -101,7 +101,7 @@
                 <div class="tasks-grid">
                     <button class="task-card link-uni" @click="linkUNI"
                         :class="{ completed: matchData.user_info.linked_uni }">
-                        <img src="@/assets/imgs/tripleuni-logo.webp" alt="绑定triple uni" class="task-icon">
+                        <img src="/imgs/tripleuni-logo.webp" alt="绑定triple uni" class="task-icon">
                     </button>
 
                     <button v-for="day in 7" :key="day" class="task-card" :class="{

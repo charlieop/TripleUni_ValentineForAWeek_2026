@@ -162,6 +162,49 @@ class UtilMixin:
     def assert_day_valid(self, day: int):
         if not (1 <= day <= 7):
             raise ValidationError({"detail": "Day must be between 1 and 7"})
+        
+    def calculate_rank(self) -> dict[int, int]:
+        cache_key = "match:ranking:all"
+        # Calculate ranks for all matches
+        # Get all matches with their total scores
+        matches = Match.objects.annotate(
+            score=Sum(
+                F("tasks__basic_score")
+                + F("tasks__bonus_score")
+                + F("tasks__daily_score")
+            )
+        ).order_by(
+            "-score", "id"
+        )  # Order by score descending, then by id for consistency
+
+        # Build list of (match_id, score) tuples
+        match_scores = [(match.id, match.score or 0) for match in matches]
+
+        # Calculate ranks with proper tie handling
+        ranking_dict = {}
+        current_rank = 1
+        i = 0
+
+        while i < len(match_scores):
+            match_id_at_i, score = match_scores[i]
+            # Count how many matches have the same score
+            tied_count = 1
+            j = i + 1
+            while j < len(match_scores) and match_scores[j][1] == score:
+                tied_count += 1
+                j += 1
+
+            # Assign the same rank to all tied matches
+            for k in range(i, i + tied_count):
+                ranking_dict[match_scores[k][0]] = current_rank
+
+            # Move to next rank (skip tied positions)
+            current_rank += tied_count
+            i += tied_count
+
+        # Cache the ranking dictionary for 15 minutes
+        cache.set(cache_key, ranking_dict, timeout=900)  # 15 minutes = 900 seconds
+        return ranking_dict
 
     def get_rank(self, match_id: int) -> int:
         """
@@ -178,45 +221,7 @@ class UtilMixin:
         ranking_dict = cache.get(cache_key)
 
         if ranking_dict is None:
-            # Calculate ranks for all matches
-            # Get all matches with their total scores
-            matches = Match.objects.annotate(
-                score=Sum(
-                    F("tasks__basic_score")
-                    + F("tasks__bonus_score")
-                    + F("tasks__daily_score")
-                )
-            ).order_by(
-                "-score", "id"
-            )  # Order by score descending, then by id for consistency
-
-            # Build list of (match_id, score) tuples
-            match_scores = [(match.id, match.score or 0) for match in matches]
-
-            # Calculate ranks with proper tie handling
-            ranking_dict = {}
-            current_rank = 1
-            i = 0
-
-            while i < len(match_scores):
-                match_id_at_i, score = match_scores[i]
-                # Count how many matches have the same score
-                tied_count = 1
-                j = i + 1
-                while j < len(match_scores) and match_scores[j][1] == score:
-                    tied_count += 1
-                    j += 1
-
-                # Assign the same rank to all tied matches
-                for k in range(i, i + tied_count):
-                    ranking_dict[match_scores[k][0]] = current_rank
-
-                # Move to next rank (skip tied positions)
-                current_rank += tied_count
-                i += tied_count
-
-            # Cache the ranking dictionary for 15 minutes
-            cache.set(cache_key, ranking_dict, timeout=900)  # 15 minutes = 900 seconds
+            ranking_dict = self.calculate_rank()
 
         # Return the rank for the requested match
         # If match not found in ranking (shouldn't happen normally), return None

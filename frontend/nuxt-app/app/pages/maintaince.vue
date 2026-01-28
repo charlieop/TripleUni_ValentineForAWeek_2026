@@ -8,7 +8,7 @@
         <button class="btn primary" @click="refresh">刷新</button>
       </div>
       <div class="notes">
-        <img src="@/assets/imgs/login-text-bg.png" alt="" class="note-bg">
+        <img src="/imgs/login-text-bg.png" alt="" class="note-bg">
         <div class="note-content">
           <h1><strong>维护中...</strong></h1>
           <div class="info-section">
