@@ -8,6 +8,7 @@ from .task import Task
 from .image import Image
 from .mission import Mission
 from .config import Config
+from .system_actions import SystemActions
 
 __all__ = [
     "WeChatInfo",
@@ -20,4 +21,5 @@ __all__ = [
     "Image",
     "Mission",
     "Config",
+    "SystemActions",
 ]

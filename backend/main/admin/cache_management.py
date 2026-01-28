@@ -7,6 +7,8 @@ from django.views.decorators.http import require_http_methods
 from django.core.cache import cache
 from django.utils.html import format_html
 from django.contrib import messages
+from django.forms.models import model_to_dict
+from django.db import models
 import pickle
 import json
 
@@ -117,7 +119,20 @@ def get_cache_value(key):
 
         # Try to format the value
         try:
-            if isinstance(value, (dict, list)):
+            # Check if value is a Django model instance
+            if isinstance(value, models.Model):
+                # Convert model to dictionary with all field values
+                model_dict = model_to_dict(value)
+                # Add model metadata
+                model_info = {
+                    "model": f"{value._meta.app_label}.{value._meta.model_name}",
+                    "pk": str(value.pk),
+                    "fields": model_dict,
+                }
+                formatted = json.dumps(
+                    model_info, indent=2, ensure_ascii=False, default=str
+                )
+            elif isinstance(value, (dict, list)):
                 formatted = json.dumps(value, indent=2, ensure_ascii=False, default=str)
             elif isinstance(value, str):
                 formatted = value
@@ -249,12 +264,24 @@ def cache_key_detail_view(request):
     if value is None:
         return JsonResponse({"key": key, "exists": False, "message": formatted_value})
 
+    # Check if it's a Django model for additional info
+    is_model = isinstance(value, models.Model)
+    model_info = None
+    if is_model:
+        model_info = {
+            "app_label": value._meta.app_label,
+            "model_name": value._meta.model_name,
+            "pk": str(value.pk),
+        }
+
     return JsonResponse(
         {
             "key": key,
             "exists": True,
             "value": formatted_value,
             "type": type(value).__name__,
+            "is_django_model": is_model,
+            "model_info": model_info,
         }
     )
 

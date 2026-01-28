@@ -9,8 +9,10 @@ from .image import ImageAdmin
 from .mission import MissionAdmin
 from .token import TokenAdmin
 from .config import ConfigAdmin
+from .system_actions import SystemActionsAdmin
 
 from . import cache_management
+from . import cache_management_menu
 
 __all__ = [
     "ApplicantAdmin",
@@ -23,5 +25,6 @@ __all__ = [
     "MissionAdmin",
     "TokenAdmin",
     "ConfigAdmin",
+    "SystemActionsAdmin",
     "CacheManagementAdmin",
 ]
