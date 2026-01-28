@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block content %}
+<h1 style="margin-bottom: 20px; color: #333; font-size: 1.5rem;">系统操作</h1>
 <div class="system-actions">
-    <h1>系统操作</h1>
     
     <div class="actions-container" style="margin-top: 30px;">
-        <div class="action-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="action-card">
             <h2>缓存管理</h2>
             <p class="description">查看和管理系统缓存，包括缓存键的浏览、查看和删除操作。</p>
             <a href="{{ cache_management_url }}" 
@@ -25,7 +25,7 @@
             </a>
         </div>
         
-        <div class="action-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="action-card">
             <h2>计算排名</h2>
             <p class="description">重新计算所有匹配的排名并更新缓存。排名基于任务的总分（基础分 + 奖励分 + 每日分）。</p>
             <form method="post" action="{{ calculate_rank_url }}">
@@ -38,9 +38,132 @@
             </form>
         </div>
     </div>
+
+    <h2 class="section-title">通知管理</h2>
+    
+    <div class="notification-container">
+        <div class="action-card">
+            <h2>押金支付提醒</h2>
+            <p class="description">向未支付押金的申请人发送支付提醒通知。</p>
+            <form method="post" action="{{ remind_payment_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #d9534f;">
+                    发送押金支付提醒
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>第一轮匹配结果通知</h2>
+            <p class="description">向所有已支付押金的申请人发送第一轮匹配结果通知。</p>
+            <form method="post" action="{{ notify_first_match_all_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #5bc0de;">
+                    发送第一轮匹配结果通知
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>第一轮确认提醒</h2>
+            <p class="description">向未确认第一轮匹配结果的申请人发送确认提醒通知。</p>
+            <form method="post" action="{{ notify_first_match_confirm_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #f0ad4e;">
+                    发送第一轮确认提醒
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>第二轮匹配结果通知</h2>
+            <p class="description">向所有相关申请人发送第二轮匹配结果通知。</p>
+            <form method="post" action="{{ notify_second_match_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #5bc0de;">
+                    发送第二轮匹配结果通知
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>活动开始通知</h2>
+            <p class="description">向所有有效匹配的申请人发送活动开始通知。</p>
+            <form method="post" action="{{ notify_activity_start_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #5cb85c;">
+                    发送活动开始通知
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>每日任务截止提醒</h2>
+            <p class="description">向所有有效匹配的申请人发送指定天数的任务提交截止提醒。</p>
+            <form method="post" action="{{ notify_daily_task_url }}" class="notification-form" id="daily-task-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <div style="margin-bottom: 10px;">
+                    <label for="day-select" style="display: block; margin-bottom: 5px; font-weight: bold;">选择天数：</label>
+                    <select name="day" id="day-select" required style="padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        <option value="">请选择天数</option>
+                        <option value="1">第1天</option>
+                        <option value="2">第2天</option>
+                        <option value="3">第3天</option>
+                        <option value="4">第4天</option>
+                        <option value="5">第5天</option>
+                        <option value="6">第6天</option>
+                        <option value="7">第7天</option>
+                    </select>
+                </div>
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #337ab7;">
+                    发送每日任务截止提醒
+                </button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <h2>结束问卷提交截止提醒</h2>
+            <p class="description">向所有有效匹配的申请人发送结束问卷提交截止提醒通知。</p>
+            <form method="post" action="{{ notify_exit_questionnaire_url }}" class="notification-form">
+                {% csrf_token %}
+                <input type="hidden" name="confirmed" value="false" class="confirmed-input">
+                <button type="submit" 
+                        class="btn notification-btn"
+                        style="background: #d9534f;">
+                    发送结束问卷提交截止提醒
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <style>
+
+    .action-card {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
 .action-card h2 {
     font-size: 1.2rem;
@@ -63,6 +186,24 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
+}
+
+.notification-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.notification-container .action-card {
+    margin: 0;
+}
+
+.section-title {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5rem;
 }
 
 .system-actions {
@@ -88,4 +229,52 @@
     filter: brightness(0.8);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle notification forms with confirmation
+    const notificationForms = document.querySelectorAll('.notification-form');
+    
+    notificationForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const confirmedInput = form.querySelector('.confirmed-input');
+            const button = form.querySelector('.notification-btn');
+            const buttonText = button.textContent;
+            
+            // Special handling for daily task form
+            if (form.id === 'daily-task-form') {
+                const daySelect = form.querySelector('#day-select');
+                const selectedDay = daySelect.value;
+                
+                if (!selectedDay) {
+                    alert('请先选择天数（1-7）');
+                    return;
+                }
+                
+                const confirmMessage = `确定要发送第${selectedDay}天的任务截止提醒通知吗？\n\n此操作将向所有有效匹配的申请人发送通知。`;
+                if (confirm(confirmMessage)) {
+                    confirmedInput.value = 'true';
+                    button.disabled = true;
+                    button.textContent = '发送中...';
+                    form.submit();
+                }
+            } else {
+                // Get notification name from button text
+                const notificationName = buttonText.replace('发送', '').replace('通知', '').replace('提醒', '');
+                const confirmMessage = `确定要发送${notificationName}吗？\n\n此操作将向相关申请人发送通知。`;
+                
+                if (confirm(confirmMessage)) {
+                    confirmedInput.value = 'true';
+                    button.disabled = true;
+                    button.textContent = '发送中...';
+                    form.submit();
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

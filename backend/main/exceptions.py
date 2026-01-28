@@ -1,7 +1,9 @@
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework import status
+from .logger import CustomLogger
 
+logger = CustomLogger("exceptions")
 
 def custom_exception_handler(exc, context):
     """
@@ -20,7 +22,7 @@ def custom_exception_handler(exc, context):
     if response is None:
         # Log the exception if needed (you can add logging here)
         error_message = str(exc)
-
+        logger.error(error_message)
         # Return a 500 response with the error message
         return Response(
             {"detail": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

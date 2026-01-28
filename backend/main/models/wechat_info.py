@@ -1,15 +1,18 @@
+import uuid
 from django.db import models
 from django.core.cache import cache
-from uuid import uuid4
 
 
 class WeChatInfo(models.Model):
     def generateUploadPath(self, filename: str) -> str:
         ext = filename.split(".")[-1]
-        modified_filename = "{}.{}".format(uuid4(), ext)
+        modified_filename = "{}.{}".format(uuid.uuid4(), ext)
         return f"uploads/wechat-headimg/{modified_filename}"
 
-    openid = models.CharField(max_length=50, primary_key=True, verbose_name="OpenID")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    openid = models.CharField(
+        max_length=50, unique=True, db_index=True, verbose_name="OpenID"
+    )
     unionid = models.CharField(max_length=50, db_index=True, verbose_name="UnionID")
 
     nickname = models.CharField(max_length=50, verbose_name="昵称")
