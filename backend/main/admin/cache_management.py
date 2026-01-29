@@ -11,6 +11,7 @@ from django.forms.models import model_to_dict
 from django.db import models
 import pickle
 import json
+from datetime import datetime, timedelta
 
 
 def get_all_cache_keys():
@@ -145,6 +146,48 @@ def get_cache_value(key):
         return None, f"Error: {str(e)}"
 
 
+def get_cache_item_size(value):
+    """Best-effort estimation of cache item size in bytes."""
+    if value is None:
+        return None
+    try:
+        return len(pickle.dumps(value))
+    except Exception:
+        try:
+            return len(str(value).encode("utf-8"))
+        except Exception:
+            return None
+
+
+def get_cache_ttl_and_expire(key):
+    """
+    Get remaining TTL (in seconds) and approximate expire time for a cache key.
+
+    This primarily supports backends that expose a ttl() method (e.g. django-redis).
+    For backends without TTL support (e.g. LocMemCache), this will usually return (None, None).
+    """
+    ttl = None
+    expire_at = None
+
+    # Backends like django-redis provide ttl()
+    if hasattr(cache, "ttl"):
+        try:
+            ttl_value = cache.ttl(key)
+            # django-redis returns:
+            # - positive int: seconds remaining
+            # - -1: no expiration
+            # - -2: key does not exist
+            if isinstance(ttl_value, (int, float)):
+                if ttl_value >= 0:
+                    ttl = int(ttl_value)
+                    expire_at = datetime.utcnow() + timedelta(seconds=ttl)
+        except Exception:
+            # If anything goes wrong, just leave ttl/expire_at as None
+            pass
+
+    return ttl, expire_at
+
+
 @staff_member_required
 def cache_management_view(request):
     """Main cache management view."""
@@ -201,11 +244,16 @@ def cache_management_view(request):
     cache_items = []
     for key in structure["keys"][:50]:
         value, formatted_value = get_cache_value(key)
+        size_bytes = get_cache_item_size(value)
+        ttl_seconds, expire_at = get_cache_ttl_and_expire(key)
         cache_items.append(
             {
                 "key": key,
                 "value": value,
                 "formatted_value": formatted_value,
+                "size_bytes": size_bytes,
+                "ttl_seconds": ttl_seconds,
+                "expire_at": expire_at,
                 "has_more": len(structure["keys"]) > 50,
             }
         )

@@ -104,6 +104,8 @@
                         <tr style="background: #f1f1f1;">
                             <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Key</th>
                             <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Value Preview</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Size</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Expire Time</th>
                             <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Actions</th>
                         </tr>
                     </thead>
@@ -125,6 +127,28 @@
                                         {{ item.formatted_value }}
                                     {% endif %}
                                 </div>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; white-space: nowrap;">
+                                {% if item.size_bytes != None %}
+                                    {{ item.size_bytes }} B
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; white-space: nowrap; font-size: 12px;">
+                                {% if item.ttl_seconds != None %}
+                                    {% if item.ttl_seconds <= 0 %}
+                                        <span style="color: #dc3545;">Expired</span>
+                                    {% else %}
+                                        <span>{{ item.ttl_seconds }}s</span>
+                                        {% if item.expire_at %}
+                                            <br>
+                                            <span style="color: #6c757d;">{{ item.expire_at }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
                             </td>
                             <td style="padding: 10px; border: 1px solid #ddd;">
                                 <button onclick="showFullValue('{{ item.key }}')" 
