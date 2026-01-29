@@ -6,3 +6,5 @@ requests
 wechatpayv3
 django-unfold
 gunicorn
+django-redis
+redis

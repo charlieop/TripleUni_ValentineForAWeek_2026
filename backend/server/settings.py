@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import json
+import os
 from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -93,15 +94,17 @@ DATABASES = {
     }
 }
 
-# use dummy cache for now because locmem cache is not working for multiple threads
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-#     }
-# }
+# Cache (Redis)
+# Use REDIS_URL if provided (e.g. docker-compose sets redis://redis:6379/1)
+REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/1")
+
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
