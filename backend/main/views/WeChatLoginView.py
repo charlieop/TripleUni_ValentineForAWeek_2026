@@ -2,13 +2,14 @@ import requests
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.core.files.base import ContentFile
 
+from django.db import transaction
 from django.conf import settings
 import json
 
 from ..models import WeChatInfo, Token
 from ..logger import CustomLogger
+from ..tasks import update_wechat_avatar
 
 logger = CustomLogger("wechat_login")
 
@@ -96,11 +97,11 @@ def _saveToModel(openid, nickname, headimgurl, unionid):
         logger.info(f"Existing user login: {openid}")
         existing_user.nickname = nickname
         if existing_user.head_image_url != headimgurl:
-            image_file = _fetchImage(openid, headimgurl)
-            if image_file:
-                existing_user.head_image = image_file
-                existing_user.head_image_url = headimgurl
-                logger.info(f"Updated head image for: {openid}")
+            # Offload potentially slow avatar download & save to Celery
+            logger.info(
+                f"Head image URL changed for {openid}, dispatching Celery task to update avatar"
+            )
+            update_wechat_avatar.delay(openid, headimgurl)
         existing_user.save()
 
         try:
@@ -112,27 +113,23 @@ def _saveToModel(openid, nickname, headimgurl, unionid):
 
     # If the user does not exist, proceed to create a new one
     logger.info(f"New user registration: {openid}")
-    image_file = _fetchImage(openid, headimgurl)
-    if not image_file:
-        logger.error(f"Failed to fetch head image for new user: {openid}")
-        return Response(
-            {"detail": "Failed to fetch image"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
+    
     data = {
         "openid": openid,
         "unionid": unionid,
         "nickname": nickname,
-        "head_image": image_file,
         "head_image_url": headimgurl,
     }
     newWeChatInfo = WeChatInfo(**data)
 
     try:
         newWeChatInfo.full_clean()
-        newWeChatInfo.save()
-        logger.info(f"Created new WeChatInfo for: {openid}")
+        
+        with transaction.atomic():
+            newWeChatInfo.save()
+            logger.info(f"Created new WeChatInfo for: {openid}, dispatching Celery task to update avatar")
+            transaction.on_commit(lambda: update_wechat_avatar.delay(openid, headimgurl))
+        
     except Exception as e:
         logger.error(f"Failed to save new WeChatInfo for {openid}: {str(e)}")
         return Response(
@@ -148,12 +145,3 @@ def _saveToModel(openid, nickname, headimgurl, unionid):
         )
     logger.info(f"Registration successful for: {openid}")
     return Response({"data": {"token": token.token}}, status=status.HTTP_200_OK)
-
-
-def _fetchImage(openid, url):
-    image_response = requests.get(url)
-    if image_response.status_code != 200:
-        return None
-    image_file = ContentFile(image_response.content)
-    image_file.name = f"{openid}.jpg"
-    return image_file

@@ -16,6 +16,44 @@ services:
       - ./logs:/app/logs
       - ./static:/app/static
 
+  celery:
+    build: .
+    container_name: celery_worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - django
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    command: >
+      celery -A server worker --loglevel=info
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+      - ./logs:/app/logs
+      - ./static:/app/static
+
+  celery-beat:
+    build: .
+    container_name: celery_beat
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - django
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    command: >
+      sh -c "python manage.py migrate --noinput && celery -A server beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+      - ./logs:/app/logs
+      - ./static:/app/static
+
   redis:
     image: redis:7-alpine
     container_name: redis_cache

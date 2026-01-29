@@ -16,7 +16,7 @@ class WeChatInfo(models.Model):
     unionid = models.CharField(max_length=50, db_index=True, verbose_name="UnionID")
 
     nickname = models.CharField(max_length=50, verbose_name="昵称")
-    head_image = models.ImageField(upload_to=generateUploadPath, verbose_name="头像")
+    head_image = models.ImageField(upload_to=generateUploadPath, verbose_name="头像", null=True, blank=True)
     head_image_url = models.URLField(verbose_name="头像URL")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

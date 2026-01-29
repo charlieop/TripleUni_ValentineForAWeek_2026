@@ -8,3 +8,5 @@ django-unfold
 gunicorn
 django-redis
 redis
+celery
+django-celery-beat
