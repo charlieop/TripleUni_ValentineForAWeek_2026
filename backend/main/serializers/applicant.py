@@ -30,6 +30,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "wxid",
             "sex",
             "school",
+            "major",
             "email",
             "grade",
             "timezone",

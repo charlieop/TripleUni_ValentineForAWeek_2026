@@ -57,8 +57,18 @@
             <section class="mission-section">
                 <h2 class="section-title">任务描述</h2>
                 <div class="mission-card">
-                    <div class="mission-placeholder">
-                        <p class="placeholder-text">任务描述功能开发中...</p>
+                    <div v-if="missionError" class="mission-placeholder">
+                        <p class="placeholder-text">{{ missionError }}</p>
+                    </div>
+                    <div v-else-if="missionData" class="mission-body">
+                        <h3 class="mission-title">{{ missionData.title }}</h3>
+                        <p class="mission-content">{{ missionData.content }}</p>
+                        <button v-if="missionData.link" class="btn danger mission-link-btn" @click="goToMissionLink">
+                            查看任务
+                        </button>
+                    </div>
+                    <div v-else class="mission-placeholder">
+                        <p class="placeholder-text">加载中...</p>
                     </div>
                 </div>
             </section>
@@ -102,6 +112,23 @@
                     保存
                 </button>
             </div>
+
+            <!-- Mentor Visibility Toggle -->
+            <section class="visibility-section">
+                <h2 class="section-title">Mentor 可见性</h2>
+                <div class="visibility-card">
+                    <div class="visibility-labels">
+                        <p class="visibility-hint">
+                            开启后，你的 Mentor 将可以查看此任务的提交。你可以随时更改此设置，即使已过截止时间。
+                        </p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" :checked="mentorVisible" @change="onMentorVisibilityToggle" />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </section>
+
 
             <section class="actions-section">
                 <button @click="navigateTo('/match')" class="btn primary">
@@ -150,11 +177,34 @@ const { get, post, del } = useRequest();
 
 const taskData = ref<any>(null);
 const error = ref<string | null>(null);
+const missionData = ref<{ title: string; content: string | null; link: string | null } | null>(null);
+const missionError = ref<string | null>(null);
 const editedText = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedImageIndex = ref<number>(0);
 const showImageModal = ref(false);
 const isBasicCompleted = computed(() => Boolean(taskData.value?.basic_completed));
+const mentorVisible = ref(false);
+
+const loadMissionData = async () => {
+    missionError.value = null;
+    missionData.value = null;
+
+    try {
+        const res = await get(`missions/${day.value}/`);
+        if (res.ok) {
+            const data = await res.json();
+            missionData.value = data.data;
+        } else {
+            const errorData = await res.json();
+            throw new Error(errorData.detail || res.statusText);
+        }
+    } catch (err: any) {
+        // Keep mission failure isolated from the task page
+        missionError.value = err.message || '加载任务描述失败';
+        console.error(err);
+    }
+};
 
 const loadTaskData = async () => {
     error.value = null;
@@ -165,6 +215,9 @@ const loadTaskData = async () => {
             const data = await res.json();
             taskData.value = data.data;
             editedText.value = data.data.submit_text || "";
+            mentorVisible.value = Boolean(data.data.visible_to_mentor);
+            // Mission is gated by release time; load it after task loads.
+            await loadMissionData();
         } else {
             const errorData = await res.json();
             throw new Error(errorData.detail || res.statusText);
@@ -191,6 +244,40 @@ const saveTask = async () => {
         }
     } catch (err: any) {
         alert(err.message || '保存失败');
+        console.error(err);
+    }
+};
+
+const onMentorVisibilityToggle = async (event: Event) => {
+    if (!taskData.value) return;
+
+    const target = event.target as HTMLInputElement;
+    const newValue = target.checked;
+
+    // Optimistically update UI
+    mentorVisible.value = newValue;
+
+    try {
+        const res = await post(`tasks/${day.value}/visibility/`, {
+            visible_to_mentor: newValue,
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const serverValue = Boolean(data.data.visible_to_mentor);
+            mentorVisible.value = serverValue;
+            if (taskData.value) {
+                taskData.value.visible_to_mentor = serverValue;
+            }
+            alert(serverValue ? 'Mentor 现在可以看到你的任务了' : 'Mentor 现在看不到你的任务了');
+        } else {
+            const errorData = await res.json();
+            throw new Error(errorData.detail || res.statusText);
+        }
+    } catch (err: any) {
+        // Revert toggle on error
+        mentorVisible.value = !newValue;
+        (event.target as HTMLInputElement).checked = mentorVisible.value;
+        alert(err.message || '更新失败');
         console.error(err);
     }
 };
@@ -259,7 +346,6 @@ const handleFileSelect = async (event: Event) => {
                 alert(`图片 ${file.name} 压缩后仍超过5MB，已跳过`);
                 continue;
             }
-            console.log(`图片 ${file.name} 压缩前大小为 ${file.size / 1024 / 1024} MB, 压缩后大小为 ${compressedBlob.size / 1024 / 1024} MB`);
             const baseName = file.name.replace(/\.[^/.]+$/, '') || 'image';
             const compressedFile = new File(
                 [compressedBlob],
@@ -320,6 +406,12 @@ onMounted(() => {
     }
     loadTaskData();
 });
+
+const goToMissionLink = async () => {
+    const link = missionData.value?.link;
+    if (!link) return;
+    await navigateTo(link, { external: true });
+};
 </script>
 
 <style scoped>
@@ -515,6 +607,29 @@ section {
     border-radius: 1rem;
 }
 
+.mission-body {
+    padding: 1rem 1rem 0.75rem;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mission-title {
+    font-size: var(--fs-500);
+    font-weight: 900;
+    margin: 0 0 0.5rem;
+}
+
+.mission-content {
+    white-space: pre-wrap;
+    margin: 0 0 0.75rem;
+    font-size: var(--fs-300);
+}
+
+.mission-link-btn {
+    width: 100%;
+}
+
 .mission-placeholder {
     text-align: center;
     padding: 2rem 1rem;
@@ -527,6 +642,88 @@ section {
     font-size: var(--fs-400);
     color: var(--clr-text--muted);
     margin: 0;
+}
+
+.visibility-section {
+    padding-inline: 0.75rem;
+    margin-block: 1.5rem;
+}
+
+.visibility-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.visibility-labels {
+    flex: 1;
+}
+
+.visibility-hint {
+    font-size: var(--fs-300);
+    color: var(--clr-text--muted);
+    margin: 0.25rem 0 0;
+}
+
+/* Toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+}
+
+input:checked+.slider {
+    background-color: var(--clr-primary);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--clr-primary);
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
 }
 
 

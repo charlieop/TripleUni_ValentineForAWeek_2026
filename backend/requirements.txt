@@ -3,7 +3,6 @@ djangorestframework
 django-cors-headers
 Pillow
 requests
-redis
 wechatpayv3
 django-unfold
 gunicorn

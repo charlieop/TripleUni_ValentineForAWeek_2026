@@ -16,6 +16,12 @@ class Task(models.Model):
 
     submit_text = models.TextField(blank=True, null=True, verbose_name="提交内容")
 
+    visible_to_mentor = models.BooleanField(
+        default=False,
+        verbose_name="对Mentor可见",
+        help_text="仅当为 True 时，普通 Mentor 才能在后台看到该任务。",
+    )
+
     updated_by = models.ForeignKey(
         "Applicant",
         null=True,

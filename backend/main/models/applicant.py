@@ -73,6 +73,7 @@ class Applicant(models.Model):
     sex = models.CharField(max_length=1, choices=SEX, verbose_name="性别")
     grade = models.CharField(max_length=4, choices=GRADE, verbose_name="年级")
     school = models.CharField(max_length=4, choices=SCHOOL_LABELS, verbose_name="学校")
+    major = models.CharField(max_length=10, verbose_name="专业")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     wxid = models.CharField(unique=True, max_length=50, verbose_name="微信号")
     timezone = models.CharField(

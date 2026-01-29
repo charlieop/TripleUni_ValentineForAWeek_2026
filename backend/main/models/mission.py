@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-
+from django.core.cache import cache
 
 class Mission(models.Model):
     DAY = { 
@@ -26,6 +26,16 @@ class Mission(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Invalidate mission cache
+        cache.delete(f"mission:day:{self.day}")
+        
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        # Invalidate mission cache
+        cache.delete(f"mission:day:{self.day}")
 
     def __str__(self):
         return f"{Mission.DAY[self.day]}: {self.title}"

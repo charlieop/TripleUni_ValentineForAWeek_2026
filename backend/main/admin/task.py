@@ -7,7 +7,7 @@ from unfold.admin import ModelAdmin
 from PIL import Image as PILImage
 from io import BytesIO
 
-from ..models import Task, Image
+from ..models import Task, Image, Mentor
 
 
 def compress_image(image_file, max_size=(1920, 1920), quality=70):
@@ -234,7 +234,7 @@ class TaskAdmin(ModelAdmin):
             )
 
     def get_queryset(self, request):
-        return (
+        qs = (
             super()
             .get_queryset(request)
             .select_related(
@@ -242,6 +242,14 @@ class TaskAdmin(ModelAdmin):
             )
             .prefetch_related("imgs")
         )
+
+        # Normal mentors should only see tasks that:
+        # - belong to matches they are responsible for
+        # - are explicitly marked as visible_to_mentor
+        if isinstance(request.user, Mentor) and not request.user.is_superuser:
+            return qs.filter(match__mentor=request.user, visible_to_mentor=True)
+
+        return qs
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)

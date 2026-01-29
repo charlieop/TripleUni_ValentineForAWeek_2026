@@ -64,8 +64,6 @@ class WeChatInfoAdmin(ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         """Make openid readonly when editing existing object to prevent creating duplicates."""
         readonly = list(super().get_readonly_fields(request, obj))
-        if obj:  # Editing existing object - prevent openid from being changed
-            readonly.append("openid")
         return readonly
 
     def get_fieldsets(self, request, obj):

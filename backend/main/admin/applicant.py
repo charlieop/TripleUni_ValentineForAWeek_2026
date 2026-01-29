@@ -70,6 +70,7 @@ class ApplicantAdmin(ModelAdmin):
         "sex",
         "grade",
         "school",
+        "major",
         "email",
         "wxid",
         "wechat_info",
@@ -86,6 +87,7 @@ class ApplicantAdmin(ModelAdmin):
     list_display = [
         "name",
         "school",
+        "major",
         "grade",
         "sex",
         "get_nickname",
@@ -136,7 +138,7 @@ class ApplicantAdmin(ModelAdmin):
             {
                 "fields": (
                     "id",
-                    ("name", "sex", "grade", "school"),
+                    ("name", "sex", "grade", "school", "major"),
                     ("email", "wxid"),
                     "wechat_info",
                     ("timezone", "location"),

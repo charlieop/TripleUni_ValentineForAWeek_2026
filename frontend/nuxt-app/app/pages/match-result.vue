@@ -77,6 +77,10 @@
                                 <span class="item-value">{{ matchData.partner_info.school }}</span>
                             </li>
                             <li class="list-item">
+                                <span class="item-label">专业：</span>
+                                <span class="item-value">{{ matchData.partner_info.major }}</span>
+                            </li>
+                            <li class="list-item">
                                 <span class="item-label">年级：</span>
                                 <span class="item-value">{{
                                     getGradeText(matchData.partner_info.grade) }}</span>

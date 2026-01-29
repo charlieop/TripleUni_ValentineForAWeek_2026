@@ -13,6 +13,7 @@ class GetTaskSerializer(serializers.ModelSerializer):
             "day",
             "submit_text",
             "images",
+            "visible_to_mentor",
             "basic_completed",
             "basic_score",
             "bonus_score",
@@ -35,4 +36,12 @@ class SetTaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             "submit_text",
+        ]
+
+
+class TaskVisibilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = [
+            "visible_to_mentor",
         ]

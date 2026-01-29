@@ -45,7 +45,6 @@ export const fetchUserState = async () => {
     userState.value = UserStates[status as keyof typeof UserStates];
     nextStatusChange.value = new Date(data.data.deadline*1000);
     updateCountdown();
-    console.log("fetchUserState", userState.value, nextStatusChange.value, nextStatusCountdown.value);
 }
 
 export const lazyFetchUserState = async () => {

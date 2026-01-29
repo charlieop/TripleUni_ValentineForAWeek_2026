@@ -3,7 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ..mixin import UtilMixin
-from ..serializers.task import GetTaskSerializer, SetTaskSerializer
+from ..serializers.task import (
+    GetTaskSerializer,
+    SetTaskSerializer,
+    TaskVisibilitySerializer,
+)
 from ..logger import CustomLogger
 from ..configs import AvtivityDates
 
@@ -50,6 +54,38 @@ class TaskDetailView(APIView, UtilMixin):
 
         logger.info(
             f"POST task day {day}: {applicant.wechat_info.openid}, match_id: {match.id}"
+        )
+
+        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+
+
+class TaskVisibilityView(APIView, UtilMixin):
+    """
+    Update mentor visibility for a task.
+    This endpoint is available after the mission is released, and remains
+    available even after the submission period has ended.
+    """
+
+    def post(self, request, day: int):
+        # Only require that the mission has been released (view period),
+        # do not restrict by submission end time.
+        AvtivityDates.assert_valid_view_task_period(day)
+
+        token = self.get_token(request)
+        applicant = self.get_applicant_by_token(token)
+
+        match, user_role = self.get_match_by_applicant(applicant)
+        self.assert_match_not_discarded(match)
+        self.assert_day_valid(day)
+
+        task = self.get_task_by_match_and_day(match, day)
+
+        serializer = TaskVisibilitySerializer(task, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        logger.info(
+            f"POST task visibility day {day}: {applicant.wechat_info.openid}, match_id: {match.id}, visible_to_mentor: {serializer.data.get('visible_to_mentor')}"
         )
 
         return Response({"data": serializer.data}, status=status.HTTP_200_OK)

@@ -62,8 +62,6 @@ let url =
 onMounted(() => {
   const code = queryParams.code;
 
-  console.log(code);
-
   if (code) {
     post("oauth/wechat/", {
       code: code,
@@ -88,7 +86,6 @@ onMounted(() => {
 function reloadPage() {
   const url = new URL(window.location.href);
   window.location.href = url.origin;
-  console.log(url.origin);
 }
 </script>
 

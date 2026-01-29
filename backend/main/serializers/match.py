@@ -36,6 +36,7 @@ class MatchResultSerializer(serializers.Serializer):
         return {
             "partner_info": {
                 "school": other_applicant.school,
+                "major": other_applicant.major,
                 "grade": other_applicant.grade,
                 "sex": other_applicant.sex,
                 "mbti": {

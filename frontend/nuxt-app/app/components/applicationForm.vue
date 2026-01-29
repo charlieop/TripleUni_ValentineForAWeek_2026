@@ -27,6 +27,7 @@
                     'wxid',
                     'sex',
                     'school',
+                    'major',
                     'email',
                     'grade',
                     'timezone',
@@ -238,6 +239,8 @@
                         description: null,
                     },
                 ]" label="你就读的学校" :rules="['required']" :disabled="formDisabled" />
+                <TextElement name="major" field-name="专业" label="你的专业" :rules="['required', 'max:10']"
+                    :disabled="formDisabled" />
                 <TextElement name="email" input-type="email" :rules="[
                     'regex:^[a-zA-Z0-9._%+-]+@(connect\\.ust\\.hk|connect\\.hku\\.hk|link\\.cuhk\\.edu\\.hk)$',
                     'email',
@@ -720,7 +723,6 @@ onMounted(async () => {
     if (savedData) {
         if (form$.value) {
             form$.value.load(savedData);
-            console.log(form$.value.data);
         }
     }
 

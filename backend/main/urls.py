@@ -7,7 +7,9 @@ from .views.MatchView import (
 )
 from .views.TaskView import (
     TaskDetailView,
+    TaskVisibilityView,
 )
+from .views.MissionView import MissionDetailView
 from .views.ImageView import (
     ImageView,
     ImageDetailView,
@@ -35,6 +37,14 @@ urlpatterns = [
     
     # Task endpoints
     path("tasks/<int:day>/", TaskDetailView.as_view(), name="task_detail"),
+    path(
+        "tasks/<int:day>/visibility/",
+        TaskVisibilityView.as_view(),
+        name="task_visibility",
+    ),
+
+    # Mission endpoints
+    path("missions/<int:day>/", MissionDetailView.as_view(), name="mission_detail"),
     
     # Image endpoints
     path("tasks/<int:day>/imgs/", ImageView.as_view(), name="image_list"),

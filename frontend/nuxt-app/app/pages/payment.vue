@@ -115,7 +115,6 @@ const requestPayment = async (paymentData: PaymentData) => {
     return new Promise<void>((resolve, reject) => {
         WeixinJSBridge.invoke("getBrandWCPayRequest", paymentData, (res: { err_msg: string, errMsg?: string }) => {
             if (res.err_msg === "get_brand_wcpay_request:ok") {
-                console.log("Payment successful");
                 paymentSuccess.value = true;
                 resolve();
             } else if (res.err_msg === "get_brand_wcpay_request:cancel") {
@@ -156,7 +155,6 @@ const initiatePayment = async () => {
         }
 
         const paymentData = await getPaymentData();
-        console.log("Payment data received:", paymentData);
 
         await requestPayment(paymentData);
 

@@ -29,7 +29,13 @@ with open(BASE_DIR / "SECRETS.json") as f:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["api.charlieop.com", "localhost", "127.0.0.1", "43.134.231.69", "10.0.0.77"]
+ALLOWED_HOSTS = [
+    "api.charlieop.com",
+    "localhost",
+    "127.0.0.1",
+    "43.134.231.69",
+    "10.0.0.77",
+]
 
 # Application definition
 
@@ -87,9 +93,15 @@ DATABASES = {
     }
 }
 
+# use dummy cache for now because locmem cache is not working for multiple threads
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#     }
+# }
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
 

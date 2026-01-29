@@ -14,7 +14,7 @@ from django.core.cache import cache
 from django.db.models import Q, Sum, F
 
 from . import configs
-from .models import Applicant, Token, Match, WeChatInfo, Task
+from .models import Applicant, Token, Match, WeChatInfo, Task, Mission
 
 
 class Gone(APIException):
@@ -154,6 +154,17 @@ class UtilMixin:
             task = Task.objects.create(match=match, day=day)
             cache.set(cache_key, task, timeout=3600)  # Cache for 1 hour
             return task
+
+    def get_mission_by_day(self, day: int) -> Mission | None:
+        cache_key = f"mission:day:{day}"
+        mission = cache.get(cache_key)
+        if mission is not None:
+            return mission
+
+        mission = Mission.objects.filter(day=day).first()
+        # Cache even if missing to reduce repeated DB hits
+        cache.set(cache_key, mission, timeout=3600)  # Cache for 1 hour
+        return mission
 
     def assert_match_not_discarded(self, match: Match):
         if match.discarded:

@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const { getToken } = useStore();
   await lazyFetchUserState();
 
-  if (to.path === "/maintaince") {
+  if (to.path === "/maintaince/" || to.path === "/maintaince") {
     if (userState.value !== UserStates.MAINTENANCE) {
       return navigateTo("/");
     }
@@ -13,7 +13,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   const token = getToken();
-  if (to.path === "/login" || to.path === "/login/") {
+  if (to.path === "/login/" || to.path === "/login") {
     if (token) {
       return navigateTo("/");
     }
