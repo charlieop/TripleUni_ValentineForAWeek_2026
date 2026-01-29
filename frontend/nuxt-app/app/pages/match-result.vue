@@ -216,7 +216,8 @@ const getGradeText = (grade: string | null) => {
         'UG5': '大五',
         'MS': '硕士',
         'PHD': '博士',
-        'PROF': '教授'
+        'PROF': '教授',
+        'GRAD': '已毕业'
     };
     return gradeMap[grade] || grade;
 };

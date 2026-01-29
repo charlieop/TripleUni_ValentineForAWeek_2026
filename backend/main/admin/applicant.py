@@ -97,6 +97,7 @@ class ApplicantAdmin(ModelAdmin):
         "linked_uni",
         "confirmed",
         "comment",
+        "admin_comment",
         "quitted",
         "exclude",
         "created_at",
@@ -186,6 +187,7 @@ class ApplicantAdmin(ModelAdmin):
                     ("payment", "linked_uni"),
                     ("confirmed", "quitted", "exclude"),
                     "comment",
+                    "admin_comment",
                 )
             },
         ),

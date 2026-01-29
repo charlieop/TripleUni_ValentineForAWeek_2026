@@ -16,6 +16,7 @@ class Applicant(models.Model):
         "MS": "硕士",
         "PHD": "博士",
         "PROF": "教授",
+        "GRAD": "已毕业",
     }
     SEX = {"M": "男", "F": "女"}
     MBTI_EI = {"e": "外向e", "i": "内向i", "x": "无"}
@@ -141,6 +142,13 @@ class Applicant(models.Model):
 
     comment = models.CharField(
         max_length=30, null=True, blank=True, verbose_name="留言"
+    )
+
+    admin_comment = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="管理员备注",
+        help_text="仅用于后台管理使用, 前台用户不可见",
     )
 
     hobbies = models.CharField(

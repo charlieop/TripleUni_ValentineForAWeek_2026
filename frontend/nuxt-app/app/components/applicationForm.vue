@@ -288,6 +288,11 @@
                         label: '教授',
                         description: null,
                     },
+                    {
+                        value: 'GRAD',
+                        label: '已毕业',
+                        description: null,
+                    },
                 ]" label="你目前的年级" :rules="['required']" :disabled="formDisabled" />
                 <SelectElement name="timezone" field-name="时区" :native="false" :items="[
                     { value: 'UTC-12', label: 'UTC-12:00 (贝克岛)' },
@@ -488,6 +493,11 @@
                     {
                         value: 'PROF',
                         label: '教授',
+                        description: null,
+                    },
+                    {
+                        value: 'GRAD',
+                        label: '已毕业',
                         description: null,
                     },
                 ]" label="你接受对方的年级是（多选）" :rules="['required']" :disabled="formDisabled" />
