@@ -31,8 +31,8 @@ class Task(models.Model):
         verbose_name="最后提交者",
     )
 
-    basic_completed = models.BooleanField(default=False, verbose_name="基础任务完成")
-    basic_score = models.IntegerField(default=0, verbose_name="基础任务分数")
+    basic_completed = models.BooleanField(default=False, verbose_name="主线任务完成")
+    basic_score = models.IntegerField(default=0, verbose_name="主线任务分数")
     bonus_score = models.IntegerField(default=0, verbose_name="支线&Bonus任务分数")
     daily_score = models.IntegerField(default=0, verbose_name="日常任务分数")
 

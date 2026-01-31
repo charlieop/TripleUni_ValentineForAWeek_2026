@@ -105,7 +105,7 @@
                 <StaticElement name="p_2" tag="p" content="
             <div>
                 <ol>
-                    <li class='vf-li'>2月1日06:00 AM - 开始报名</li>
+                    <li class='vf-li'>2月1日19:00 PM - 开始报名</li>
                     <li class='vf-li'>2月5日23:59 PM - 报名截止</li>
                     <li class='vf-li'>2月6日06:00 AM - 公布第一轮匹配结果</li>
                     <li class='vf-li'><strong>2月7日06:00 AM- 第一轮确认截止</strong></li>
@@ -152,11 +152,11 @@
                 <br>
                 押金构成如下:<br>
                 <ul>
-                    <li class='vf-li'>70元: 完成每日基础任务 (10元/天)</li>
-                    <li class='vf-li'>20元: 完成3天的基础任务</li>
+                    <li class='vf-li'>70元: 完成每日主线任务 (10元/天)</li>
+                    <li class='vf-li'>20元: 完成3天的主线任务</li>
                     <li class='vf-li'>9元: 完成结束反馈问卷</li>
                 </ul>
-                <strong>若完成的基础任务不足3天, 则所有押金将不予退还</strong><br>
+                <strong>若完成的主线任务不足3天, 则所有押金将不予退还</strong><br>
                 <br>
                 押金将在报名时收取, <strong>只有成功缴纳才视为报名完成.</strong><br>
                 在报名截止前, 你可以随时选择退出活动并获得全额退款. 报名截止后, 你必须完成所有基础活动内容方可获得押金退还.<br>

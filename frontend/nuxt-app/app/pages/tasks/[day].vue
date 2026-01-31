@@ -30,7 +30,7 @@
                     <div class="score-grid">
                         <div class="score-row">
                             <span class="score-label">
-                                基础得分
+                                主线任务里程数
                                 <span class="score-badge"
                                     :class="{ completed: isBasicCompleted, pending: !isBasicCompleted }">
                                     {{ isBasicCompleted ? '已完成' : '未完成' }}
@@ -39,11 +39,11 @@
                             <span class="score-value">{{ taskData.basic_score ?? 0 }}</span>
                         </div>
                         <div class="score-row">
-                            <span class="score-label">加分任务得分</span>
+                            <span class="score-label">支线任务里程数</span>
                             <span class="score-value">{{ taskData.bonus_score ?? 0 }}</span>
                         </div>
                         <div class="score-row">
-                            <span class="score-label">日常得分</span>
+                            <span class="score-label">日常任务里程数</span>
                             <span class="score-value">{{ taskData.daily_score ?? 0 }}</span>
                         </div>
                         <p class="score-notes">

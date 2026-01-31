@@ -62,7 +62,7 @@
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <div class="stat-label">总分</div>
+                            <div class="stat-label">总里程</div>
                             <div class="stat-value score-value">{{ matchData.match_info.total_score }}</div>
                         </div>
                         <div class="stat-divider"></div>
@@ -173,8 +173,8 @@
                 <ul class="rules-list">
                     <li>在刚刚添加你的CP时, 请<strong>向对方屏蔽你的朋友圈</strong></li>
                     <li>活动为期<strong>7天</strong>，每天都有新任务解锁</li>
-                    <li>完成任务可以获得<strong>积分</strong>，积分越高排名越靠前</li>
-                    <li>任务分为基础任务、支线任务与每日任务, <strong>基础任务为每日必做</strong>, 支线任务与每日任务为可选任务</li>
+                    <li>完成任务可以获得<strong>里程</strong>，里程数越高排名越靠前</li>
+                    <li>任务分为主线任务、支线任务与每日任务, <strong>主线任务为每日必做</strong>, 支线任务与每日任务为可选任务</li>
                     <li>每天任务提交截止时间为下一天<strong>05:59 AM</strong></li>
                     <li>提交的任务将在截止后由AI模型自动评分, <strong>请不要遮挡/ 拼接/ 模糊你提交的图片</strong>以确保评分准确</li>
                     <li>如有问题请及时联系 Mentor 获取帮助</li>
