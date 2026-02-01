@@ -24,9 +24,7 @@ with open(settings.BASE_DIR / "SECRETS.json") as f:
 with open(settings.BASE_DIR / "apiclient_key.pem") as f:
     PRIVATE_KEY = f.read()
 
-# XXX: change this to 99 * 100
-PRICE = 1
-# PRICE = 99 * 100
+PRICE = 99 * 100
 
 EXPIRES_IN = 7 * 60
 DESCRIPTION = "Triple Uni 一周CP 2026 活动押金"
@@ -50,9 +48,8 @@ wxpay = WeChatPay(
     logger=logger,
 )
 
-# XXX: change this to use the actual out_trade_no
 def generate_out_trade_no(openid):
-    return "TEST-0001-" + str(uuid4())[:10]
+    # return "TEST-0001-" + str(uuid4())[:10]
     return "CP26-" + openid[6:] + "-" + str(uuid4())[:4]
 
 

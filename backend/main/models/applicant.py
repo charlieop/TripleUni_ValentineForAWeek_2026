@@ -74,7 +74,7 @@ class Applicant(models.Model):
     sex = models.CharField(max_length=1, choices=SEX, verbose_name="性别")
     grade = models.CharField(max_length=4, choices=GRADE, verbose_name="年级")
     school = models.CharField(max_length=4, choices=SCHOOL_LABELS, verbose_name="学校")
-    major = models.CharField(max_length=10, verbose_name="专业")
+    major = models.CharField(max_length=50, verbose_name="专业")
     email = models.EmailField(unique=True, verbose_name="邮箱")
     wxid = models.CharField(unique=True, max_length=50, verbose_name="微信号")
     timezone = models.CharField(
@@ -162,6 +162,9 @@ class Applicant(models.Model):
     )
     wish = models.CharField(
         max_length=50, null=False, blank=False, verbose_name="阿拉丙神灯愿望"
+    )
+    why_lamp_remembered_your_name = models.CharField(
+        max_length=50, null=False, blank=False, verbose_name="为什么路灯会记住你的名字?"
     )
     weekend_arrangement = models.CharField(
         max_length=50, null=False, blank=False, verbose_name="周末安排"

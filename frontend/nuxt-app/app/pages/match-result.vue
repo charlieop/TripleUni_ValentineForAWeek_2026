@@ -222,15 +222,6 @@ const getGradeText = (grade: string | null) => {
     return gradeMap[grade] || grade;
 };
 
-const getMBTIType = (mbti: { ei: number; sn: number; tf: number; jp: number } | null) => {
-    if (!mbti) return '';
-    const ei = mbti.ei >= 50 ? 'E' : 'I';
-    const sn = mbti.sn >= 50 ? 'N' : 'S';
-    const tf = mbti.tf >= 50 ? 'T' : 'F';
-    const jp = mbti.jp >= 50 ? 'J' : 'P';
-    return `${ei}${sn}${tf}${jp}`;
-};
-
 const getLocationText = (location: string | null) => {
     if (!location) return '';
     const locationMap: Record<string, string> = {

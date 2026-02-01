@@ -51,7 +51,7 @@
                 <ul class="instructions-list">
                     <li>点击"支付押金"按钮后将跳转至微信支付</li>
                     <li>请在5分钟内完成支付</li>
-                    <li>如需使用其他支付方式, 请联系主办方</li>
+                    <li>如需使用其他支付方式, 请联系主办方微信: Azzhleon2</li>
                 </ul>
             </section>
 
@@ -113,9 +113,10 @@ const getPaymentData = async () => {
 
 const requestPayment = async (paymentData: PaymentData) => {
     return new Promise<void>((resolve, reject) => {
-        WeixinJSBridge.invoke("getBrandWCPayRequest", paymentData, (res: { err_msg: string, errMsg?: string }) => {
+        WeixinJSBridge.invoke("getBrandWCPayRequest", paymentData, async (res: { err_msg: string, errMsg?: string }) => {
             if (res.err_msg === "get_brand_wcpay_request:ok") {
                 paymentSuccess.value = true;
+                await fetchUserState();
                 resolve();
             } else if (res.err_msg === "get_brand_wcpay_request:cancel") {
                 reject(new Error("支付已取消"));

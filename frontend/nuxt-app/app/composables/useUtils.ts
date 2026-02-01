@@ -79,3 +79,12 @@ export const compressImage = (file: File): Promise<Blob> => {
     reader.onerror = (error) => reject(error);
   });
 };
+
+export const getMBTIType = (mbti: { ei: number; sn: number; tf: number; jp: number } | null) => {
+  if (!mbti) return '';
+  const ei = mbti.ei >= 50 ? 'I' : 'E';
+  const sn = mbti.sn >= 50 ? 'N' : 'S';
+  const tf = mbti.tf >= 50 ? 'F' : 'T';
+  const jp = mbti.jp >= 50 ? 'P' : 'J';
+  return `${ei}${sn}${tf}${jp}`;
+};

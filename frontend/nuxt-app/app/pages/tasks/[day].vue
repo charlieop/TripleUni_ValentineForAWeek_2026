@@ -121,7 +121,7 @@
                     <input ref="fileInput" type="file"
                         accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/webp" multiple
                         @change="handleFileSelect" style="display: none" />
-                    <p class="field-hint">最多可上传25张图片，每张图片不超过5MB. <strong>本次活动使用AI自动审核, 请不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
+                    <p class="field-hint">最多可上传25张图片，每张图片不超过5MB. <strong>本次活动使用AI自动审核, mentor在未经你允许情况下无法看到你的提交. 为了确保AI不会遗漏你提交的任务, 请将任务相关内容全部截图并上传, 不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
                 </div>
             </section>
 

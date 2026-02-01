@@ -42,6 +42,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "hobbies",
             "fav_movies",
             "wish",
+            "why_lamp_remembered_your_name",
             "weekend_arrangement",
             "reply_frequency",
             "expectation",

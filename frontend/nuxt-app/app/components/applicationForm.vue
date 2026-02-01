@@ -47,6 +47,7 @@
                     'hobbies',
                     'fav_movies',
                     'wish',
+                    'why_lamp_remembered_your_name',
                     'weekend_arrangement',
                     'reply_frequency',
                     'expectation',
@@ -191,7 +192,7 @@
                 我们承诺将尽最大努力妥善保管你的隐私数据, 秉承最小权限原则限制他人不必要的访问.&nbsp;<br>
                 我们承诺不会将这些数据提供给无关第三方.<br>
                 <br>
-                <strong>你的任务将由人工智能模型自动评分, 在没有你的允许下Mentor无法看到你提交的内容. 为了确保能够准确评分, 请不要遮挡/ 修改/ 模糊你提交的任务.</strong><br>
+                <strong>你的任务将由我们部署在私有云上的人工智能模型自动评分, 我们不使用第三方的AI服务提供商, 以最大程度确保你的隐私. 在没有你的允许下Mentor无法看到你提交的内容. 为了确保能够准确评分, 请不要遮挡/ 修改/ 模糊你提交的任务.</strong><br>
             </div>" />
                 <StaticElement name="h3_12" tag="h3" content="故障自助处理" top="2" />
                 <StaticElement name="p_9" tag="p"
@@ -239,7 +240,7 @@
                         description: null,
                     },
                 ]" label="你就读的学校" :rules="['required']" :disabled="formDisabled" />
-                <TextElement name="major" field-name="专业" label="你的专业" :rules="['required', 'max:10']"
+                <TextElement name="major" field-name="专业" label="你的专业" :rules="['required', 'max:50']"
                     :disabled="formDisabled" />
                 <TextElement name="email" input-type="email" :rules="[
                     'regex:^[a-zA-Z0-9._%+-]+@(connect\\.ust\\.hk|connect\\.hku\\.hk|link\\.cuhk\\.edu\\.hk)$',
@@ -342,8 +343,19 @@
                     description="请选择<strong>最精确(小)的选项</strong>. 如果你在多个地区之间频繁往返，请选择你待的时间最长的地区." />
                 <StaticElement name="divider_1" tag="hr" top="1" bottom="1" />
                 <StaticElement name="h3_1" tag="h3" content="MBTI 性格测试结果" />
-                <StaticElement name="p" tag="p"
-                    content="<div>请通过滑动的方式选择你的MBTI.<br><br>如果你不确定自己的MBTI, 可以通过 <a href='https://www.16personalities.com\' target='blank'>https://www.16personalities.com (免费)</a><br>或其他网站进行测试.<br><br>别害怕! 你可以做完整个测试后再回来继续填写, <strong>所有进度将会被自动保存.</strong><br><br>如果你只知道自己的MBTI而不确定具体的百分比, 也可以通过以上网站进行测试获得, 或者自行评估.<br><br>注意: 全部选择中庸(50%) 并<strong>不会给你带来任何匹配优势</strong> (反而可能带来劣势).</div>" />
+                <StaticElement name="p" tag="p" :content="`<div>
+                        请通过滑动的方式选择你的MBTI.<br>
+                        <br>
+                        如果你不确定自己的MBTI, 可以通过 <a href='https://www.16personalities.com\' target='blank'>https://www.16personalities.com (免费)</a><br>
+                        或其他网站进行测试.<br>
+                        <br>别害怕! 你可以做完整个测试后再回来继续填写, <strong>所有进度将会被自动保存.</strong><br>
+                        <br>
+                        如果你只知道自己的MBTI而不确定具体的百分比, 也可以通过以上网站进行测试获得, 或者自行评估.<br>
+                        <br>
+                        注意: 全部选择中庸(50%) 并<strong>不会给你带来任何匹配优势</strong> (反而可能带来劣势).<br>
+                        <br>
+                        你设置的MBTI为: <strong>${userMBTI}</strong><br>
+                    </div>`" />
                 <SliderElement name="mbti_ei" label="在MBTI“能量来源”维度中，你认为自己更偏向" :default="50" show-tooltip="drag" :min="0"
                     :max="100" :step="1" :format="{
                         suffix: '%',
@@ -398,6 +410,14 @@
 但是放心不会有副作用啦~" label='你拿到了"阿拉丙神灯"会许什么愿望' :addons="{
     after: '<div class=\&#39;word-count\&#39;>(0)</div>',
 }" :disabled="formDisabled" />
+                <TextareaElement name="why_lamp_remembered_your_name" :floating="false" :rows="3" :rules="[
+                    'required',
+                    'min:5',
+                    'max:50',
+                ]" description="你觉得为什么楼下的路灯会记住你的名字? (5-50字)" placeholder="这是一个脑洞问题, 请尽情发挥想象力!"
+                    label="你觉得为什么楼下的路灯会记住你的名字?" :addons="{
+                        after: '<div class=\&#39;word-count\&#39;>(0)</div>',
+                    }" :disabled="formDisabled" />
                 <TextareaElement name="weekend_arrangement" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',
@@ -680,6 +700,16 @@ const defaultTimezone = computed(() => {
 
     return timezoneStr;
 
+});
+
+const userMBTI = computed(() => {
+    const mbti = getMBTIType({
+        ei: form$.value?.data.mbti_ei,
+        sn: form$.value?.data.mbti_sn,
+        tf: form$.value?.data.mbti_tf,
+        jp: form$.value?.data.mbti_jp,
+    });
+    return mbti;
 });
 
 // Load saved form data when component mounts
