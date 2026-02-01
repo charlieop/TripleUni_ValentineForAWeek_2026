@@ -10,7 +10,7 @@
         <IconHeart class="heart-icon heart3" size="140%" color="hsl(353, 58%, 61%)" />
         <IconHeart class="heart-icon heart2" size="120%" color="hsl(353, 58%, 51%)" />
         <IconHeart class="heart-icon heart1" size="100%" color="hsl(353, 58%, 41%)" />
-        <img src="/imgs/cupid-flying.png" alt="decor" class="decor-img">
+        <img src="/imgs/cupid-flying.webp" alt="decor" class="decor-img">
       </div>
     </div>
   </Transition>

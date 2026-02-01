@@ -123,7 +123,7 @@
                 </ol>
                 <br>
                 <p>若你希望通过微信<strong>收到匹配结果以及每日任务截止提醒</strong>, 请扫码关注 Triple Uni 公众号</p>
-                <img src='/imgs/uni_qrcode.jpg' style='margin: 1rem auto; width: 80%;'>
+                <img src='/imgs/uni_qrcode.webp' style='margin: 1rem auto; width: 80%;'>
 
             </div>" />
                 <StaticElement name="h3_13" tag="h3" content="关于匹配" top="2" />
@@ -641,7 +641,7 @@
                 <StaticElement name="p_15" tag="p" content="
                 <div>
                     <p>若你希望通过微信<strong>收到匹配结果以及每日任务截止提醒</strong>, 请扫码关注 Triple Uni 公众号</p>
-                    <img src='/imgs/uni_qrcode.jpg' style='margin: 1rem auto; width: 80%;'>
+                    <img src='/imgs/uni_qrcode.webp' style='margin: 1rem auto; width: 80%;'>
 
                 </div>" />
                 <StaticElement name="h3_6" tag="h3" content="写给主办方" />

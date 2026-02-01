@@ -106,25 +106,25 @@ strong {
 
 .paper-background {
   background-color: #dd9f9f;
-  background: url('/imgs/bg.jpg') no-repeat center center;
+  background: url('/imgs/bg.webp') no-repeat center center;
   background-size: cover;
 }
 
 .heart-background {
   background-color: #fff6ea;
-  background: url('/imgs/heeart-bg.jpg') repeat center center;
+  background: url('/imgs/heart-bg.webp') repeat center center;
   background-size: 16rem 16rem;
 }
 
 .cupid-background {
   background-color: #9aa7c8;
-  background: url('/imgs/cupid-bg.jpeg') no-repeat center center;
+  background: url('/imgs/cupid-bg.webp') no-repeat center center;
   background-size: cover;
 }
 
 .flower-background {
   background-color: #f7f1ee;
-  background: url('/imgs/flower-bg.png') no-repeat center center;
+  background: url('/imgs/flower-bg.webp') no-repeat center center;
   background-size: cover
 }
 

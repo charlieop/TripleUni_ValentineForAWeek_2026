@@ -138,7 +138,7 @@
     </div>
 
     <div class="decor" id="decor">
-      <img src="/imgs/cupid.png" alt="decor" class="decor-img">
+      <img src="/imgs/cupid.webp" alt="decor" class="decor-img">
     </div>
     <div class="help-button">
       <button @click="openHelpModal">
