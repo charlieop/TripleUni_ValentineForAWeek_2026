@@ -8,6 +8,7 @@ from .views.MatchView import (
 from .views.TaskView import (
     TaskDetailView,
     TaskVisibilityView,
+    SecretTaskView
 )
 from .views.MissionView import MissionDetailView
 from .views.ImageView import (
@@ -49,6 +50,7 @@ urlpatterns = [
     # Image endpoints
     path("tasks/<int:day>/imgs/", ImageView.as_view(), name="image_list"),
     path("tasks/<int:day>/imgs/<uuid:img_id>/", ImageDetailView.as_view(), name="image_detail"),
+    path("tasks/secret/", SecretTaskView.as_view(), name="secret_task"),
     
     # Payment endpoints
     path("payment/wechat/", WeChatPaymentView.as_view(), name="wechat_payment"),
