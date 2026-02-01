@@ -35,6 +35,15 @@ class Task(models.Model):
     basic_score = models.IntegerField(default=0, verbose_name="主线任务分数")
     bonus_score = models.IntegerField(default=0, verbose_name="支线&Bonus任务分数")
     daily_score = models.IntegerField(default=0, verbose_name="日常任务分数")
+    uni_score = models.IntegerField(default=0, verbose_name="Triple Uni分数")
+    
+    basic_review = models.TextField(blank=True, null=True, verbose_name="主线任务评分备注")
+    bonus_review = models.TextField(blank=True, null=True, verbose_name="支线&Bonus任务评分备注")
+    daily_review = models.TextField(blank=True, null=True, verbose_name="日常任务评分备注")
+    uni_review = models.TextField(blank=True, null=True, verbose_name="Triple Uni评分备注")
+    
+    scored = models.BooleanField(default=False, verbose_name="已评分")
+    review = models.TextField(blank=True, null=True, verbose_name="评分备注(只有 Mentor 可见)")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)

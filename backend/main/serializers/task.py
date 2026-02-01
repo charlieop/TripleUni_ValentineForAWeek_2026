@@ -18,6 +18,12 @@ class GetTaskSerializer(serializers.ModelSerializer):
             "basic_score",
             "bonus_score",
             "daily_score",
+            "uni_score",
+            "scored",
+            "basic_review",
+            "bonus_review",
+            "daily_review",
+            "uni_review",
             "due",
         ]
         read_only_fields = fields

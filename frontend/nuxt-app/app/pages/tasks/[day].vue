@@ -20,34 +20,56 @@
         <div v-else-if="taskData" class="task-content">
             <div v-if="taskData.due" class="due-banner">
                 <span class="due-banner-title">截止提醒</span>
-                <span class="due-banner-text">本日任务已过截止时间，当前为只读状态。若对评分有异议，请联系你的Mentor。</span>
+                <span class="due-banner-text">本日任务已过截止时间，当前为只读状态。</span>
             </div>
 
             <!-- Scores Section -->
-            <section class="scores-section" v-if="taskData.due">
+            <section class="scores-section" v-if="taskData.scored">
                 <h2 class="section-title">得分情况</h2>
                 <div class="score-card">
                     <div class="score-grid">
                         <div class="score-row">
-                            <span class="score-label">
+                            <div class="score-label">
                                 主线任务里程数
+                                <button class="info-icon" type="button" @click="openReview('basic')">
+                                    <IconInformation size="1.25rem" color="#CCCCCC" />
+                                </button>
                                 <span class="score-badge"
                                     :class="{ completed: isBasicCompleted, pending: !isBasicCompleted }">
                                     {{ isBasicCompleted ? '已完成' : '未完成' }}
                                 </span>
-                            </span>
+                            </div>
                             <span class="score-value">{{ taskData.basic_score ?? 0 }}</span>
                         </div>
                         <div class="score-row">
-                            <span class="score-label">支线任务里程数</span>
+                            <div class="score-label">
+                                <span class="score-label">支线任务里程数</span>
+                                <button class="info-icon" type="button" @click="openReview('bonus')">
+                                    <IconInformation size="1.25rem" color="#CCCCCC" />
+                                </button>
+                            </div>
                             <span class="score-value">{{ taskData.bonus_score ?? 0 }}</span>
                         </div>
                         <div class="score-row">
-                            <span class="score-label">日常任务里程数</span>
+                            <div class="score-label">
+                                <span class="score-label">日常任务里程数</span>
+                                <button class="info-icon" type="button" @click="openReview('daily')">
+                                    <IconInformation size="1.25rem" color="#CCCCCC" />
+                                </button>
+                            </div>
                             <span class="score-value">{{ taskData.daily_score ?? 0 }}</span>
                         </div>
+                        <div class="score-row">
+                            <div class="score-label">
+                                <span class="score-label">Triple Uni 里程数</span>
+                                <button class="info-icon" type="button" @click="openReview('uni')">
+                                    <IconInformation size="1.25rem" color="#CCCCCC" />
+                                </button>
+                            </div>
+                            <span class="score-value">{{ taskData.uni_score ?? 0 }}</span>
+                        </div>
                         <p class="score-notes">
-                            评分最多需要12小时更新, 若在截止后12小时后仍未更新, 请联系你的Mentor.
+                            由大模型自动评分, 若有异议请联系你的Mentor.
                         </p>
                     </div>
                 </div>
@@ -162,6 +184,14 @@
             </Teleport>
 
         </Modal>
+
+        <!-- Review Modal -->
+        <Modal v-model="showReviewModal" :showCloseButton="true">
+            <div class="review-modal">
+                <h3 class="review-title">{{ reviewTitle }}</h3>
+                <p class="review-content">{{ reviewText }}</p>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -185,6 +215,31 @@ const selectedImageIndex = ref<number>(0);
 const showImageModal = ref(false);
 const isBasicCompleted = computed(() => Boolean(taskData.value?.basic_completed));
 const mentorVisible = ref(false);
+const showReviewModal = ref(false);
+const reviewTitle = ref("");
+const reviewText = ref("");
+
+type ReviewKey = "basic" | "bonus" | "daily" | "uni";
+
+const openReview = (key: ReviewKey) => {
+    const t = taskData.value || {};
+
+    if (key === "basic") {
+        reviewTitle.value = "主线任务评分依据";
+        reviewText.value = t.basic_review || "暂无数据";
+    } else if (key === "bonus") {
+        reviewTitle.value = "支线任务评分依据";
+        reviewText.value = t.bonus_review || "暂无数据";
+    } else if (key === "daily") {
+        reviewTitle.value = "日常任务评分依据";
+        reviewText.value = t.daily_review || "暂无数据";
+    } else {
+        reviewTitle.value = "Triple Uni评分依据";
+        reviewText.value = t.uni_review || "暂无数据";
+    }
+
+    showReviewModal.value = true;
+};
 
 const loadMissionData = async () => {
     missionError.value = null;
@@ -577,6 +632,31 @@ section {
 
 .score-value {
     font-variant-numeric: tabular-nums;
+}
+
+.info-icon {
+    border: none;
+    background: none;
+    border-radius: 99rem;
+    cursor: pointer;
+}
+
+.review-modal {
+    padding: 0.5rem 0.25rem;
+}
+
+.review-title {
+    margin: 0 0 0.5rem;
+    font-size: var(--fs-500);
+    font-weight: 900;
+    color: var(--clr-primary-dark);
+}
+
+.review-content {
+    margin: 0;
+    white-space: pre-wrap;
+    font-size: var(--fs-300);
+    color: var(--clr-text);
 }
 
 .score-badge {

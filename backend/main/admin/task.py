@@ -119,6 +119,8 @@ class TaskAdmin(ModelAdmin):
         "basic_score",
         "bonus_score",
         "daily_score",
+        "uni_score",
+        "scored",
         "get_total_score",
         "get_image_count",
         "get_updated_by",
@@ -127,6 +129,7 @@ class TaskAdmin(ModelAdmin):
     list_filter = [
         TaskCompletedFilter,
         "basic_completed",
+        "scored",
         "day",
         "match__discarded",
     ]
@@ -186,7 +189,11 @@ class TaskAdmin(ModelAdmin):
                     {
                         "fields": (
                             "basic_completed",
-                            ("basic_score", "bonus_score", "daily_score"),
+                            ("basic_score", "bonus_score", "daily_score", "uni_score"),
+                            "scored",
+                            ("basic_review", "bonus_review"),
+                            ("daily_review", "uni_review"),
+                            "review",
                             "get_total_score",
                         )
                     },
@@ -220,7 +227,11 @@ class TaskAdmin(ModelAdmin):
                     {
                         "fields": (
                             "basic_completed",
-                            ("basic_score", "bonus_score", "daily_score"),
+                            ("basic_score", "bonus_score", "daily_score", "uni_score"),
+                            "scored",
+                            ("basic_review", "bonus_review"),
+                            ("daily_review", "uni_review"),
+                            "review",
                         )
                     },
                 ),
@@ -280,7 +291,7 @@ class TaskAdmin(ModelAdmin):
 
     @admin.display(description="总分")
     def get_total_score(self, obj):
-        return obj.basic_score + obj.bonus_score + obj.daily_score
+        return obj.basic_score + obj.bonus_score + obj.daily_score + obj.uni_score
 
     @admin.display(description="图片数量")
     def get_image_count(self, obj):
