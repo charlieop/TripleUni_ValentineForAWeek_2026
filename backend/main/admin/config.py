@@ -105,18 +105,6 @@ class ConfigAdmin(ModelAdmin):
             url = reverse("admin:main_config_add")
             return redirect(url)
 
-    def has_module_permission(self, request):
-        """Only superadmin can see this module."""
-        return request.user.is_superuser
-
-    def has_view_permission(self, request, obj=None):
-        """Only superadmin can view config."""
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        """Only superadmin can change config."""
-        return request.user.is_superuser
-
     def has_add_permission(self, request):
         """Only superadmin can add config, and only one instance allowed."""
         return request.user.is_superuser and not Config.objects.exists()

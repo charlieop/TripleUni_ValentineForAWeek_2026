@@ -25,14 +25,6 @@ logger = CustomLogger("system_actions")
 class SystemActionsAdmin(ModelAdmin):
     """Admin interface for System Actions page."""
 
-    def has_module_permission(self, request):
-        """Only superadmin can see this module."""
-        return request.user.is_superuser
-
-    def has_view_permission(self, request, obj=None):
-        """Only superadmin can view system actions."""
-        return request.user.is_superuser
-
     def has_change_permission(self, request, obj=None):
         """Disable change permission - this is just a navigation page."""
         return False

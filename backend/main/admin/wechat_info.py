@@ -73,7 +73,9 @@ class WeChatInfoAdmin(ModelAdmin):
         return fieldsets
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("applicant")
+        if request.user.is_superuser:
+            return super().get_queryset(request).select_related("applicant")
+        return super().get_queryset(request).select_related("applicant").filter(applicant__isnull=False)
 
     @admin.display(description="申请人姓名", ordering="applicant__name")
     def get_applicant_name(self, obj):

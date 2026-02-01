@@ -88,7 +88,6 @@ class ApplicantAdmin(ModelAdmin):
         "preferred_wxid",
         "continue_match",
         
-        "payment",
         "linked_uni",
         "confirmed",
         "quitted",
