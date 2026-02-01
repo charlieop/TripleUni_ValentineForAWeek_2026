@@ -28,9 +28,12 @@ class ImageAdmin(ModelAdmin):
     list_display = [
         "get_thumbnail",
         "get_match_info",
-        "get_day",
-        "deleted",
-        "created_at",
+        "get_day"
+    ]
+    list_link = [
+        "get_thumbnail",
+        "get_match_info",
+        "get_day"
     ]
     list_filter = [
         ImageDeletedFilter,
@@ -45,6 +48,12 @@ class ImageAdmin(ModelAdmin):
     autocomplete_fields = ["task"]
     date_hierarchy = "created_at"
     ordering = ["-created_at"]
+
+
+    def get_list_display(self, request):
+        if request.user.is_superuser:
+            return self.list_display + ["deleted", "created_at"]
+        return self.list_display
 
     def get_readonly_fields(self, request, obj=None):
         # When creating a new image, allow task selection
@@ -67,24 +76,38 @@ class ImageAdmin(ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Editing existing image
-            return (
-                (
-                    "图片信息",
-                    {
-                        "fields": (
-                            "id",
-                            "get_task_link",
-                            "get_match_link",
-                            "image_preview",
-                            "deleted",
-                        )
-                    },
-                ),
-                (
-                    "时间戳",
-                    {"fields": ("created_at",)},
-                ),
-            )
+            if request.user.is_superuser:
+                return (
+                    (
+                        "图片信息",
+                        {
+                            "fields": (
+                                "id",
+                                "get_task_link",
+                                "get_match_link",
+                                "image_preview",
+                                "deleted",
+                            )
+                        },
+                    ),
+                    (
+                        "时间戳",
+                        {"fields": ("created_at",)},
+                    ),
+                )
+            else:
+                return (
+                    (
+                        "图片信息",
+                        {
+                            "fields": (
+                                "get_task_link",
+                                "get_match_link",
+                                "image_preview",
+                            )
+                        },
+                    ),
+                )
         else:  # Creating new image
             return (
                 (
@@ -100,7 +123,9 @@ class ImageAdmin(ModelAdmin):
             )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("task", "task__match")
+        if request.user.is_superuser:
+            return super().get_queryset(request).select_related("task", "task__match")
+        return super().get_queryset(request).select_related("task", "task__match").filter(deleted=False).filter(task__match__mentor=request.user)
 
     @admin.display(description="缩略图")
     def get_thumbnail(self, obj):

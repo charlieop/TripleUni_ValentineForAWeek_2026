@@ -46,8 +46,6 @@ class MatchAdmin(ModelAdmin):
         "name",
         "get_applicant1_name",
         "get_applicant2_name",
-        "get_applicant1_haspaid",
-        "get_applicant2_haspaid",
         "get_confirmed",
         "get_round",
         "discarded",
@@ -68,10 +66,6 @@ class MatchAdmin(ModelAdmin):
         "id",
         "get_applicant1_wxid",
         "get_applicant2_wxid",
-        "get_applicant1_haspaid",
-        "get_applicant2_haspaid",
-        "get_applicant1_link",
-        "get_applicant2_link",
         "get_total_score",
         "created_at",
         "updated_at",
@@ -85,11 +79,9 @@ class MatchAdmin(ModelAdmin):
             "嘉宾1号信息",
             {
                 "fields": (
-                    "get_applicant1_link",
                     ("applicant1", "get_applicant1_wxid"),
                     (
                         "applicant1_status",
-                        "get_applicant1_haspaid",
                     ),
                 )
             },
@@ -98,11 +90,9 @@ class MatchAdmin(ModelAdmin):
             "嘉宾2号信息",
             {
                 "fields": (
-                    "get_applicant2_link",
                     ("applicant2", "get_applicant2_wxid"),
                     (
                         "applicant2_status",
-                        "get_applicant2_haspaid",
                     ),
                 )
             },
@@ -118,6 +108,11 @@ class MatchAdmin(ModelAdmin):
     )
     autocomplete_fields = ["applicant1", "applicant2", "mentor"]
     date_hierarchy = "created_at"
+    
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return self.readonly_fields
+        return self.readonly_fields + ["name", "round", "mentor", "applicant1", "applicant2"]
 
     def get_list_filter(self, request):
         return (
@@ -139,8 +134,6 @@ class MatchAdmin(ModelAdmin):
             "applicant1",
             "applicant2",
             "mentor",
-            "applicant1__payment",
-            "applicant2__payment",
         ).prefetch_related("tasks")
         return qs
 
@@ -156,20 +149,6 @@ class MatchAdmin(ModelAdmin):
     def get_round(self, obj):
         return Match.ROUNDS.get(obj.round, obj.round)
 
-    @admin.display(
-        description="嘉宾1已支付",
-        boolean=True,
-    )
-    def get_applicant1_haspaid(self, obj):
-        return obj.applicant1.payment is not None
-
-    @admin.display(
-        description="嘉宾2已支付",
-        boolean=True,
-    )
-    def get_applicant2_haspaid(self, obj):
-        return obj.applicant2.payment is not None
-
     @admin.display(description="嘉宾1微信ID", ordering="applicant1__wxid")
     def get_applicant1_wxid(self, obj):
         return obj.applicant1.wxid
@@ -177,26 +156,6 @@ class MatchAdmin(ModelAdmin):
     @admin.display(description="嘉宾2微信ID", ordering="applicant2__wxid")
     def get_applicant2_wxid(self, obj):
         return obj.applicant2.wxid
-
-    @admin.display(description="嘉宾1详情")
-    def get_applicant1_link(self, obj):
-        return format_html(
-            '<a class="text-primary-600 dark:text-primary-500" href="/admin/main/applicant/{}/change/">{} - {} - {}</a>',
-            obj.applicant1.id,
-            obj.applicant1.name,
-            obj.applicant1.school,
-            obj.applicant1.wxid,
-        )
-
-    @admin.display(description="嘉宾2详情")
-    def get_applicant2_link(self, obj):
-        return format_html(
-            '<a class="text-primary-600 dark:text-primary-500" href="/admin/main/applicant/{}/change/">{} - {} - {}</a>',
-            obj.applicant2.id,
-            obj.applicant2.name,
-            obj.applicant2.school,
-            obj.applicant2.wxid,
-        )
 
     @admin.display(description="匹配成功", boolean=True)
     def get_confirmed(self, obj):

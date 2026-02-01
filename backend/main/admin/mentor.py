@@ -89,6 +89,45 @@ class MentorAdmin(UserAdmin):
     search_fields = ("username", "name", "wechat")
     ordering = ("username",)
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if request.user.is_superuser:
+            return fieldsets
+
+        def _flatten_fields(fields):
+            out = []
+            for f in fields:
+                if isinstance(f, (list, tuple)):
+                    out.extend(_flatten_fields(f))
+                else:
+                    out.append(f)
+            return out
+
+        hidden_fields = {
+            # fieldset @ L44-45
+            "id",
+            "username",
+            "password",
+            # fieldset @ L54-63
+            "is_staff",
+            "is_active",
+            "is_superuser",
+            "groups",
+            "user_permissions",
+            # fieldset @ L65-68
+            "date_joined",
+            "last_login",
+        }
+
+        filtered = []
+        for name, opts in fieldsets:
+            fields = _flatten_fields(opts.get("fields", ()))
+            if any(f in hidden_fields for f in fields):
+                continue
+            filtered.append((name, opts))
+
+        return tuple(filtered)
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("matches")
 

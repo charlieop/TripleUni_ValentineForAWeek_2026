@@ -396,12 +396,12 @@
                     :rules="[
                         'required',
                     ]" :caret="false" :items="hobbiesItems" :disabled="formDisabled"
-                    description='可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' />
+                    description='[点击换行添加选项]<br>可以是抽象的概念, 例如"旅游"、"读书". 也可以是某个活动, 例如"双板滑雪"、"胶卷摄影". 如果你有具体喜欢的游戏, 则可以写上游戏名,例如"王者荣耀".' />
                 <TagsElement name="fav_movies" :close-on-select="false" :search="true" label="你最喜欢的书/ 电影/ 动漫/ 电视剧"
                     autocomplete="off" :create="true" placeholder="通过换行添加, 最多五个" :floating="false"
                     :append-new-option="false" :max="5" :rules="[
                         'required',
-                    ]" :caret="false" :items="favMoviesItems" :disabled="formDisabled" />
+                    ]" :caret="false" :items="favMoviesItems" :disabled="formDisabled" description='[点击换行添加选项]' />
                 <TextareaElement name="wish" :floating="false" :rows="3" :rules="[
                     'required',
                     'min:5',

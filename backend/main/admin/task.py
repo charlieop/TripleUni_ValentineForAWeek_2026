@@ -124,6 +124,7 @@ class TaskAdmin(ModelAdmin):
         "get_total_score",
         "get_image_count",
         "get_updated_by",
+        "review",
         "updated_at",
     ]
     list_filter = [
@@ -148,15 +149,26 @@ class TaskAdmin(ModelAdmin):
         # When creating a new task, allow match selection
         # When editing, make it readonly
         if obj:  # Editing existing task
-            return [
-                "id",
-                "match",
-                "created_at",
-                "updated_at",
-                "get_match_link",
-                "get_images_display",
-                "get_total_score",
-            ]
+            if request.user.is_superuser:
+                return [
+                    "id",
+                    "match",
+                    "created_at",
+                    "updated_at",
+                    "get_match_link",
+                    "get_images_display",
+                    "get_total_score",
+                ]
+            else:
+                return [
+                    "match",
+                    "day",
+                    "updated_by",
+                    "submit_text",
+                    "get_match_link",
+                    "get_images_display",
+                    "get_total_score",
+                ]
         else:  # Creating new task
             return [
                 "id",
@@ -168,6 +180,44 @@ class TaskAdmin(ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Editing existing task
+            if not request.user.is_superuser:
+                return (
+                    (
+                        "任务信息",
+                        {
+                            "fields": (
+                                ("get_match_link", "day"),
+                                "updated_by",
+                                "submit_text",
+                            )
+                        },
+                    ),
+                    (
+                        "已提交图片",
+                        {"fields": ("get_images_display",), "classes": ["wide"]},
+                    ),
+                    (
+                        "评分",
+                        {
+                            "fields": (
+                                "basic_completed",
+                                ("basic_score", "bonus_score", "daily_score", "uni_score"),
+                                "scored",
+                                ("basic_review", "bonus_review"),
+                                ("daily_review", "uni_review"),
+                                "review",
+                                "get_total_score",
+                            )
+                        },
+                    ),
+                    (
+                        "上传新图片",
+                        {
+                            "fields": ("new_images",),
+                            "description": "一次选择多张图片进行上传",
+                        },
+                    ),
+                )
             return (
                 (
                     "任务信息",
@@ -204,6 +254,10 @@ class TaskAdmin(ModelAdmin):
                         "fields": ("new_images",),
                         "description": "一次选择多张图片进行上传",
                     },
+                ),
+                (
+                    "Mentor可见",
+                    {"fields": ("visible_to_mentor",),},
                 ),
                 (
                     "时间戳",
@@ -257,7 +311,7 @@ class TaskAdmin(ModelAdmin):
         # Normal mentors should only see tasks that:
         # - belong to matches they are responsible for
         # - are explicitly marked as visible_to_mentor
-        if isinstance(request.user, Mentor) and not request.user.is_superuser:
+        if not request.user.is_superuser:
             return qs.filter(match__mentor=request.user, visible_to_mentor=True)
 
         return qs

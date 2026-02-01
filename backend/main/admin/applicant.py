@@ -71,17 +71,28 @@ class ApplicantAdmin(ModelAdmin):
         "grade",
         "school",
         "major",
-        "email",
         "wxid",
         "wechat_info",
+        "timezone",
+        "location",
+        
+        "preferred_sex",
+        "preferred_grades",
+        "preferred_schools",
+        "max_time_difference",
+        "same_location_only",
+        "preferred_mbti_ei",
+        "preferred_mbti_sn",
+        "preferred_mbti_tf",
+        "preferred_mbti_jp",
         "preferred_wxid",
         "continue_match",
-        "comment",
+        
         "payment",
-        "updated_at",
-        "created_at",
+        "linked_uni",
         "confirmed",
         "quitted",
+        "comment",
     ]
 
     list_display = [
@@ -91,7 +102,7 @@ class ApplicantAdmin(ModelAdmin):
         "grade",
         "sex",
         "get_nickname",
-        "get_location",
+        "location",
         "get_timezone",
         "has_paid",
         "linked_uni",
@@ -123,9 +134,19 @@ class ApplicantAdmin(ModelAdmin):
     list_display_links = [
         "name",
         "school",
+        "major",
         "grade",
         "sex",
         "get_nickname",
+        "location",
+        "get_timezone",
+        "has_paid",
+        "linked_uni",
+        "confirmed",
+        "message_to_partner",
+        "comment",
+        "admin_comment",
+        "quitted",
         "created_at",
     ]
     autocomplete_fields = ["wechat_info", "payment"]
@@ -202,11 +223,7 @@ class ApplicantAdmin(ModelAdmin):
     @admin.display(description="微信昵称", ordering="wechat_info__nickname")
     def get_nickname(self, obj):
         return obj.wechat_info.nickname
-
-    @admin.display(description="所在地区", ordering="location")
-    def get_location(self, obj):
-        return Applicant.LOCATION.get(obj.location, obj.location)
-
+    
     @admin.display(description="时区", ordering="timezone")
     def get_timezone(self, obj):
         return obj.timezone
@@ -214,8 +231,6 @@ class ApplicantAdmin(ModelAdmin):
     @admin.display(description="参与的CP组")
     def get_matches_list(self, obj):
         # Get all matches where this applicant is either applicant1 or applicant2
-        from django.db.models import Q
-
         matches = (
             Match.objects.filter(Q(applicant1=obj) | Q(applicant2=obj))
             .select_related("mentor")
@@ -249,34 +264,23 @@ class ApplicantAdmin(ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("wechat_info", "payment")
+    
+    def get_list_display(self, request):
+        if request.user.is_superuser:
+            return self.list_display + ["message_to_partner"]
+        return self.list_display
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if request.user.is_superuser:
+            return fieldsets
+
+        hidden_titles = {"MBTI信息", "个人信息", "时间戳"}
+        return tuple((name, opts) for name, opts in fieldsets if name not in hidden_titles)
 
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return self.readonly_fields
-        return self.common_readonly_fields
-
-    def get_exclude(self, request, obj):
-        return (
-            []
-            if request.user.is_superuser
-            else [
-                "mbti_ei",
-                "mbti_sn",
-                "mbti_tf",
-                "mbti_jp",
-                "hobbies",
-                "fav_movies",
-                "wish",
-                "why_lamp_remembered_your_name",
-                "weekend_arrangement",
-                "reply_frequency",
-                "expectation",
-                "preferred_sex",
-                "preferred_grades",
-                "preferred_schools",
-                "preferred_mbti_ei",
-                "preferred_mbti_sn",
-                "preferred_mbti_tf",
-                "preferred_mbti_jp",
-            ]
-        )
+        # Non-superusers still render method-based fields like `get_matches_list`
+        # in fieldsets; ensure they are treated as readonly fields, not model fields.
+        return list(dict.fromkeys([*self.common_readonly_fields, "get_matches_list"]))

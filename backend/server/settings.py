@@ -181,6 +181,8 @@ CORS_ALLOW_HEADERS = [
     *default_headers,
 ]
 
+AUTH_USER_MODEL = "main.Mentor"
+
 CSRF_TRUSTED_ORIGINS = ["https://api.charlieop.com"]
 
 UNFOLD = {
