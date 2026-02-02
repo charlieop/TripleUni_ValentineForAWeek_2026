@@ -1,2 +1,8 @@
 numpy
 munkres
+pandas
+plotly
+nbformat
+wordcloud
+jieba
+matplotlib
