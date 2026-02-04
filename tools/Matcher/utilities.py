@@ -3,7 +3,7 @@ from pandas import DataFrame
 from typing import Tuple
 
 import sqlite3
-
+import os
 
 class MatchingUtilities:
 
@@ -98,8 +98,9 @@ class MatchingUtilities:
         df["preferred_schools"] = data["preferred_schools"].map(
             lambda x: x.split(" | ")
         )
-        df["hobbies"] = data["hobbies"].map(lambda x: x.split(" | "))
-        df["fav_movies"] = data["fav_movies"].map(lambda x: x.split(" | "))
+        df["hobbies"] = data["hobbies"].map(lambda x: [text.strip() for text in x.split(" | ")])
+        df["fav_movies"] = data["fav_movies"].map(lambda x: [text.strip() for text in x.split(" | ")])
+        
         return df
 
     def separate_groups(
@@ -156,3 +157,17 @@ class MatchingUtilities:
         df = self.prepare_data(df)
         # df = self.reshuffle_data(df)
         return self.separate_groups(df)
+
+class DataLoader:
+    def __init__(self, path: str = "./embedded_data/"):
+        if not os.path.exists(path):
+            os.makedirs(path)
+        self.path = path
+    
+    def load_data(self, name: str) -> DataFrame:
+        return pd.read_pickle(self.path + name + ".pkl")
+    
+    def save_data(self, df: DataFrame, name: str) -> None:
+        df.to_pickle(self.path + name + ".pkl")
+        print(f"Saved DataFrame to {self.path + name + ".pkl"}")
+        return df

@@ -6,3 +6,11 @@ nbformat
 wordcloud
 jieba
 matplotlib
+tqdm
+
+torch
+sentence_transformers 
+accelerate
+flash_attn
+bitsandbytes
+matplotlib
