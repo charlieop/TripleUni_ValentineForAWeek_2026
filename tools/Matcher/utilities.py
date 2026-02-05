@@ -44,8 +44,8 @@ class MatchingUtilities:
             df = df[~df["payment_id"].isnull()]
         if "grade" in data.columns:
             df = df[
-                ~df["grade"].isin(["PROF", "GRAD"])
-            ]  # exclude professors and graduated participants
+                ~df["grade"].isin(["PROF"])
+            ]  # exclude professors
         df = df.drop(columns=["quitted", "exclude", "payment_id"])
         return df
 
@@ -62,6 +62,7 @@ class MatchingUtilities:
             [
                 "id",
                 "sex",
+                "name",
                 "grade",
                 "wxid",
                 "school",
@@ -82,7 +83,7 @@ class MatchingUtilities:
                 "preferred_mbti_jp",
                 "preferred_wxid",
                 "continue_match",
-                # "message_to_partner",
+                "message_to_partner",
                 "comment",
                 "hobbies",
                 "fav_movies",

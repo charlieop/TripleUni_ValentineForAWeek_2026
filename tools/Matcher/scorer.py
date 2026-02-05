@@ -99,51 +99,56 @@ class ScorerConfig:
 
     def __init__(
         self,
-        base_preference_score: float = 0,  # base score for preference
+        base_preference_score: float = 30,  # base score for preference
         unqualified_penalty: float = -np.inf,  # penalty for unqualified
         preferred_wxid_value: float = 999,  # value for preferred_wxid
         timezone_difference_base_penalty: float = -2,  # base penalty per hour
-        timezone_difference_penalty_multiplier_threshold: int = 6,  # threshold for penalty multiplier (inclusive)
+        timezone_difference_penalty_multiplier_threshold: int = 5,  # threshold for penalty multiplier (inclusive)
         timezone_difference_penalty_multiplier: float = 1.25,  # multiplier for penalty if time difference is greater than threshold
         grade_difference_base_penalty: float = 2.25,  # penalty per grade difference
         grade_difference_penalty_multiplier_threshold: int = 3,  # threshold for penalty multiplier (inclusive)
         grade_difference_penalty_multiplier: float = 2,  # multiplier for penalty if grade difference is greater than threshold
-        same_location_reward: float = 5,  # reward for same location
-        same_location_group_reward: float = 3,  # reward for same location group
+        same_location_reward: float = 10,  # reward for same location
+        same_location_group_reward: float = 5,  # reward for same location group
         different_location_group_penalty: float = -1,  # penalty for different location group
         mbti_transform: Literal[
             "scaled_sigmoid", "identity"
         ] = "scaled_sigmoid",  # a function to transform the mbti score to a range of -50 to 50
-        mbti_multiplier: float = 0.25,  # multiplier for mbti score
+        mbti_multiplier: float = 0.3,  # multiplier for mbti score
         reply_frequency_reward: dict[str, float] = {
             "1": -4,  # 开启勿扰模式, 闲下来再回
             "2": -1,  # 攒很多消息, 逐一回复
             "3": 0,  # 佛系查看, 不定时回复
             "4": 2,  # 经常看手机, 看到就回
-            "5": 5,  # 一直在线, 基本秒回
+            "5": 6,  # 一直在线, 基本秒回
         },
+        
         base_similarity_score: float = 0,  # base score for similarity
-        hobbies_reward_multiplier: float = 5,  # reward for hobbies bonus
-        hobbies_bonus_threshold: float = 0.67,  # threshold for hobbies bonus
-        hobbies_bonus_multiplier: float = 1.5,  # multiplier for hobbies bonus
-        fav_movies_reward_multiplier: float = 3,  # reward for fav_movies bonus
-        fav_movies_bonus_threshold: float = 0.65,  # threshold for fav_movies bonus
-        fav_movies_bonus_multiplier: float = 1.5,  # multiplier for fav_movies bonus
-        expectation_reward_multiplier: float = 15,  # reward for expectation bonus
+        hobbies_reward_multiplier: float = 25,  # reward for hobbies bonus
+        hobbies_bonus_threshold: float = 0.66,  # threshold for hobbies bonus
+        hobbies_bonus_multiplier: float = 3,  # multiplier for hobbies bonus
+
+        fav_movies_reward_multiplier: float = 21,  # reward for fav_movies bonus
+        fav_movies_bonus_threshold: float = 0.64,  # threshold for fav_movies bonus
+        fav_movies_bonus_multiplier: float = 3,  # multiplier for fav_movies bonus
+        
+        expectation_reward_multiplier: float = 20,  # reward for expectation bonus
         expectation_thresholds: Tuple[float, float] = (
             0.6,
-            0.8,
+            0.78,
         ),  # thresholds for expectation bonus
-        expectation_penalty_multiplier: float = 2,  # multiplier for expectation penalty
+        expectation_penalty_multiplier: float = 5,  # multiplier for expectation penalty
         expectation_bonus_multiplier: float = 2,  # multiplier for expectation bonus
-        weekend_arrangement_reward_multiplier: float = 7,  # reward for weekend_arrangement bonus
+        
+        weekend_arrangement_reward_multiplier: float = 15,  # reward for weekend_arrangement bonus
         weekend_arrangement_thresholds: Tuple[float, float] = (
             0.35,
-            0.7,
+            0.68,
         ),  # thresholds for weekend_arrangement bonus
         weekend_arrangement_penalty_multiplier: float = 2,  # multiplier for weekend_arrangement penalty
-        weekend_arrangement_bonus_multiplier: float = 1.5,  # multiplier for weekend_arrangement bonus
-        wish_reward_multiplier: float = 5,  # reward for wish bonus
+        weekend_arrangement_bonus_multiplier: float = 2.5,  # multiplier for weekend_arrangement bonus
+        
+        wish_reward_multiplier: float = 7,  # reward for wish bonus
         wish_bonus_threshold: float = 0.65,  # threshold for wish bonus
         wish_bonus_multiplier: float = 1.5,  # multiplier for wish bonus
     ):
@@ -421,7 +426,7 @@ class SimilarityScorer(Scorer):
         scores = best_matches * reward_multiplier
         if bonus_threshold is not None and bonus_multiplier is not None:
             scores[best_matches >= bonus_threshold] *= bonus_multiplier
-        return float(np.sum(scores) / np.sqrt(len(best_matches)))
+        return float(np.sum(scores) / np.sqrt(max(len(best_matches)-2, 1)))
 
     def _score_vector_similarity(
         self,
