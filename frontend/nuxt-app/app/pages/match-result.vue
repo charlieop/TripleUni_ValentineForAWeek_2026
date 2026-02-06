@@ -22,6 +22,9 @@
                     很遗憾, 在第一轮中我们未能为你找到一个合适的人选.
                 </p>
                 <p class="state-message">
+                    如果你希望修改你的报名条件以扩大匹配范围, 请联系网站负责人: charlieop_
+                </p>
+                <p class="state-message">
                     请耐心等候, 我们将在一天后再次启动匹配, 为你寻找合适的那个ta.
                 </p>
                 <p class="state-message">
@@ -183,6 +186,17 @@
             </div>
         </template>
 
+        <!-- WeChat / 朋友圈 hint modal -->
+        <Modal v-model="showWechatHintModal" :show-close-button="false" class="wechat-hint-modal">
+            <div class="wechat-hint-content">
+                <p class="wechat-hint-text">
+                    在活动开始后你将可以看到对方的微信号并自主添加. 请在添加的第一时间<strong>向对方屏蔽朋友圈</strong>, 直到后续任务要求时再开放
+                </p>
+                <div class="wechat-hint-actions">
+                    <button class="btn dark" @click="closeWechatHintModal">我知道了</button>
+                </div>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -195,7 +209,12 @@ const { get, post } = useRequest();
 const matchData = ref<any>(null);
 const no_match = ref(false);
 const error = ref<string | null>(null);
+const showWechatHintModal = ref(true);
 const isUserAccepted = computed(() => matchData.value?.match_info?.user_status === 'A');
+
+const closeWechatHintModal = () => {
+    showWechatHintModal.value = false;
+};
 
 const round = computed(() => {
     if (userState.value === UserStates.FIRST_MATCH_RESULT_RELEASE || userState.value === UserStates.FIRST_MATCH_CONFIRM_END) {
@@ -274,6 +293,9 @@ const loadMatchResult = async () => {
                 return;
             }
             matchData.value = data.data;
+            if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem('matchResultWechatHintSeen')) {
+                showWechatHintModal.value = true;
+            }
         }
         else if (res.status === 404) {
             matchData.value = null;
@@ -329,6 +351,12 @@ h2 {
     font-weight: bold;
     margin-block: 0.25rem;
     text-align: center;
+}
+
+.btn.dark {
+    width: 100%;
+    background: var(--clr-primary-dark);
+    color: var(--clr-background);
 }
 
 section {
@@ -397,8 +425,8 @@ section {
     position: absolute;
     inset: 0;
     z-index: 1;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -573,5 +601,32 @@ section {
 
 .button-group {
     margin-block: 3rem 5rem;
+}
+
+.wechat-hint-modal :deep(.modal-content) {
+    max-width: min(420px, 90vw);
+}
+
+.wechat-hint-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.wechat-hint-text {
+    margin: 0;
+    font-size: var(--fs-400);
+    line-height: 1.6;
+    color: var(--clr-text);
+}
+
+.wechat-hint-text strong {
+    font-weight: 700;
+    color: var(--clr-primary-dark);
+}
+
+.wechat-hint-actions {
+    display: flex;
+    justify-content: center;
 }
 </style>

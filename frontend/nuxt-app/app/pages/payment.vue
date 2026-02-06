@@ -51,7 +51,7 @@
                 <ul class="instructions-list">
                     <li>点击"支付押金"按钮后将跳转至微信支付</li>
                     <li>请在5分钟内完成支付</li>
-                    <li>如需使用其他支付方式, 请联系主办方微信: Azzhleon2</li>
+                    <li>如需使用其他支付方式, 请联系主办方微信: j205565259</li>
                 </ul>
             </section>
 

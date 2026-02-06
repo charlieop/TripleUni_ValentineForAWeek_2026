@@ -158,7 +158,7 @@
           </li>
           <li class="mentor-info">
             <span class="mentor-info-label">活动负责人: </span>
-            <span class="mentor-info-value">Azzhleon2</span>
+            <span class="mentor-info-value">j205565259</span>
           </li>
         </ul>
 
