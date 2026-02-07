@@ -21,10 +21,12 @@ class PaymentRecordAdmin(ModelAdmin):
         "get_applicant_wxid",
         "transaction_id",
         "handle_by",
+        "refunded",
         "created_at",
     ]
     list_filter = [
         "handle_by",
+        "refunded",
     ]
     readonly_fields = [
         "id",
@@ -41,6 +43,7 @@ class PaymentRecordAdmin(ModelAdmin):
                     "get_applicant_link",
                     ("transaction_id", "out_trade_no"),
                     "handle_by",
+                    "refunded",
                 )
             },
         ),
@@ -67,6 +70,7 @@ class PaymentRecordAdmin(ModelAdmin):
                 "transaction_id",
                 "out_trade_no",
                 "handle_by",
+                "refunded",
                 "created_at",
             ]
             if request.user.is_superuser

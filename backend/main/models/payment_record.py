@@ -14,6 +14,8 @@ class PaymentRecord(models.Model):
 
     handle_by = models.CharField(max_length=10, verbose_name="处理人")
 
+    refunded = models.BooleanField(default=False, verbose_name="已退款")
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):

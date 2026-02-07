@@ -34,7 +34,7 @@ class Match(models.Model):
     @property
     def total_score(self):
         return sum(
-            task.basic_score + task.bonus_score + task.daily_score
+            task.basic_score + task.bonus_score + task.daily_score + task.uni_score
             for task in self.tasks.all()
         )
 

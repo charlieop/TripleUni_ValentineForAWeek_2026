@@ -18,6 +18,7 @@ from .views.ImageView import (
 from .views.WeChatPaymentView import WeChatPaymentView
 from .views.StatusView import StatusView
 from .views.LinkUniView import LinkUniView
+from .views.RanksView import RanksView
 
 
 app_name = "main"
@@ -60,4 +61,7 @@ urlpatterns = [
     
     # Link Uni endpoints
     path("link-uni/", LinkUniView.as_view(), name="link_uni"),
+
+    # Ranks (leaderboard) - public, no auth
+    path("ranks/", RanksView.as_view(), name="ranks"),
 ]

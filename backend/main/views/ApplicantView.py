@@ -13,7 +13,7 @@ logger = CustomLogger("applicant")
 class ApplicantView(APIView, UtilMixin):
 
     def get(self, request):
-        AvtivityDates.assert_valid_application_period()
+        # AvtivityDates.assert_valid_application_period()
 
         token = self.get_token(request)
         applicant = self.get_applicant_by_token(token)

@@ -173,31 +173,40 @@ class UtilMixin:
     def assert_day_valid(self, day: int):
         if not (1 <= day <= 7):
             raise ValidationError({"detail": "Day must be between 1 and 7"})
-        
-    def calculate_rank(self) -> dict[int, int]:
+
+    def calculate_rank(self) -> dict[int, dict]:
+        """
+        Calculate ranks for all non-discarded matches. Returns a dict mapping match_id
+        to {"rank": int, "total_score": int, "group_name": str}. Cached for 15 minutes.
+        """
         cache_key = "match:ranking:all"
-        # Calculate ranks for all matches
-        # Get all matches with their total scores
-        matches = Match.objects.annotate(
-            score=Sum(
-                F("tasks__basic_score")
-                + F("tasks__bonus_score")
-                + F("tasks__daily_score")
+        # Get all matches with their total scores and group names
+        matches = (
+            Match.objects.filter(discarded=False)
+            .annotate(
+                score=Sum(
+                    F("tasks__basic_score")
+                    + F("tasks__bonus_score")
+                    + F("tasks__daily_score")
+                    + F("tasks__uni_score")
+                )
             )
-        ).order_by(
-            "-score", "id"
+            .order_by("-score", "id")
         )  # Order by score descending, then by id for consistency
 
-        # Build list of (match_id, score) tuples
-        match_scores = [(match.id, match.score or 0) for match in matches]
+        # Build list of (match_id, score, group_name) tuples
+        match_scores = [
+            (match.id, match.score or 0, match.name or "未知")
+            for match in matches
+        ]
 
-        # Calculate ranks with proper tie handling
+        # Calculate ranks with proper tie handling; store rank, total_score, group_name
         ranking_dict = {}
         current_rank = 1
         i = 0
 
         while i < len(match_scores):
-            match_id_at_i, score = match_scores[i]
+            match_id_at_i, score, group_name = match_scores[i]
             # Count how many matches have the same score
             tied_count = 1
             j = i + 1
@@ -205,15 +214,30 @@ class UtilMixin:
                 tied_count += 1
                 j += 1
 
-            # Assign the same rank to all tied matches
+            # Assign the same rank to all tied matches; store rank, total_score, group_name
             for k in range(i, i + tied_count):
-                ranking_dict[match_scores[k][0]] = current_rank
+                mid, total_score, name = match_scores[k]
+                ranking_dict[mid] = {
+                    "rank": current_rank,
+                    "total_score": int(total_score),
+                    "group_name": name,
+                }
 
             # Move to next rank (skip tied positions)
             current_rank += tied_count
             i += tied_count
 
         # Cache the ranking dictionary for 15 minutes
+        cache.set(cache_key, ranking_dict, timeout=900)  # 15 minutes = 900 seconds
+        return ranking_dict
+
+    def get_all_ranks(self) -> dict[int, dict]:
+        """Returns dict mapping match_id to {'rank', 'total_score', 'group_name'}."""
+        cache_key = "match:ranking:all"
+        ranking_dict = cache.get(cache_key)
+        if ranking_dict is not None:
+            return ranking_dict
+        ranking_dict = self.calculate_rank()
         cache.set(cache_key, ranking_dict, timeout=900)  # 15 minutes = 900 seconds
         return ranking_dict
 
@@ -226,7 +250,7 @@ class UtilMixin:
             match_id: The ID of the match to get the rank for
 
         Returns:
-            The rank of the match (1 is highest score)
+            The rank of the match (1 is highest score), or -1 if not in ranking
         """
         cache_key = "match:ranking:all"
         ranking_dict = cache.get(cache_key)
@@ -234,6 +258,5 @@ class UtilMixin:
         if ranking_dict is None:
             ranking_dict = self.calculate_rank()
 
-        # Return the rank for the requested match
-        # If match not found in ranking (shouldn't happen normally), return None
-        return ranking_dict.get(match_id)
+        entry = ranking_dict.get(match_id)
+        return entry["rank"] if entry else -1
