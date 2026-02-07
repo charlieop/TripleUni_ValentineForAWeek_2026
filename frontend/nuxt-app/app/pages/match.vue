@@ -179,6 +179,7 @@
                     <li>提交的任务将在截止后由AI模型自动评分, <strong>请不要遮挡/ 拼接/ 模糊你提交的图片</strong>以确保评分准确</li>
                     <li>如有问题请及时联系 Mentor 获取帮助</li>
                     <li>预祝你享受这段美好时光 💖</li>
+                    <li>详细信息请看<a href="https://hkupootal.feishu.cn/docx/GVqld82LfoCusBxWJUmc3ObRnwb" target="_blank">活动规则</a></li>
                 </ul>
             </div>
             <div class="rules-checkbox" v-if="!getDoNotShowHelpModal()">
@@ -252,9 +253,11 @@ const getConnectorEmoji = (score: number): string => {
     } else if (score <= 400) {
         return '💖';
     } else if (score <= 500) {
-        return '💌';
-    } else {
+        return '💌'
+    } else if (score <= 600) {
         return '❤️‍🔥';
+    } else {
+        return '💍';
     }
 };
 
@@ -367,6 +370,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
+a {
+    color: var(--clr-primary-dark);
+    text-decoration: underline;
+    margin-left: 0.25rem;
+}
+
 .page-wrapper {
     height: var(--height);
     overflow-y: scroll;

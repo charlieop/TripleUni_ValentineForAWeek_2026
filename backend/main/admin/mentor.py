@@ -133,7 +133,7 @@ class MentorAdmin(UserAdmin):
 
     @admin.display(description="管理的CP组数量")
     def get_match_count(self, obj):
-        return obj.matches.count()
+        return obj.matches.filter(discarded=False).count()
 
     @admin.display(description="微信二维码预览")
     def get_qrcode_preview(self, obj):
