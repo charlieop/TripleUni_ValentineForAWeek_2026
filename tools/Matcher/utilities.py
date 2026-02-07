@@ -46,7 +46,9 @@ class MatchingUtilities:
             df = df[
                 ~df["grade"].isin(["PROF"])
             ]  # exclude professors
-        df = df.drop(columns=["quitted", "exclude", "payment_id"])
+        if "confirmed" in data.columns:
+            df = df[df["confirmed"] == 0]
+        df = df.drop(columns=["quitted", "exclude", "payment_id", "confirmed"])
         return df
 
     def prepare_data(self, data: DataFrame) -> DataFrame:

@@ -3,3 +3,5 @@ db.sqlite3
 
 */__pycache__
 embedded_data/
+embedded_data_round2/
+match_result/
