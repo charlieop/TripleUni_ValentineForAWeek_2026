@@ -64,6 +64,7 @@ class Autograder():
         logger.info(f"Querying tripleuni batch of {len(tasks)} tasks from {release_time_unix} to {end_time_unix}")
         
         for task in tasks:
+            task.refresh_from_db()
             try:
                 uni_task_completed = get_tripleuni_post_record(task, release_time_unix, end_time_unix)
                 if uni_task_completed:
@@ -86,6 +87,7 @@ class Autograder():
         self.query_tripleuni_batch(tasks, score=15)
         self.llm_batch_grading(tasks)
         for task in tasks:
+            task.refresh_from_db()
             if task.match.name not in ["取个组名吧!", "取一个组名吧!"]:
                 task.bonus_score += 10
                 task.bonus_review = str(task.bonus_review) + "\n任务: 我们是XXX 已完成, 里程+10"
