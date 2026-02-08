@@ -128,3 +128,29 @@ def grade_day6_batch() -> None:
 def grade_day7_batch() -> None:
     """Grade all tasks belonging to day 7."""
     _grade_day_batch(7)
+
+
+@shared_task
+def grade_batch_for_task_ids(day: int, task_ids: list[int]) -> None:
+    """
+    Grade the given tasks (must all be for the same day).
+    Used by admin "批改选中任务" action to run grading asynchronously.
+    """
+    from .autograder.autograder import Autograder
+
+    tasks = list(
+        Task.objects.filter(pk__in=task_ids)
+        .select_related("match")
+        .order_by("match_id")
+    )
+    if not tasks:
+        logger_grade_batch.info(
+            f"[Celery] No tasks for day {day} (ids={task_ids}), skipping"
+        )
+        return
+    logger_grade_batch.info(
+        f"[Celery] Grading day {day} batch: {len(tasks)} tasks (selected)"
+    )
+    autograder = Autograder(day=day)
+    autograder.grade_batch(tasks)
+    logger_grade_batch.info(f"[Celery] Successfully graded day {day} batch")

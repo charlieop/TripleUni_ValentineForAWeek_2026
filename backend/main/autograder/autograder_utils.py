@@ -36,7 +36,6 @@ def get_all_base64_images(task: Task):
         for image_path in image_paths
     ]
     
-    
 def save_response_to_tasks(day: int, response: dict, use_thinking: bool):
     for match_id, text in response.items():
         task = Task.objects.get(match_id=match_id, day=day)

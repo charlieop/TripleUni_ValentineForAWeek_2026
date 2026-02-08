@@ -25,11 +25,12 @@ class RanksView(APIView, UtilMixin):
         
         match_scores = [
             {
+                "id": mid,
                 "name": info["group_name"],
                 "score": info["total_score"],
                 "rank": info["rank"],
             }
-            for info in ranking_dict.values()
+            for mid, info in ranking_dict.items()
         ]
         match_scores.sort(key=lambda x: x["score"], reverse=True)
         return match_scores

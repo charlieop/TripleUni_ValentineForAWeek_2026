@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.urls import reverse
+from django.utils.html import format_html, format_html_join
 from unfold.admin import ModelAdmin
 
 from ..models import Match
@@ -67,22 +68,21 @@ class MatchAdmin(ModelAdmin):
         "get_applicant1_wxid",
         "get_applicant2_wxid",
         "get_total_score",
+        "get_tasks_display",
         "created_at",
         "updated_at",
     ]
     fieldsets = (
         (
             "配对信息",
-            {"fields": ("id", "name", ("mentor", "round"))},
+            {"fields": ("id", "name", ("mentor", "round"), "get_tasks_display")},
         ),
         (
             "嘉宾1号信息",
             {
                 "fields": (
                     ("applicant1", "get_applicant1_wxid"),
-                    (
-                        "applicant1_status",
-                    ),
+                    ("applicant1_status",),
                 )
             },
         ),
@@ -91,9 +91,7 @@ class MatchAdmin(ModelAdmin):
             {
                 "fields": (
                     ("applicant2", "get_applicant2_wxid"),
-                    (
-                        "applicant2_status",
-                    ),
+                    ("applicant2_status",),
                 )
             },
         ),
@@ -108,11 +106,17 @@ class MatchAdmin(ModelAdmin):
     )
     autocomplete_fields = ["applicant1", "applicant2", "mentor"]
     date_hierarchy = "created_at"
-    
+
     def get_readonly_fields(self, request, obj=None):
         if request.user.is_superuser:
             return self.readonly_fields
-        return self.readonly_fields + ["name", "round", "mentor", "applicant1", "applicant2"]
+        return self.readonly_fields + [
+            "name",
+            "round",
+            "mentor",
+            "applicant1",
+            "applicant2",
+        ]
 
     def get_list_filter(self, request):
         return (
@@ -126,6 +130,10 @@ class MatchAdmin(ModelAdmin):
             else [MatchSuccessFilter, "discarded", MatchRoundFilter]
         )
 
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        self._request = request
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if not request.user.is_superuser:
@@ -136,6 +144,25 @@ class MatchAdmin(ModelAdmin):
             "mentor",
         ).prefetch_related("tasks")
         return qs
+
+    @admin.display(description="任务列表")
+    def get_tasks_display(self, obj):
+        if obj is None:
+            return ""
+        request = getattr(self, "_request", None)
+        if request and not request.user.is_superuser:
+            tasks = [t for t in obj.tasks.all() if t.visible_to_mentor]
+        else:
+            tasks = list(obj.tasks.all())
+        if not tasks:
+            return format_html("<p>暂无任务</p>")
+        sorted_tasks = sorted(tasks, key=lambda t: t.day)
+        items = format_html_join(
+            "",
+            "<li style='margin: 5px 0;'><a href='{}' class='text-primary-600 dark:text-primary-500' target='_blank'>第{}天</a></li>",
+            ((reverse("admin:main_task_change", args=[t.pk]), t.day) for t in sorted_tasks),
+        )
+        return format_html("<ul style='margin:0;padding-left:1.2em'>{}</ul>", items)
 
     @admin.display(description="嘉宾1", ordering="applicant1__name")
     def get_applicant1_name(self, obj):

@@ -10,7 +10,7 @@ from io import BytesIO
 from itertools import groupby
 
 from ..models import Task, Image, Mentor
-from ..autograder.autograder import Autograder
+from ..tasks import grade_batch_for_task_ids
 
 
 def compress_image(image_file, max_size=(1920, 1920), quality=70):
@@ -113,7 +113,7 @@ class TaskAdminForm(forms.ModelForm):
 
 
 def grade_batch_action(modeladmin, request, queryset):
-    """Run autograder grade_batch on selected tasks. Admin/superuser only."""
+    """Enqueue autograder grade_batch for selected tasks via Celery. Admin/superuser only."""
     if not request.user.is_superuser:
         messages.error(request, "仅管理员可执行此操作。")
         return
@@ -125,15 +125,18 @@ def grade_batch_action(modeladmin, request, queryset):
         total = 0
         for day, day_tasks in groupby(tasks, key=lambda t: t.day):
             task_list = list(day_tasks)
-            autograder = Autograder(day=day)
-            autograder.grade_batch(task_list)
+            task_ids = [t.pk for t in task_list]
+            grade_batch_for_task_ids.delay(day, task_ids)
             total += len(task_list)
-        messages.success(request, f"已调用 grade_batch，共处理 {total} 个任务。")
+        messages.success(
+            request,
+            f"已加入 Celery 队列，共 {total} 个任务将异步批改，请稍后在 Celery 中查看执行结果。",
+        )
     except Exception as e:
-        messages.error(request, f"批改失败: {str(e)}")
+        messages.error(request, f"加入队列失败: {str(e)}")
 
 
-grade_batch_action.short_description = "批改选中任务 (grade_batch，仅管理员)"
+grade_batch_action.short_description = "批改选中任务 (Celery 异步，仅管理员)"
 
 
 @admin.register(Task)
