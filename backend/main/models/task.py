@@ -41,7 +41,8 @@ class Task(models.Model):
     bonus_review = models.TextField(blank=True, null=True, verbose_name="支线&Bonus任务评分备注")
     daily_review = models.TextField(blank=True, null=True, verbose_name="日常任务评分备注")
     uni_review = models.TextField(blank=True, null=True, verbose_name="Triple Uni评分备注")
-    
+    thinking_process = models.TextField(blank=True, null=True, verbose_name="模型思考过程")
+
     scored = models.BooleanField(default=False, verbose_name="已评分")
     review = models.TextField(blank=True, null=True, verbose_name="评分备注(只有 Mentor 可见)")
 

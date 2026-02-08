@@ -10,3 +10,4 @@ django-redis
 redis
 celery
 django-celery-beat
+modal

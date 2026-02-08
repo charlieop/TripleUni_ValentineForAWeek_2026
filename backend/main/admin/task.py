@@ -1,13 +1,16 @@
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
 from django.utils.html import format_html
 from django.db.models import Q
 from django.core.files.base import ContentFile
 from unfold.admin import ModelAdmin
 from PIL import Image as PILImage
 from io import BytesIO
+from itertools import groupby
 
 from ..models import Task, Image, Mentor
+from ..autograder.autograder import Autograder
 
 
 def compress_image(image_file, max_size=(1920, 1920), quality=70):
@@ -109,9 +112,34 @@ class TaskAdminForm(forms.ModelForm):
         fields = "__all__"
 
 
+def grade_batch_action(modeladmin, request, queryset):
+    """Run autograder grade_batch on selected tasks. Admin/superuser only."""
+    if not request.user.is_superuser:
+        messages.error(request, "仅管理员可执行此操作。")
+        return
+    tasks = list(queryset.order_by("day"))
+    if not tasks:
+        messages.warning(request, "请先选择要批改的任务。")
+        return
+    try:
+        total = 0
+        for day, day_tasks in groupby(tasks, key=lambda t: t.day):
+            task_list = list(day_tasks)
+            autograder = Autograder(day=day)
+            autograder.grade_batch(task_list)
+            total += len(task_list)
+        messages.success(request, f"已调用 grade_batch，共处理 {total} 个任务。")
+    except Exception as e:
+        messages.error(request, f"批改失败: {str(e)}")
+
+
+grade_batch_action.short_description = "批改选中任务 (grade_batch，仅管理员)"
+
+
 @admin.register(Task)
 class TaskAdmin(ModelAdmin):
     form = TaskAdminForm
+    actions = [grade_batch_action]
     list_display = [
         "get_match_info",
         "day",
@@ -133,6 +161,8 @@ class TaskAdmin(ModelAdmin):
         "scored",
         "day",
         "match__discarded",
+        "match__mentor",
+        "visible_to_mentor",
     ]
     search_fields = [
         "match__id",
@@ -201,11 +231,17 @@ class TaskAdmin(ModelAdmin):
                         {
                             "fields": (
                                 "basic_completed",
-                                ("basic_score", "bonus_score", "daily_score", "uni_score"),
+                                (
+                                    "basic_score",
+                                    "bonus_score",
+                                    "daily_score",
+                                    "uni_score",
+                                ),
                                 "scored",
+                                "review",
                                 ("basic_review", "bonus_review"),
                                 ("daily_review", "uni_review"),
-                                "review",
+                                "thinking_process",
                                 "get_total_score",
                             )
                         },
@@ -241,9 +277,10 @@ class TaskAdmin(ModelAdmin):
                             "basic_completed",
                             ("basic_score", "bonus_score", "daily_score", "uni_score"),
                             "scored",
+                            "review",
                             ("basic_review", "bonus_review"),
                             ("daily_review", "uni_review"),
-                            "review",
+                            "thinking_process",
                             "get_total_score",
                         )
                     },
@@ -257,7 +294,9 @@ class TaskAdmin(ModelAdmin):
                 ),
                 (
                     "Mentor可见",
-                    {"fields": ("visible_to_mentor",),},
+                    {
+                        "fields": ("visible_to_mentor",),
+                    },
                 ),
                 (
                     "时间戳",
@@ -283,9 +322,10 @@ class TaskAdmin(ModelAdmin):
                             "basic_completed",
                             ("basic_score", "bonus_score", "daily_score", "uni_score"),
                             "scored",
+                            "review",
                             ("basic_review", "bonus_review"),
                             ("daily_review", "uni_review"),
-                            "review",
+                            "thinking_process",
                         )
                     },
                 ),
@@ -297,6 +337,12 @@ class TaskAdmin(ModelAdmin):
                     },
                 ),
             )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser and "grade_batch_action" in actions:
+            del actions["grade_batch_action"]
+        return actions
 
     def get_queryset(self, request):
         qs = (

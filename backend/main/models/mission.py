@@ -23,6 +23,8 @@ class Mission(models.Model):
     title = models.CharField(max_length=50, verbose_name="标题")
     content = models.TextField(blank=True, null=True, verbose_name="内容")
     link = models.URLField(blank=True, null=True, verbose_name="链接")
+    
+    prompt = models.TextField(blank=True, null=True, verbose_name="自动评分提示词")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)

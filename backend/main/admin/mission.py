@@ -29,6 +29,7 @@ class MissionAdmin(ModelAdmin):
         "title",
         "has_content",
         "has_link",
+        "has_prompt",
         "updated_at",
     ]
     list_filter = [MissionTypeFilter]
@@ -44,6 +45,7 @@ class MissionAdmin(ModelAdmin):
                     "title",
                     "content",
                     "link",
+                    "prompt",
                 )
             },
         ),
@@ -65,3 +67,7 @@ class MissionAdmin(ModelAdmin):
     @admin.display(description="有链接", boolean=True)
     def has_link(self, obj):
         return bool(obj.link)
+
+    @admin.display(description="有自动评分提示词", boolean=True)
+    def has_prompt(self, obj):
+        return bool(obj.prompt)

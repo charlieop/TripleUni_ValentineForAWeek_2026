@@ -68,6 +68,14 @@
                             </div>
                             <span class="score-value">{{ taskData.uni_score ?? 0 }}</span>
                         </div>
+                        <div class="score-row score-row-thinking">
+                            <div class="score-label">
+                                <span class="score-label">模型思考过程</span>
+                                <button class="info-icon" type="button" @click="openReview('thinking')">
+                                    <IconInformation size="1.25rem" color="#CCCCCC" />
+                                </button>
+                            </div>
+                        </div>
                         <p class="score-notes">
                             由大模型自动评分, 若有异议请联系你的Mentor.
                         </p>
@@ -121,7 +129,8 @@
                     <input ref="fileInput" type="file"
                         accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/webp" multiple
                         @change="handleFileSelect" style="display: none" />
-                    <p class="field-hint">最多可上传25张图片，每张图片不超过5MB. <strong>本次活动使用AI自动审核, mentor在未经你允许情况下无法看到你的提交. 为了确保AI不会遗漏你提交的任务, 请将任务相关内容全部截图并上传, 不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
+                    <p class="field-hint">最多可上传25张图片，每张图片不超过5MB，图片长宽比不超过 1:3（最长边不超过最短边的3倍）. <strong>本次活动使用AI自动审核,
+                            mentor在未经你允许情况下无法看到你的提交. 为了确保AI不会遗漏你提交的任务, 请将任务相关内容全部截图并上传, 不要拼接/ 遮挡/ 模糊你提交的图片.</strong></p>
                 </div>
             </section>
 
@@ -219,7 +228,7 @@ const showReviewModal = ref(false);
 const reviewTitle = ref("");
 const reviewText = ref("");
 
-type ReviewKey = "basic" | "bonus" | "daily" | "uni";
+type ReviewKey = "basic" | "bonus" | "daily" | "uni" | "thinking";
 
 const openReview = (key: ReviewKey) => {
     const t = taskData.value || {};
@@ -233,9 +242,12 @@ const openReview = (key: ReviewKey) => {
     } else if (key === "daily") {
         reviewTitle.value = "日常任务评分依据";
         reviewText.value = t.daily_review || "暂无数据";
-    } else {
+    } else if (key === "uni") {
         reviewTitle.value = "Triple Uni评分依据";
         reviewText.value = t.uni_review || "暂无数据";
+    } else {
+        reviewTitle.value = "模型思考过程";
+        reviewText.value = t.thinking_process || "暂无数据";
     }
 
     showReviewModal.value = true;
@@ -362,6 +374,32 @@ const triggerFileInput = () => {
     fileInput.value?.click();
 };
 
+/** Max aspect ratio 1:3 — longer side must not exceed 3× the shorter side. */
+const MAX_ASPECT_RATIO = 3;
+
+const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Failed to load image'));
+        };
+        img.src = url;
+    });
+};
+
+const isAspectRatioAllowed = (width: number, height: number): boolean => {
+    if (width <= 0 || height <= 0) return false;
+    const maxSide = Math.max(width, height);
+    const minSide = Math.min(width, height);
+    return maxSide / minSide <= MAX_ASPECT_RATIO;
+};
+
 const handleFileSelect = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const files = target.files;
@@ -396,6 +434,11 @@ const handleFileSelect = async (event: Event) => {
     const compressedFiles: File[] = [];
     for (const file of validFiles) {
         try {
+            const { width, height } = await getImageDimensions(file);
+            if (!isAspectRatioAllowed(width, height)) {
+                alert(`图片 ${file.name} 比例超出限制（最长边与最短边之比不能超过 1:3），已跳过`);
+                continue;
+            }
             const compressedBlob = await compressImage(file);
             if (compressedBlob.size > 5 * 1024 * 1024) {
                 alert(`图片 ${file.name} 压缩后仍超过5MB，已跳过`);

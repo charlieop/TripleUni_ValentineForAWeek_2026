@@ -24,6 +24,7 @@ class GetTaskSerializer(serializers.ModelSerializer):
             "bonus_review",
             "daily_review",
             "uni_review",
+            "thinking_process",
             "due",
         ]
         read_only_fields = fields

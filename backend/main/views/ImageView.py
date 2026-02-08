@@ -122,6 +122,9 @@ class ImageView(APIView, UtilMixin):
                 f"POST day {day}: {applicant.wechat_info.openid}, upload failed - {errors}"
             )
             raise ValidationError({"detail": errors})
+        
+        task.updated_by = applicant
+        task.save()
 
         logger.info(
             f"POST day {day}: {applicant.wechat_info.openid}, uploaded {len(created_images)} images"
