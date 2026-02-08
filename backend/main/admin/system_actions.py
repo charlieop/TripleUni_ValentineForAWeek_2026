@@ -17,6 +17,15 @@ from ..utils import (
     notify_daily_task_deadline_to_all,
     notify_exit_questionnaire_deadline_to_all,
 )
+from ..tasks import (
+    grade_day1_batch,
+    grade_day2_batch,
+    grade_day3_batch,
+    grade_day4_batch,
+    grade_day5_batch,
+    grade_day6_batch,
+    grade_day7_batch,
+)
 
 logger = CustomLogger("system_actions")
 
@@ -55,6 +64,22 @@ class SystemActionsAdmin(ModelAdmin):
             "notify_activity_start_url": reverse("admin:notify_activity_start"),
             "notify_daily_task_url": reverse("admin:notify_daily_task"),
             "notify_exit_questionnaire_url": reverse("admin:notify_exit_questionnaire"),
+            "grade_day1_url": reverse("admin:grade_day1"),
+            "grade_day2_url": reverse("admin:grade_day2"),
+            "grade_day3_url": reverse("admin:grade_day3"),
+            "grade_day4_url": reverse("admin:grade_day4"),
+            "grade_day5_url": reverse("admin:grade_day5"),
+            "grade_day6_url": reverse("admin:grade_day6"),
+            "grade_day7_url": reverse("admin:grade_day7"),
+            "grading_actions": [
+                (1, reverse("admin:grade_day1")),
+                (2, reverse("admin:grade_day2")),
+                (3, reverse("admin:grade_day3")),
+                (4, reverse("admin:grade_day4")),
+                (5, reverse("admin:grade_day5")),
+                (6, reverse("admin:grade_day6")),
+                (7, reverse("admin:grade_day7")),
+            ],
         }
         return render(request, "admin/system_actions.html", context)
 
@@ -390,6 +415,71 @@ def notify_exit_questionnaire_view(request):
     return redirect(reverse("admin:main_systemactions_changelist"))
 
 
+def _grade_day_view(request, day: int, task_fn):
+    """Shared view logic: queue grading task for the given day."""
+    if not request.user.is_superuser:
+        from django.core.exceptions import PermissionDenied
+
+        raise PermissionDenied
+
+    if request.method != "POST":
+        return redirect(reverse("admin:main_systemactions_changelist"))
+
+    try:
+        task_fn.delay()
+        messages.success(
+            request, f"第{day}天自动评分任务已加入队列，请稍后在 Celery 中查看执行结果。"
+        )
+        logger.info(f"{request.user.username} queued grade day {day} batch task")
+    except Exception as e:
+        messages.error(request, f"提交评分任务时出错: {str(e)}")
+        logger.error(f"{request.user.username} grade day {day} error: {str(e)}")
+
+    return redirect(reverse("admin:main_systemactions_changelist"))
+
+
+@staff_member_required
+def grade_day1_view(request):
+    """View to queue grading of all day 1 tasks."""
+    return _grade_day_view(request, 1, grade_day1_batch)
+
+
+@staff_member_required
+def grade_day2_view(request):
+    """View to queue grading of all day 2 tasks."""
+    return _grade_day_view(request, 2, grade_day2_batch)
+
+
+@staff_member_required
+def grade_day3_view(request):
+    """View to queue grading of all day 3 tasks."""
+    return _grade_day_view(request, 3, grade_day3_batch)
+
+
+@staff_member_required
+def grade_day4_view(request):
+    """View to queue grading of all day 4 tasks."""
+    return _grade_day_view(request, 4, grade_day4_batch)
+
+
+@staff_member_required
+def grade_day5_view(request):
+    """View to queue grading of all day 5 tasks."""
+    return _grade_day_view(request, 5, grade_day5_batch)
+
+
+@staff_member_required
+def grade_day6_view(request):
+    """View to queue grading of all day 6 tasks."""
+    return _grade_day_view(request, 6, grade_day6_batch)
+
+
+@staff_member_required
+def grade_day7_view(request):
+    """View to queue grading of all day 7 tasks."""
+    return _grade_day_view(request, 7, grade_day7_batch)
+
+
 # Register URL by monkey-patching admin site's get_urls
 # Get the current get_urls function (which may already be patched by calculate_rank)
 _current_get_urls = admin.site.get_urls
@@ -434,6 +524,41 @@ def get_urls_with_notifications():
             "notify-exit-questionnaire/",
             admin.site.admin_view(notify_exit_questionnaire_view),
             name="notify_exit_questionnaire",
+        ),
+        path(
+            "grade-day1/",
+            admin.site.admin_view(grade_day1_view),
+            name="grade_day1",
+        ),
+        path(
+            "grade-day2/",
+            admin.site.admin_view(grade_day2_view),
+            name="grade_day2",
+        ),
+        path(
+            "grade-day3/",
+            admin.site.admin_view(grade_day3_view),
+            name="grade_day3",
+        ),
+        path(
+            "grade-day4/",
+            admin.site.admin_view(grade_day4_view),
+            name="grade_day4",
+        ),
+        path(
+            "grade-day5/",
+            admin.site.admin_view(grade_day5_view),
+            name="grade_day5",
+        ),
+        path(
+            "grade-day6/",
+            admin.site.admin_view(grade_day6_view),
+            name="grade_day6",
+        ),
+        path(
+            "grade-day7/",
+            admin.site.admin_view(grade_day7_view),
+            name="grade_day7",
         ),
     ]
     # Insert notification URLs at the beginning (before other admin URLs)

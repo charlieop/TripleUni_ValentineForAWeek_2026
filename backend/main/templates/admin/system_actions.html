@@ -39,6 +39,22 @@
         </div>
     </div>
 
+    <h2 class="section-title">自动评分</h2>
+    <div class="grading-container">
+        {% for day, grade_url in grading_actions %}
+        <div class="action-card">
+            <h2>第{{ day }}天评分</h2>
+            <p class="description">对该天所有任务执行自动评分（AI 批改）。</p>
+            <form method="post" action="{{ grade_url }}" class="grading-form" data-day="{{ day }}">
+                {% csrf_token %}
+                <button type="submit" class="btn grading-btn" style="background: #7b68ee;">
+                    执行第{{ day }}天评分
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
     <h2 class="section-title">通知管理</h2>
     
     <div class="notification-container">
@@ -188,6 +204,7 @@
     transition: background-color 0.3s;
 }
 
+.grading-container,
 .notification-container {
     display: flex;
     flex-direction: row;
@@ -195,6 +212,7 @@
     gap: 1.5rem;
 }
 
+.grading-container .action-card,
 .notification-container .action-card {
     margin: 0;
 }
@@ -232,6 +250,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle grading forms with confirmation
+    const gradingForms = document.querySelectorAll('.grading-form');
+    gradingForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const day = form.getAttribute('data-day');
+            if (confirm('确定要执行第' + day + '天的自动评分吗？\n\n任务将加入 Celery 队列异步执行。')) {
+                const btn = form.querySelector('.grading-btn');
+                btn.disabled = true;
+                btn.textContent = '已提交...';
+                form.submit();
+            }
+        });
+    });
+
     // Handle notification forms with confirmation
     const notificationForms = document.querySelectorAll('.notification-form');
     

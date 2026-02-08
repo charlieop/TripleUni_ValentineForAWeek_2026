@@ -4,13 +4,14 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 
 from .logger import CustomLogger
-from .models import WeChatInfo
+from .models import Task, WeChatInfo
 from .mixin import UtilMixin
 
 MAX_RETRIES = 3
 TIMEOUT = 15
 logger = CustomLogger("wechat_avatar")
 logger_calculate_match_ranks = CustomLogger("calculate_match_ranks")
+logger_grade_batch = CustomLogger("grade_batch")
 
 @shared_task
 def update_wechat_avatar(openid: str, headimgurl: str) -> None:
@@ -69,3 +70,61 @@ def calculate_match_ranks() -> None:
     util = UtilMixin()
     util.calculate_rank()
     logger_calculate_match_ranks.info("[Celery] Successfully calculated match ranks")
+
+
+def _grade_day_batch(day: int) -> None:
+    """Filter tasks for the given day and call Autograder.grade_batch."""
+    from .autograder.autograder import Autograder
+
+    tasks = list(
+        Task.objects.filter(day=day).select_related("match").order_by("match_id")
+    )
+    logger_grade_batch.info(f"[Celery] Grading day {day} batch: {len(tasks)} tasks")
+    if not tasks:
+        logger_grade_batch.info(f"[Celery] No tasks for day {day}, skipping")
+        return
+    autograder = Autograder(day=day)
+    autograder.grade_batch(tasks)
+    logger_grade_batch.info(f"[Celery] Successfully graded day {day} batch")
+
+
+@shared_task
+def grade_day1_batch() -> None:
+    """Grade all tasks belonging to day 1."""
+    _grade_day_batch(1)
+
+
+@shared_task
+def grade_day2_batch() -> None:
+    """Grade all tasks belonging to day 2."""
+    _grade_day_batch(2)
+
+
+@shared_task
+def grade_day3_batch() -> None:
+    """Grade all tasks belonging to day 3."""
+    _grade_day_batch(3)
+
+
+@shared_task
+def grade_day4_batch() -> None:
+    """Grade all tasks belonging to day 4."""
+    _grade_day_batch(4)
+
+
+@shared_task
+def grade_day5_batch() -> None:
+    """Grade all tasks belonging to day 5."""
+    _grade_day_batch(5)
+
+
+@shared_task
+def grade_day6_batch() -> None:
+    """Grade all tasks belonging to day 6."""
+    _grade_day_batch(6)
+
+
+@shared_task
+def grade_day7_batch() -> None:
+    """Grade all tasks belonging to day 7."""
+    _grade_day_batch(7)
