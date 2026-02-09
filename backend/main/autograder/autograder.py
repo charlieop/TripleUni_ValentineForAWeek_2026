@@ -24,18 +24,8 @@ class Autograder():
     def grade_batch(self, tasks: list[Task]) -> list[dict]:
         if self.day == 1:
             return self.grade_day1_batch(tasks)
-        elif self.day == 2:
-            return self.grade_day2_batch(tasks)
-        elif self.day == 3:
-            return self.grade_day3_batch(tasks)
-        elif self.day == 4:
-            return self.grade_day4_batch(tasks)
-        elif self.day == 5:
-            return self.grade_day5_batch(tasks)
-        elif self.day == 6:
-            return self.grade_day6_batch(tasks)
-        elif self.day == 7:
-            return self.grade_day7_batch(tasks)
+        elif 2 <= self.day <= 7:
+            return self.grade_day2_to_7_batch(tasks)
         else:
             raise ValueError(f"Invalid day: {self.day}")
     
@@ -96,15 +86,13 @@ class Autograder():
         logger.info(f"Graded day 1 batch of {len(tasks)} tasks")
         return tasks
     
-    def grade_day2_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
-    def grade_day3_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
-    def grade_day4_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
-    def grade_day5_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
-    def grade_day6_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
-    def grade_day7_batch(self, tasks: list[Task]) -> list[dict]:
-        pass
+    def grade_day2_to_7_batch(self, tasks: list[Task]) -> list[dict]:
+        logger.info(f"Grading day {self.day} batch of {len(tasks)} tasks")
+        self.query_tripleuni_batch(tasks, score=10)
+        self.llm_batch_grading(tasks)
+        for task in tasks:
+            task.refresh_from_db()
+            task.scored = True
+            task.save()
+        logger.info(f"Graded day {self.day} batch of {len(tasks)} tasks")
+        return tasks
