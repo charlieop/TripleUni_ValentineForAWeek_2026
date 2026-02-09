@@ -36,7 +36,7 @@ class RanksView(APIView, UtilMixin):
         return match_scores
 
     def get(self, request):
-        cache_key = "match:ranking:all"
+        cache_key = "match:ranking-list:all"
         
         if configs.MAINTENANCE_MODE:
             return Response(
