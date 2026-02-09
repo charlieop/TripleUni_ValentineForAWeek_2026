@@ -27,6 +27,8 @@ onMounted(() => {
   align-items: center;
   height: 100vh;
   height: 100svh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .app {

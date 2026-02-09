@@ -1,4 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Leaderboard is public, no login required
+  if (to.path === "/leaderboard" || to.path === "/leaderboard/") {
+    return;
+  }
+
   const { getToken } = useStore();
   await lazyFetchUserState();
 
@@ -6,9 +11,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (userState.value !== UserStates.MAINTENANCE) {
       return navigateTo("/");
     }
-    return
-  }
-  else if (userState.value === UserStates.MAINTENANCE) {
+    return;
+  } else if (userState.value === UserStates.MAINTENANCE) {
     return navigateTo("/maintaince");
   }
 

@@ -1,18 +1,22 @@
 <template>
   <Transition name="fade">
     <div v-if="isLoading" class="modal-overlay">
-      <LogoLg />
-      <div class="loading-text">
-        <p>丘比特搜寻中</p>
-        <p>请稍候<span class="dots">...</span></p>
-      </div>
-      <div class="decor">
-        <IconHeart class="heart-icon heart3" size="140%" color="hsl(353, 58%, 61%)" />
-        <IconHeart class="heart-icon heart2" size="120%" color="hsl(353, 58%, 51%)" />
-        <IconHeart class="heart-icon heart1" size="100%" color="hsl(353, 58%, 41%)" />
-        <img src="/imgs/cupid-flying.webp" alt="decor" class="decor-img">
+      <div class="wrapper">
+
+        <LogoLg />
+        <div class="loading-text">
+          <p>丘比特搜寻中</p>
+          <p>请稍候<span class="dots">...</span></p>
+        </div>
+        <div class="decor">
+          <IconHeart class="heart-icon heart3" size="140%" color="hsl(353, 58%, 61%)" />
+          <IconHeart class="heart-icon heart2" size="120%" color="hsl(353, 58%, 51%)" />
+          <IconHeart class="heart-icon heart1" size="100%" color="hsl(353, 58%, 41%)" />
+          <img src="/imgs/cupid-flying.webp" alt="decor" class="decor-img">
+        </div>
       </div>
     </div>
+
   </Transition>
 </template>
 
@@ -22,8 +26,19 @@ const { isLoading } = useLoading();
 
 <style scoped>
 .modal-overlay {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+}
 
+.wrapper {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  max-width: var(--max-width);
 }
 
 .loading-text {

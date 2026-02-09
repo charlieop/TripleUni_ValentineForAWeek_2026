@@ -66,7 +66,7 @@
                             <div class="stat-value score-value">{{ matchData.match_info.total_score }}</div>
                         </div>
                         <div class="stat-divider"></div>
-                        <div class="stat-item">
+                        <div class="stat-item" @click="navigateTo('/leaderboard')">
                             <div class="stat-label">排名</div>
                             <div class="stat-value rank-value">
                                 <span class="rank-number">#{{ matchData.match_info.rank }}</span>
@@ -589,7 +589,7 @@ section {
 
 .tasks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
 }
 

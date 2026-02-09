@@ -1,5 +1,5 @@
 <template>
-    <Modal v-model="showModal" :show-close-button="false">
+    <Modal v-if="!isLeaderboard" v-model="showModal" :show-close-button="false">
         <div class="require-wechat-content">
             <div class="require-wechat-header">
                 <h2>请使用微信内置浏览器打开</h2>
@@ -28,6 +28,11 @@
 
 <script setup lang="ts">
 import { isWechat } from '~/composables/useUtils';
+
+const route = useRoute();
+const isLeaderboard = computed(() => {
+    return route.path === '/leaderboard/' || route.path === '/leaderboard';
+});
 
 // Modal should always be shown when not in WeChat, so prevent closing
 const showModal = computed({

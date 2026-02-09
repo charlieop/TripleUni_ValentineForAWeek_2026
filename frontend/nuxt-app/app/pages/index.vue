@@ -53,6 +53,7 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.APPLICATION_END">
       <button class="btn primary" disabled>报名已截止</button>
+      <button class="btn transparent" @click="navigateTo('/leaderboard')">查看排行榜</button>
 
       <div class="info-block">
         <span class="info-text">感谢你的关注, 期待与你的下次相遇</span>
@@ -101,13 +102,17 @@
     </div>
     <div class="button-group" v-else-if="userState === UserStates.ACTIVITY_START">
       <button class="btn primary" @click="navigateTo('/match')">开启CP之旅</button>
-      <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
+      <div class="row">
+        <button class="btn transparent" @click="navigateTo('/leaderboard')">查看排行榜</button>
+        <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
+      </div>
     </div>
     <div class="button-group" v-else-if="userState === UserStates.EXIT_QUESTIONNAIRE_RELEASE">
       <button class="btn primary" @click="navigateTo('/match')">开启CP之旅</button>
+      <button class="btn primary" @click="navigateTo('/exit-questionnaire')">结束问卷</button>
       <div class="row">
+        <button class="btn transparent" @click="navigateTo('/leaderboard')">查看排行榜</button>
         <button @click="navigateTo('/apply')" class="btn transparent">我的申请</button>
-        <button class="btn primary" @click="navigateTo('/exit-questionnaire')">结束问卷</button>
       </div>
 
       <div class="info-block">
@@ -117,8 +122,11 @@
 
     </div>
     <div class="button-group" v-else-if="userState === UserStates.EXIT_QUESTIONNAIRE_END">
-      <button class="btn primary" @click="navigateTo('/match')">查看我的一周CP</button>
-      <button class="btn secondary" disabled>问卷填写已截止</button>
+      <button class="btn transparent" @click="navigateTo('/leaderboard')">查看排行榜</button>
+      <div class="row">
+        <button class="btn primary" @click="navigateTo('/match')">查看我的一周CP</button>
+        <button class="btn secondary" disabled>问卷填写已截止</button>
+      </div>
     </div>
     <div class="button-group" v-else-if="userState === UserStates.MAINTENANCE">
       <button class="btn primary" disabled>维护中...</button>
