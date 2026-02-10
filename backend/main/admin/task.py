@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
 from django.utils.html import format_html
 from django.db.models import Q
 from django.core.files.base import ContentFile
@@ -347,6 +349,14 @@ class TaskAdmin(ModelAdmin):
             del actions["grade_batch_action"]
         return actions
 
+    def get_list_display(self, request):
+        base = list(super().get_list_display(request))
+        if request.user.is_superuser:
+            # Insert "last modified by" before "review"
+            idx = base.index("review") if "review" in base else len(base)
+            base.insert(idx, "get_last_modified_by")
+        return base
+
     def get_queryset(self, request):
         qs = (
             super()
@@ -399,6 +409,24 @@ class TaskAdmin(ModelAdmin):
     @admin.display(description="图片数量")
     def get_image_count(self, obj):
         return obj.imgs.filter(deleted=False).count()
+
+    @admin.display(description="最后修改者")
+    def get_last_modified_by(self, obj):
+        """Only shown in list_display for superusers. Shows username of last admin change from LogEntry."""
+        if obj.pk is None:
+            return "-"
+        ct = ContentType.objects.get_for_model(Task)
+        entry = (
+            LogEntry.objects.filter(
+                content_type=ct, object_id=str(obj.pk)
+            )
+            .order_by("-action_time")
+            .select_related("user")
+            .first()
+        )
+        if entry and entry.user:
+            return f"{entry.user.get_username()}"
+        return "-"
 
     @admin.display(description="最后提交者", ordering="updated_by__name")
     def get_updated_by(self, obj):
