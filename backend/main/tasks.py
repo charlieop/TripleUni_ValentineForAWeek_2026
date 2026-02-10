@@ -69,6 +69,7 @@ def calculate_match_ranks() -> None:
     """
     util = UtilMixin()
     util.calculate_rank()
+    util.calculate_daily_rank(util.get_current_day())
     logger_calculate_match_ranks.info("[Celery] Successfully calculated match ranks")
 
 

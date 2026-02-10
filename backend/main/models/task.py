@@ -93,7 +93,6 @@ class Task(models.Model):
         if match_id:
             cache.delete(f"task:match:{match_id}:day:{day}")
         # Invalidate ranking cache when task is deleted
-        cache.delete("match:ranking:all")
         if applicant1_id:
             cache.delete(f"match:applicant:{applicant1_id}")
         if applicant2_id:

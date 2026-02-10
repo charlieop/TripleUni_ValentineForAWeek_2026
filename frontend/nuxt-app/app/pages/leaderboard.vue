@@ -2,7 +2,26 @@
   <div class="page-wrapper heart-background">
     <LogoSm />
     <h1 class="page-title">里程排行榜</h1>
-    <p class="leaderboard-total">快来看看你与你的CP走了多远吧！</p>
+    <p class="leaderboard-total">{{ rankMode === 'total' ? '快来看看你与你的CP走了多远吧！' : `第${currentDay ?? '?'}日里程排行` }}</p>
+
+    <div class="tab-row">
+      <button
+        type="button"
+        class="tab-btn"
+        :class="{ 'tab-btn--active': rankMode === 'total' }"
+        @click="setRankMode('total')"
+      >
+        总里程
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        :class="{ 'tab-btn--active': rankMode === 'daily' }"
+        @click="setRankMode('daily')"
+      >
+        今日里程
+      </button>
+    </div>
 
     <template v-if="error">
       <div class="state-card error">
@@ -33,7 +52,7 @@
               </span>
               <span class="rank-name">{{ entry.name }}</span>
               <span class="rank-id">#{{ entry.id }}</span>
-              <span class="rank-score">{{ entry.score }} 分</span>
+              <span class="rank-score">{{ entry.score }} km</span>
             </li>
           </ul>
           <div v-if="hasMore && !loadingMore" ref="sentinelRef" class="sentinel" aria-hidden="true" />
@@ -72,6 +91,10 @@ interface RankEntry {
   rank: number;
 }
 
+type RankMode = "total" | "daily";
+
+const rankMode = ref<RankMode>("total");
+const currentDay = ref<number | null>(null);
 const ranks = ref<RankEntry[]>([]);
 const total = ref<number | null>(null);
 const loading = ref(true);
@@ -86,8 +109,12 @@ const hasMore = computed(
     !loading.value
 );
 
-async function fetchPage(startPos: number, endPos: number): Promise<{ total: number; ranks: RankEntry[] }> {
-  const url = `${API_URL}/ranks/?start_pos=${startPos}&end_pos=${endPos}`;
+async function fetchPage(
+  startPos: number,
+  endPos: number,
+  mode: RankMode = rankMode.value
+): Promise<{ total: number; ranks: RankEntry[]; day?: number }> {
+  const url = `${API_URL}/ranks/?start_pos=${startPos}&end_pos=${endPos}&type=${mode}`;
   const res = await fetch(url);
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
@@ -96,15 +123,23 @@ async function fetchPage(startPos: number, endPos: number): Promise<{ total: num
   return res.json();
 }
 
+function setRankMode(mode: RankMode) {
+  if (rankMode.value === mode) return;
+  rankMode.value = mode;
+  loadInitial();
+}
+
 async function loadInitial() {
   error.value = null;
   loading.value = true;
   ranks.value = [];
   total.value = null;
+  currentDay.value = null;
   try {
-    const data = await fetchPage(1, PAGE_SIZE);
+    const data = await fetchPage(1, PAGE_SIZE, rankMode.value);
     total.value = data.total;
     ranks.value = data.ranks || [];
+    currentDay.value = data.day ?? null;
   } catch (e: any) {
     error.value = e.message || "加载失败";
   } finally {
@@ -118,7 +153,7 @@ async function loadMore() {
   const startPos = ranks.value.length + 1;
   const endPos = Math.min(ranks.value.length + PAGE_SIZE, total.value);
   try {
-    const data = await fetchPage(startPos, endPos);
+    const data = await fetchPage(startPos, endPos, rankMode.value);
     ranks.value = [...ranks.value, ...(data.ranks || [])];
   } catch (e: any) {
     error.value = e.message || "加载更多失败";
@@ -170,6 +205,34 @@ watch(sentinelRef, (el, prev) => {
   color: var(--clr-text--muted);
   text-align: center;
   margin: 0 0 1rem;
+}
+
+.tab-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+  max-width: 400px;
+  padding-inline: 1rem;
+  margin-inline: auto;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.5rem 1.25rem;
+  font-size: var(--fs-300);
+  font-weight: 600;
+  border-radius: 2rem;
+  border: 2px solid var(--clr-primary);
+  background: rgba(254, 234, 244, 0.687);
+  color: var(--clr-primary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tab-btn--active {
+  background: var(--clr-primary);
+  color: white;
 }
 
 .rank-list {

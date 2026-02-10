@@ -11,7 +11,7 @@ from rest_framework.request import Request
 import uuid
 import pickle
 from django.core.cache import cache
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Case, When, Value, IntegerField
 
 from . import configs
 from .models import Applicant, Token, Match, WeChatInfo, Task, Mission
@@ -223,8 +223,8 @@ class UtilMixin:
                     "group_name": name,
                 }
 
-            # Move to next rank (skip tied positions)
-            current_rank += tied_count
+            # Same score = one place: next distinct score gets current_rank + 1 (dense ranking)
+            current_rank += 1
             i += tied_count
 
         # Cache the ranking dictionary for 15 minutes
@@ -240,6 +240,73 @@ class UtilMixin:
         ranking_dict = self.calculate_rank()
         cache.set(cache_key, ranking_dict, timeout=900)  # 15 minutes = 900 seconds
         return ranking_dict
+
+    def get_current_day(self) -> int:
+        """Get current day (1–7) based on FIRST_MISSION_RELEASE."""
+        day = (configs.AvtivityDates.now() - configs.AvtivityDates.FIRST_MISSION_RELEASE).days + 1
+        return max(min(day, 7), 1)
+
+    def calculate_daily_rank(self, day: int) -> dict[int, dict]:
+        """
+        Calculate ranks for a specific day's score. Returns dict mapping match_id
+        to {"rank": int, "total_score": int, "group_name": str}. Same structure as
+        calculate_rank() but scores are from tasks for that day only.
+        """
+        cache_key = f"match:ranking:daily:{day}"
+        ranking_dict = cache.get(cache_key)
+        if ranking_dict is not None:
+            return ranking_dict
+
+        day_score_expr = Case(
+            When(tasks__day=day, then=(
+                F("tasks__basic_score")
+                + F("tasks__bonus_score")
+                + F("tasks__daily_score")
+                + F("tasks__uni_score")
+            )),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+        matches = (
+            Match.objects.filter(discarded=False)
+            .annotate(score=Sum(day_score_expr))
+            .order_by("-score", "id")
+        )
+
+        match_scores = [
+            (match.id, match.score or 0, match.name or "未知")
+            for match in matches
+        ]
+
+        ranking_dict = {}
+        current_rank = 1
+        i = 0
+
+        while i < len(match_scores):
+            score = match_scores[i][1]
+            tied_count = 1
+            j = i + 1
+            while j < len(match_scores) and match_scores[j][1] == score:
+                tied_count += 1
+                j += 1
+
+            for k in range(i, i + tied_count):
+                mid, total_score, name = match_scores[k]
+                ranking_dict[mid] = {
+                    "rank": current_rank,
+                    "total_score": int(total_score),
+                    "group_name": name,
+                }
+
+            current_rank += 1
+            i += tied_count
+
+        cache.set(cache_key, ranking_dict, timeout=900)
+        return ranking_dict
+
+    def get_daily_ranks(self, day: int) -> dict[int, dict]:
+        """Returns dict mapping match_id to {'rank', 'total_score', 'group_name'} for given day."""
+        return self.calculate_daily_rank(day)
 
     def get_rank(self, match_id: int) -> int:
         """
