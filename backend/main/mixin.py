@@ -243,7 +243,7 @@ class UtilMixin:
 
     def get_current_day(self) -> int:
         """Get current day (1–7) based on FIRST_MISSION_RELEASE."""
-        day = (configs.AvtivityDates.now() - configs.AvtivityDates.FIRST_MISSION_RELEASE).days + 1
+        day = (configs.AvtivityDates.now() - configs.AvtivityDates.FIRST_MISSION_END).days + 2
         return max(min(day, 7), 1)
 
     def calculate_daily_rank(self, day: int) -> dict[int, dict]:

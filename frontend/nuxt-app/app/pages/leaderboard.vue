@@ -42,7 +42,8 @@
           <ul class="rank-list">
             <li v-for="entry in ranks" :key="entry.id" class="rank-row" :class="{
               'rank-row--top3': entry.rank <= 3,
-              'rank-row--high-score': entry.score > 520
+              'rank-row--high-score': entry.score > 520,
+              'rank-row--current-match': entry.id === 77
             }">
               <span class="rank-cell" :class="'rank-cell--' + Math.min(entry.rank, 4)">
                 <span v-if="entry.rank === 1" class="rank-trophy" aria-label="第1名">🥇</span>
@@ -77,6 +78,7 @@
 
 <script setup lang="ts">
 import { API_URL } from "~/composables/useConfigs";
+const { get } = useRequest();
 
 useHead({
   title: "一周CP 2026 | 排行榜",
@@ -101,7 +103,7 @@ const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref<string | null>(null);
 const sentinelRef = ref<HTMLElement | null>(null);
-
+const matchId = ref<number | null>(null);
 const hasMore = computed(
   () =>
     total.value !== null &&
@@ -113,9 +115,9 @@ async function fetchPage(
   startPos: number,
   endPos: number,
   mode: RankMode = rankMode.value
-): Promise<{ total: number; ranks: RankEntry[]; day?: number }> {
-  const url = `${API_URL}/ranks/?start_pos=${startPos}&end_pos=${endPos}&type=${mode}`;
-  const res = await fetch(url);
+): Promise<{ total: number; ranks: RankEntry[]; day?: number; match_id?: number }> {
+  const url = `ranks/?start_pos=${startPos}&end_pos=${endPos}&type=${mode}`;
+  const res = await get(url);
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.detail || res.statusText || "加载失败");
@@ -140,6 +142,7 @@ async function loadInitial() {
     total.value = data.total;
     ranks.value = data.ranks || [];
     currentDay.value = data.day ?? null;
+    matchId.value = data.match_id ?? null;
   } catch (e: any) {
     error.value = e.message || "加载失败";
   } finally {
@@ -155,6 +158,7 @@ async function loadMore() {
   try {
     const data = await fetchPage(startPos, endPos, rankMode.value);
     ranks.value = [...ranks.value, ...(data.ranks || [])];
+    matchId.value = data.match_id ?? null;
   } catch (e: any) {
     error.value = e.message || "加载更多失败";
   } finally {
@@ -265,9 +269,22 @@ watch(sentinelRef, (el, prev) => {
   box-shadow: 0 0 0 1px rgba(255, 182, 193, 0.3) inset;
 }
 
+.rank-row--high-score .rank-num{
+  background: rgba(255, 105, 180, 0.45);
+}
+
 .rank-row--top3.rank-row--high-score {
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.35), rgba(255, 230, 180, 0.45));
   border-color: rgba(255, 180, 80, 0.55);
+}
+
+.rank-row--current-match {
+  background: rgba(240, 198, 255, 0.45);
+  border: 1px solid var(--clr-secondary);
+}
+
+.rank-row--current-match .rank-num{
+  background: var(--clr-secondary);
 }
 
 .rank-cell {
@@ -320,7 +337,6 @@ watch(sentinelRef, (el, prev) => {
   word-break: break-word;
   overflow-wrap: break-word;
   font-weight: 600;
-  color: var(--clr-text);
 }
 
 .rank-id {

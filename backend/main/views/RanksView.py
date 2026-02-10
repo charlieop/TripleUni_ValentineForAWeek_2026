@@ -46,9 +46,18 @@ class RanksView(APIView, UtilMixin):
         rank_type = request.query_params.get("type", "total")
         if rank_type not in ("total", "daily"):
             rank_type = "total"
-        logger.info(f"GET ranks type={rank_type}")
+            
+        try:
+            token = self.get_token(request)
+            applicant = self.get_applicant_by_token(token)
+            match, user_role = self.get_match_by_applicant(applicant)
+            match_id = match.id
+            logger.info(f"GET ranks type={rank_type} for applicant {applicant.wechat_info.openid}, match_id={match_id}")
+        except Exception as e:
+            match_id = None
+            logger.info(f"GET ranks type={rank_type}")
 
-        cache_key = "match:ranking-list:all" if rank_type == "total" else f"match:ranking-list:daily:{self.get_current_day()}"
+        cache_key = "match:ranking-list:total" if rank_type == "total" else "match:ranking-list:daily"
 
         if configs.MAINTENANCE_MODE:
             return Response(
@@ -87,6 +96,7 @@ class RanksView(APIView, UtilMixin):
         payload = {
             "total": total,
             "ranks": match_scores[start_pos - 1 : end_pos],
+            "match_id": match_id,
         }
         if current_day is not None:
             payload["day"] = current_day
