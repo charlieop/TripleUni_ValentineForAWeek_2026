@@ -252,7 +252,7 @@ class UtilMixin:
         to {"rank": int, "total_score": int, "group_name": str}. Same structure as
         calculate_rank() but scores are from tasks for that day only.
         """
-        cache_key = f"match:ranking:daily:{day}"
+        cache_key = f"match:ranking:daily"
         ranking_dict = cache.get(cache_key)
         if ranking_dict is not None:
             return ranking_dict

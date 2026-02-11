@@ -135,9 +135,9 @@
             <h2 class="modal-title">修改组名</h2>
             <div class="modal-form">
                 <label for="name-input" class="form-label">新组名</label>
-                <input id="name-input" v-model="newMatchName" type="text" class="form-input" maxlength="30"
+                <input id="name-input" v-model="newMatchName" type="text" class="form-input" maxlength="50"
                     placeholder="请输入新的组名" @keyup.enter="saveMatchName" />
-                <p class="form-hint">最多30个字符</p>
+                <p class="form-hint">最多50个字符</p>
                 <div class="modal-actions">
                     <button class="btn dark" @click="saveMatchName">保存</button>
                 </div>
@@ -329,8 +329,8 @@ const saveMatchName = async () => {
         return;
     }
 
-    if (newMatchName.value.length > 30) {
-        alert('组名不能超过30个字符');
+    if (newMatchName.value.length > 50) {
+        alert('组名不能超过50个字符');
         return;
     }
 

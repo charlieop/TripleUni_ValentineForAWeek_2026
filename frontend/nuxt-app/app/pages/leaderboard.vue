@@ -1,5 +1,6 @@
 <template>
   <div class="page-wrapper heart-background">
+    <NuxtLink to="/" class="back-to-home">← 返回首页</NuxtLink>
     <LogoSm />
     <h1 class="page-title">里程排行榜</h1>
     <p class="leaderboard-total">{{ rankMode === 'total' ? '快来看看你与你的CP走了多远吧！' : `第${currentDay ?? '?'}日里程排行` }}</p>
@@ -43,7 +44,7 @@
             <li v-for="entry in ranks" :key="entry.id" class="rank-row" :class="{
               'rank-row--top3': entry.rank <= 3,
               'rank-row--high-score': entry.score > 520,
-              'rank-row--current-match': entry.id === 77
+              'rank-row--current-match': entry.id === matchId
             }">
               <span class="rank-cell" :class="'rank-cell--' + Math.min(entry.rank, 4)">
                 <span v-if="entry.rank === 1" class="rank-trophy" aria-label="第1名">🥇</span>
@@ -193,6 +194,20 @@ watch(sentinelRef, (el, prev) => {
 </script>
 
 <style scoped>
+.back-to-home {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: var(--fs-400);
+  color: var(--clr-primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.back-to-home:hover {
+  opacity: 0.8;
+}
+
 .leaderboard-section {
   background: hsla(356, 100%, 98%, 0.3);
   backdrop-filter: blur(4px);

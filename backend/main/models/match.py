@@ -7,7 +7,7 @@ class Match(models.Model):
     STATUS = {"A": "已接受", "R": "已拒绝", "P": "待确认"}
 
     id = models.AutoField(primary_key=True, editable=False, verbose_name="组号")
-    name = models.CharField(max_length=30, default="取一个组名吧!", verbose_name="组名")
+    name = models.CharField(max_length=50, default="取一个组名吧!", verbose_name="组名")
 
     round = models.IntegerField(choices=ROUNDS, verbose_name="轮次")
 
@@ -40,6 +40,7 @@ class Match(models.Model):
 
     discarded = models.BooleanField(default=False, verbose_name="已废弃")
     discard_reason = models.TextField(blank=True, null=True, verbose_name="废弃原因")
+    completed_offline_task = models.BooleanField(default=False, verbose_name="完成线下任务")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)

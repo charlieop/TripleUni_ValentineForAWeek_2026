@@ -157,8 +157,8 @@ class MatchDetailView(APIView, UtilMixin):
         if not new_name:
             raise ValidationError({"detail": "Name is required"})
 
-        if len(new_name) > 30:
-            raise ValidationError({"detail": "Name must be 30 characters or less"})
+        if len(new_name) > 50:
+            raise ValidationError({"detail": "Name must be 50 characters or less"})
 
         # Update the match name
         match.name = new_name

@@ -61,7 +61,12 @@ def save_response_to_tasks(day: int, response: dict, use_thinking: bool):
                     "score": 0,
                     "reason": "模型评分失败, 请联系你的Mentor"
                 },
-                "basic_completed": False
+                "basic_completed": False,
+                "completed_offline_task": False,
+                "offline_task": {
+                    "score": 0,
+                    "reason": "模型评分失败, 请联系你的Mentor"
+                }
             }
             thinking_process = text
         
@@ -75,6 +80,18 @@ def save_response_to_tasks(day: int, response: dict, use_thinking: bool):
         task.daily_review = score.get("daily", {}).get("reason", "")
 
         task.thinking_process = thinking_process
+        
+        if day >= 5 and score.get("completed_offline_task", False):
+            match = task.match
+            if not match.completed_offline_task:
+                match.completed_offline_task = True
+                match.save()
+                logger.info(f"Task {task} Match {match} completed offline task")
+                task.basic_score += score.get("offline_task", {}).get("score", 0)
+                task.basic_review = str(task.basic_review) + "\n" + score.get("offline_task", {}).get("reason", "")
+            else:
+                logger.info(f"Task {task} Match {match} already completed offline task")
+                task.basic_review = str(task.basic_review) + "\n" + "之前已经完成过线下任务, 不再重复加分"
         task.save()
         
 def remove_empty_payload(payload: dict, day: int) -> dict:
