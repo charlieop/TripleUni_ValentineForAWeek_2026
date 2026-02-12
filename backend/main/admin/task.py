@@ -158,6 +158,7 @@ class TaskAdmin(ModelAdmin):
         "get_image_count",
         "get_updated_by",
         "review",
+        "completed_offline_task",
         "updated_at",
     ]
     list_filter = [
@@ -168,6 +169,7 @@ class TaskAdmin(ModelAdmin):
         "match__discarded",
         "match__mentor",
         "visible_to_mentor",
+        "completed_offline_task",
     ]
     search_fields = [
         "match__id",
@@ -235,7 +237,7 @@ class TaskAdmin(ModelAdmin):
                         "评分",
                         {
                             "fields": (
-                                "basic_completed",
+                                ("basic_completed", "completed_offline_task"),
                                 (
                                     "basic_score",
                                     "bonus_score",
@@ -279,7 +281,7 @@ class TaskAdmin(ModelAdmin):
                     "评分",
                     {
                         "fields": (
-                            "basic_completed",
+                            ("basic_completed", "completed_offline_task"),
                             ("basic_score", "bonus_score", "daily_score", "uni_score"),
                             "scored",
                             "review",
@@ -324,7 +326,7 @@ class TaskAdmin(ModelAdmin):
                     "评分",
                     {
                         "fields": (
-                            "basic_completed",
+                            ("basic_completed", "completed_offline_task"),
                             ("basic_score", "bonus_score", "daily_score", "uni_score"),
                             "scored",
                             "review",

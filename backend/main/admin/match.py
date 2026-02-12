@@ -97,7 +97,7 @@ class MatchAdmin(ModelAdmin):
         ),
         (
             "状态",
-            {"fields": ("discarded", "discard_reason", "get_total_score", "completed_offline_task")},
+            {"fields": ("discarded", "discard_reason", "get_total_score")},
         ),
         (
             "时间戳",
@@ -116,7 +116,6 @@ class MatchAdmin(ModelAdmin):
             "mentor",
             "applicant1",
             "applicant2",
-            "completed_offline_task",
         ]
 
     def get_list_filter(self, request):

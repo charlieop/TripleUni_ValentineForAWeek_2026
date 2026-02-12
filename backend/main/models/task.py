@@ -37,6 +37,8 @@ class Task(models.Model):
     daily_score = models.IntegerField(default=0, verbose_name="日常任务分数")
     uni_score = models.IntegerField(default=0, verbose_name="Triple Uni分数")
     
+    completed_offline_task = models.BooleanField(default=False, verbose_name="线下任务完成")
+    
     basic_review = models.TextField(blank=True, null=True, verbose_name="主线任务评分备注")
     bonus_review = models.TextField(blank=True, null=True, verbose_name="支线&Bonus任务评分备注")
     daily_review = models.TextField(blank=True, null=True, verbose_name="日常任务评分备注")

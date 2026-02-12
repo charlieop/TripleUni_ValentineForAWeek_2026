@@ -40,7 +40,6 @@ class Match(models.Model):
 
     discarded = models.BooleanField(default=False, verbose_name="已废弃")
     discard_reason = models.TextField(blank=True, null=True, verbose_name="废弃原因")
-    completed_offline_task = models.BooleanField(default=False, verbose_name="完成线下任务")
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)

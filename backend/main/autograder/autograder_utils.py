@@ -81,18 +81,14 @@ def save_response_to_tasks(day: int, response: dict, use_thinking: bool):
 
         task.thinking_process = thinking_process
         
-        if day >= 5 and score.get("completed_offline_task", False):
-            match = task.match
-            if not match.completed_offline_task:
-                match.completed_offline_task = True
-                match.save()
-                logger.info(f"Task {task} Match {match} completed offline task")
+        if day >= 5:
+            if score.get("completed_offline_task", False):
+                task.completed_offline_task = True
                 task.basic_score += score.get("offline_task", {}).get("score", 0)
                 task.basic_review = str(task.basic_review) + "\n" + score.get("offline_task", {}).get("reason", "")
             else:
-                logger.info(f"Task {task} Match {match} already completed offline task")
-                task.basic_review = str(task.basic_review) + "\n" + "之前已经完成过线下任务, 不再重复加分"
-        task.save()
+                task.basic_review = str(task.basic_review) + "\n" + "今日未完成线下见面任务"
+            task.save()
         
 def remove_empty_payload(payload: dict, day: int) -> dict:
     empty_payload = {mid: data for mid, data in payload.items() if len(data["base64_images"]) == 0}
