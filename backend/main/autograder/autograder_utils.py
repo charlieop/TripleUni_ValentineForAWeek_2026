@@ -87,6 +87,7 @@ def save_response_to_tasks(day: int, response: dict, use_thinking: bool):
                 task.basic_score += score.get("offline_task", {}).get("score", 0)
                 task.basic_review = str(task.basic_review) + "\n" + score.get("offline_task", {}).get("reason", "")
             else:
+                task.completed_offline_task = False
                 task.basic_review = str(task.basic_review) + "\n" + "今日未完成线下见面任务"
             task.save()
         
