@@ -10,6 +10,7 @@ from .mission import MissionAdmin
 from .token import TokenAdmin
 from .config import ConfigAdmin
 from .system_actions import SystemActionsAdmin
+from .exit_questionnaire import ExitQuestionnaireAdmin
 
 from . import cache_management
 from . import cache_management_menu
@@ -27,4 +28,5 @@ __all__ = [
     "ConfigAdmin",
     "SystemActionsAdmin",
     "CacheManagementAdmin",
+    "ExitQuestionnaireAdmin",
 ]

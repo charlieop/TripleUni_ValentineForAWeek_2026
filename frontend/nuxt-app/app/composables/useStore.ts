@@ -39,6 +39,19 @@ export const useStore = () => {
     localStorage.removeItem("applicationFormData");
   };
 
+  const setExitQuestionnaireFormData = (data: any): void => {
+    localStorage.setItem("exitQuestionnaireFormData", JSON.stringify(data));
+  };
+
+  const getExitQuestionnaireFormData = (): any | null => {
+    const data = localStorage.getItem("exitQuestionnaireFormData");
+    return data ? JSON.parse(data) : null;
+  };
+
+  const deleteExitQuestionnaireFormData = (): void => {
+    localStorage.removeItem("exitQuestionnaireFormData");
+  };
+
   const setDoNotShowHelpModal = (doNotShow: boolean): void => {
     localStorage.setItem("doNotShowHelpModal", doNotShow.toString());
   };
@@ -65,5 +78,9 @@ export const useStore = () => {
     setDoNotShowHelpModal,
     getDoNotShowHelpModal,
     clearDoNotShowHelpModal,
+
+    setExitQuestionnaireFormData,
+    getExitQuestionnaireFormData,
+    deleteExitQuestionnaireFormData,
   };
 };

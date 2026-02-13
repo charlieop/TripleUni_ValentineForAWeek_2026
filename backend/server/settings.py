@@ -28,7 +28,7 @@ with open(BASE_DIR / "SECRETS.json") as f:
     SECRET_KEY = secrets["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "api.charlieop.com",

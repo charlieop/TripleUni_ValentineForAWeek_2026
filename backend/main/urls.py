@@ -19,6 +19,7 @@ from .views.WeChatPaymentView import WeChatPaymentView
 from .views.StatusView import StatusView
 from .views.LinkUniView import LinkUniView
 from .views.RanksView import RanksView
+from .views.ExitQuestionnaireView import ExitQuestionnaireView
 
 
 app_name = "main"
@@ -64,4 +65,7 @@ urlpatterns = [
 
     # Ranks (leaderboard) - public, no auth
     path("ranks/", RanksView.as_view(), name="ranks"),
+
+    # Exit questionnaire endpoints
+    path("exit-questionnaire/", ExitQuestionnaireView.as_view(), name="exit_questionnaire"),
 ]

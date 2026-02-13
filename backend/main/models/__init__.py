@@ -9,6 +9,7 @@ from .image import Image
 from .mission import Mission
 from .config import Config
 from .system_actions import SystemActions
+from .exit_questionnaire import ExitQuestionnaire
 
 __all__ = [
     "WeChatInfo",
@@ -22,4 +23,5 @@ __all__ = [
     "Mission",
     "Config",
     "SystemActions",
+    "ExitQuestionnaire",
 ]

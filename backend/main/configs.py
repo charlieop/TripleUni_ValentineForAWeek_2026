@@ -188,6 +188,20 @@ class AvtivityDates(metaclass=_ConfigMeta):
             raise ValidationError({"detail": "Mission has not been released yet"})
 
     @staticmethod
+    def assert_valid_exit_questionnaire_period():
+        """Validate that current time is within exit questionnaire period."""
+        if AvtivityDates.DEBUG:
+            return
+        if not AvtivityDates.has_passed(AvtivityDates.EXIT_QUESTIONNAIRE_RELEASE):
+            raise ValidationError(
+                {"detail": "Exit questionnaire has not been released yet"}
+            )
+        elif AvtivityDates.has_passed(AvtivityDates.EXIT_QUESTIONNAIRE_END):
+            raise ValidationError(
+                {"detail": "Exit questionnaire submission has ended"}
+            )
+
+    @staticmethod
     def assert_valid_set_task_period(day: int):
         """Validate that task for a specific day can be submitted."""
         if AvtivityDates.DEBUG:

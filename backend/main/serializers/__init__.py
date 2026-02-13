@@ -3,6 +3,7 @@ from .match import MatchResultSerializer, MatchDetailSerializer
 from .task import GetTaskSerializer, SetTaskSerializer
 from .image import ImageSerializer
 from .mission import MissionSerializer
+from .exit_questionnaire import ExitQuestionnaireSerializer
 
 __all__ = [
     "ApplicantSerializer",
@@ -12,4 +13,5 @@ __all__ = [
     "SetTaskSerializer",
     "ImageSerializer",
     "MissionSerializer",
+    "ExitQuestionnaireSerializer",
 ]
