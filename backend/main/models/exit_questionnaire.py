@@ -104,7 +104,7 @@ class ExitQuestionnaire(models.Model):
 
     # ========== 跨越时空的书信 ==========
     message_to_partner = models.TextField(
-        max_length=500, verbose_name="给ta的话"
+        max_length=500, blank=True, null=True, verbose_name="给ta的话"
     )
 
     # ========== Callback ==========

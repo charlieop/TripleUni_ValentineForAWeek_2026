@@ -214,11 +214,11 @@
 
                 <!-- ========== Page 3: 结束 ========== -->
                 <StaticElement name="h2_letter" tag="h2" content="跨越时空的书信" />
-                <TextareaElement name="message_to_partner" label="小小传话筒" :rules="['required', 'min:20', 'max:500']"
+                <TextareaElement name="message_to_partner" label="小小传话筒" :rules="['max:500']"
                     description="在7天的活动结束后，不知道你是否还有什么想对ta说的话呢？
-请把你想对她说的话放在这里吧。我们会在两周之后通过邮件的方式帮你把这段话发送给ta哦！
+请把你想对ta说的话放在这里吧。我们会在两周之后通过邮件的方式帮你把这段话发送给ta哦！
 <br>
-(20-500字 )
+(0-500字 )
 " :rows="6" placeholder="我想对两周之后的ta说：..." :addons="{
     after: '<div class=\&#39;word-count\&#39;>(0)</div>',
 }" :disabled="formDisabled" />
